@@ -12,5 +12,8 @@
     "jsonwebtoken": "^8.5.1",
     "dotenv": "^10.0.0",
     "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
