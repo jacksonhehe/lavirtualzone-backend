@@ -98,3 +98,8 @@ app.post('/api/auth/login', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
+
+app.get('/', (req, res) => {
+  console.log('Solicitud recibida en /');
+  res.status(200).send('Backend activo');
+});
