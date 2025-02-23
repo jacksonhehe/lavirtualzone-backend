@@ -103,3 +103,9 @@ app.get('/', (req, res) => {
   console.log('Solicitud recibida en /');
   res.status(200).send('Backend activo');
 });
+
+// Antes de las rutas
+app.use((req, res, next) => {
+  console.log(`Solicitud recibida: ${req.method} ${req.url}`);
+  next();
+});
