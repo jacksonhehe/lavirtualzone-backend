@@ -2,8 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const cors = require('cors'); // Añadido para soportar CORS
 
 const app = express();
+
+// Habilitar CORS para permitir solicitudes desde cualquier origen (puedes restringirlo a dominios específicos si lo prefieres)
+app.use(cors());
 
 // Middleware para parsear JSON
 app.use(express.json());
@@ -13,10 +17,16 @@ const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://jackson:lolitopro123@cluster0.6gaqc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 const JWT_SECRET = process.env.JWT_SECRET || '2330';
 
+// Middleware para registrar todas las solicitudes
+app.use((req, res, next) => {
+  console.log(`Solicitud recibida: ${req.method} ${req.url} a las ${new Date().toISOString()}`);
+  next();
+});
+
 // Conexión a MongoDB
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Conectado a MongoDB'))
-  .catch(err => console.error('Error de conexión:', err));
+  .catch(err => console.error('Error de conexión a MongoDB:', err));
 
 // Modelo de Usuario
 const userSchema = new mongoose.Schema({
@@ -26,12 +36,6 @@ const userSchema = new mongoose.Schema({
   parsecId: String
 });
 const User = mongoose.model('User', userSchema);
-
-// Middleware para registrar todas las solicitudes
-app.use((req, res, next) => {
-  console.log(`Solicitud recibida: ${req.method} ${req.url} a las ${new Date().toISOString()}`);
-  next();
-});
 
 // Ruta de Registro
 app.post('/api/auth/register', async (req, res) => {
@@ -104,6 +108,12 @@ app.post('/api/auth/login', async (req, res) => {
 app.get('/', (req, res) => {
   console.log('Solicitud recibida en /');
   res.status(200).send('Backend activo');
+});
+
+// Endpoint para mantener el backend activo (opcional, útil para Render gratuito)
+app.get('/ping', (req, res) => {
+  console.log('Ping recibido a las', new Date().toISOString());
+  res.status(200).send('OK');
 });
 
 // Inicia el servidor
