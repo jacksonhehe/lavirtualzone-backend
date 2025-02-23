@@ -18,7 +18,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Conectado a MongoDB'))
   .catch(err => console.error('Error de conexión:', err));
 
-// Modelo de Usuario (ajusta según tu esquema)
+// Modelo de Usuario
 const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema({
   parsecId: String
 });
 const User = mongoose.model('User', userSchema);
+
+// Middleware para registrar todas las solicitudes
+app.use((req, res, next) => {
+  console.log(`Solicitud recibida: ${req.method} ${req.url} a las ${new Date().toISOString()}`);
+  next();
+});
 
 // Ruta de Registro
 app.post('/api/auth/register', async (req, res) => {
@@ -94,18 +100,13 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// Inicia el servidor
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
-});
-
+// Ruta Raíz para Depuración
 app.get('/', (req, res) => {
   console.log('Solicitud recibida en /');
   res.status(200).send('Backend activo');
 });
 
-// Antes de las rutas
-app.use((req, res, next) => {
-  console.log(`Solicitud recibida: ${req.method} ${req.url}`);
-  next();
+// Inicia el servidor
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto ${PORT} a las ${new Date().toISOString()}`);
 });
