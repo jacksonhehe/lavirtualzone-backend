@@ -742,9 +742,14 @@
                 const response = await fetch(`${BASE_URL}/api/club/me`, {
                     headers: { 'x-auth-token': token }
                 });
+                console.log('Estado de syncClubData:', response.status);
                 const data = await response.json();
                 if (response.ok) {
-                    club = data;
+                    club = {
+                        ...data,
+                        players: Array.isArray(data.players) ? data.players : []
+                    };
+                    console.log('Datos del club:', club);
                     localStorage.setItem('clubName', club.name);
                     localStorage.setItem('clubBudget', club.budget);
                     localStorage.setItem('clubPlayers', JSON.stringify(club.players));
@@ -754,7 +759,9 @@
                     throw new Error(data.msg || 'Error al cargar el club');
                 }
             } catch (err) {
+                console.error('Error en syncClubData:', err);
                 showNotification('Error al sincronizar datos del club: ' + err.message, 'error');
+                club.players = club.players || [];
             }
         }
 
@@ -1049,8 +1056,9 @@
                 grid.innerHTML = '<p>No hay jugadores disponibles.</p>';
                 return;
             }
+            const clubPlayers = Array.isArray(club.players) ? club.players : [];
             const filteredPlayers = playersMarket.filter(player => 
-                !club.players.some(p => p.name === player.name) &&
+                !clubPlayers.some(p => p.name === player.name) &&
                 player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
                 (positionFilter === '' || player.position === positionFilter)
             );
