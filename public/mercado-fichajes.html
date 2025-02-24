@@ -760,31 +760,35 @@
 
         // Cargar datos del mercado
         async function loadMarketData() {
-  const token = localStorage.getItem('token');
-  try {
-    const response = await fetch(`${BASE_URL}/api/players`, {
-      headers: { 'x-auth-token': token }
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.msg || 'Error al cargar jugadores');
-    }
-    const data = await response.json();
-    playersMarket = Array.isArray(data) ? data : []; // Asegura que sea un array
-    renderMarket();
-    renderRecommendations();
-    renderWatchlist();
-    renderLoans();
-    renderFeaturedPlayers();
-    renderHistory();
-    renderOffers();
-    updateStats();
-  } catch (err) {
-    showNotification('Error al cargar datos del mercado: ' + err.message, 'error');
-    playersMarket = []; // Fallback a array vacío
-    renderMarket(); // Renderiza aunque haya error
-  }
-}
+            const token = localStorage.getItem('token');
+            console.log('Token usado:', token);
+            try {
+                const response = await fetch(`${BASE_URL}/api/players`, {
+                    headers: { 'x-auth-token': token }
+                });
+                console.log('Estado de la respuesta:', response.status);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.msg || 'Error al cargar jugadores');
+                }
+                const data = await response.json();
+                console.log('Datos recibidos:', data);
+                playersMarket = Array.isArray(data) ? data : [];
+                renderMarket();
+                renderRecommendations();
+                renderWatchlist();
+                renderLoans();
+                renderFeaturedPlayers();
+                renderHistory();
+                renderOffers();
+                updateStats();
+            } catch (err) {
+                console.error('Error en loadMarketData:', err);
+                showNotification('Error al cargar datos del mercado: ' + err.message, 'error');
+                playersMarket = [];
+                renderMarket();
+            }
+        }
 
         // Notificaciones
         function showNotification(message, type = 'success') {
@@ -995,10 +999,10 @@
         function renderOffers() {
             const grid = document.getElementById('offersGrid');
             grid.innerHTML = '';
-            const offer = playersMarket[Math.floor(Math.random() * playersMarket.length)];
+            const offer = playersMarket[Math.floor(Math.random() * playersMarket.length)] || { name: "N/A", value: 0, position: "N/A", rating: 0 };
             const card = document.createElement('div');
             card.className = 'offer-card animate-fade-in pulse';
-            const endTime = new Date().getTime() + 60000; // 1 minuto
+            const endTime = new Date().getTime() + 60000;
             card.innerHTML = `
                 <h3>${offer.name} (Subasta)</h3>
                 <p>Posición: ${offer.position}</p>
@@ -1040,25 +1044,35 @@
         function renderMarket(searchTerm = '', positionFilter = '') {
             const grid = document.getElementById('transferGrid');
             grid.innerHTML = '';
+            if (!Array.isArray(playersMarket)) {
+                console.error('playersMarket no es un array:', playersMarket);
+                grid.innerHTML = '<p>No hay jugadores disponibles.</p>';
+                return;
+            }
             const filteredPlayers = playersMarket.filter(player => 
                 !club.players.some(p => p.name === player.name) &&
                 player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
                 (positionFilter === '' || player.position === positionFilter)
             );
-            filteredPlayers.forEach(player => {
-                const card = document.createElement('div');
-                card.className = 'transfer-card animate-fade-in available';
-                card.innerHTML = `
-                    <h3>${player.name}</h3>
-                    <p>Posición: ${player.position}</p>
-                    <p>Rating: ${player.rating}</p>
-                    <p class="player-value">$${player.value.toLocaleString()}</p>
-                    <button ${isMarketOpen ? '' : 'disabled'} onclick="buyPlayer('${player.name}', ${player.value})">Comprar</button>
-                    <button ${isMarketOpen ? '' : 'disabled'} onclick="negotiatePlayer('${player.name}', ${player.value})">Negociar</button>
-                    <button class="sell-button follow-btn ${club.watchlist.some(p => p.name === player.name) ? 'active' : ''}" onclick="addToWatchlist('${player.name}')">Seguir</button>
-                `;
-                grid.appendChild(card);
-            });
+            console.log('Jugadores filtrados:', filteredPlayers);
+            if (filteredPlayers.length === 0) {
+                grid.innerHTML = '<p>No hay jugadores que coincidan con los filtros.</p>';
+            } else {
+                filteredPlayers.forEach(player => {
+                    const card = document.createElement('div');
+                    card.className = 'transfer-card animate-fade-in available';
+                    card.innerHTML = `
+                        <h3>${player.name}</h3>
+                        <p>Posición: ${player.position}</p>
+                        <p>Rating: ${player.rating}</p>
+                        <p class="player-value">$${player.value.toLocaleString()}</p>
+                        <button ${isMarketOpen ? '' : 'disabled'} onclick="buyPlayer('${player.name}', ${player.value})">Comprar</button>
+                        <button ${isMarketOpen ? '' : 'disabled'} onclick="negotiatePlayer('${player.name}', ${player.value})">Negociar</button>
+                        <button class="sell-button follow-btn ${club.watchlist.some(p => p.name === player.name) ? 'active' : ''}" onclick="addToWatchlist('${player.name}')">Seguir</button>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
             renderClubDetails();
         }
 
