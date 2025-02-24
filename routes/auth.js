@@ -13,11 +13,12 @@ router.post('/register', async (req, res) => {
     user = new User({ name, email, password, parsecId });
     await user.save();
 
-    const payload = { userId: user._id };
+    const payload = { id: user._id };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.json({ token });
   } catch (err) {
+    console.error('Error en /auth/register:', err);
     res.status(500).json({ msg: 'Error del servidor' });
   }
 });
@@ -31,11 +32,12 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ msg: 'Credenciales inválidas' });
 
-    const payload = { userId: user._id };
+    const payload = { id: user._id };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.json({ token });
   } catch (err) {
+    console.error('Error en /auth/login:', err);
     res.status(500).json({ msg: 'Error del servidor' });
   }
 });
