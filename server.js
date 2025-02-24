@@ -24,42 +24,19 @@ app.use((req, res, next) => {
   next();
 });
 
+// Configurar Mongoose para evitar la advertencia de strictQuery
+mongoose.set('strictQuery', true);
+
 // Conexión a MongoDB
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Conectado a MongoDB'))
   .catch(err => console.error('Error de conexión a MongoDB:', err));
 
-// Modelos (puedes moverlos a models/ si no lo has hecho)
-const User = mongoose.model('User', new mongoose.Schema({
-  name: String,
-  email: { type: String, unique: true },
-  password: String,
-  parsecId: String
-}));
-
-const Club = mongoose.model('Club', new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  name: String,
-  budget: Number,
-  players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Player' }],
-  color: String,
-  wins: Number
-}));
-
-const Player = mongoose.model('Player', new mongoose.Schema({
-  name: String,
-  value: Number,
-  position: String,
-  rating: Number
-}));
-
-const Transaction = mongoose.model('Transaction', new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  type: String, // 'compra', 'venta', 'prestamo'
-  playerName: String,
-  value: Number,
-  date: { type: Date, default: Date.now }
-}));
+// Importar modelos desde la carpeta models/
+const User = require('./models/User');
+const Club = require('./models/Club');
+const Player = require('./models/Player');
+const Transaction = require('./models/Transaction');
 
 // Middleware de autenticación
 const auth = (req, res, next) => {
@@ -105,7 +82,7 @@ app.post('/api/transaction', auth, async (req, res) => {
     } else if (type === 'prestamo') {
       club.budget -= value;
       const player = await Player.findOne({ name: playerName });
-      if (player) club.players.push(player._id); // Asumimos que préstamo añade al club temporalmente
+      if (player) club.players.push(player._id);
     }
     await club.save();
     res.status(201).json({ message: 'Transacción registrada exitosamente', transaction });
