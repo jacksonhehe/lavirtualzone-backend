@@ -760,25 +760,31 @@
 
         // Cargar datos del mercado
         async function loadMarketData() {
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetch(`${BASE_URL}/api/players`, {
-                    headers: { 'x-auth-token': token }
-                });
-                if (!response.ok) throw new Error('Error al cargar jugadores');
-                playersMarket = await response.json();
-                renderRecommendations();
-                renderWatchlist();
-                renderLoans();
-                renderFeaturedPlayers();
-                renderHistory();
-                renderOffers();
-                updateStats();
-                renderMarket();
-            } catch (err) {
-                showNotification('Error al cargar datos del mercado: ' + err.message, 'error');
-            }
-        }
+  const token = localStorage.getItem('token');
+  try {
+    const response = await fetch(`${BASE_URL}/api/players`, {
+      headers: { 'x-auth-token': token }
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.msg || 'Error al cargar jugadores');
+    }
+    const data = await response.json();
+    playersMarket = Array.isArray(data) ? data : []; // Asegura que sea un array
+    renderMarket();
+    renderRecommendations();
+    renderWatchlist();
+    renderLoans();
+    renderFeaturedPlayers();
+    renderHistory();
+    renderOffers();
+    updateStats();
+  } catch (err) {
+    showNotification('Error al cargar datos del mercado: ' + err.message, 'error');
+    playersMarket = []; // Fallback a array vacío
+    renderMarket(); // Renderiza aunque haya error
+  }
+}
 
         // Notificaciones
         function showNotification(message, type = 'success') {
