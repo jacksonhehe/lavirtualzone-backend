@@ -782,6 +782,10 @@
         </section>
     </main>
 
+    <button class="back-to-top" aria-label="Volver al inicio">
+        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+    </button>
+
     <footer class="main-footer" role="contentinfo">
         <div class="footer-content">
             <div class="footer-section">
@@ -825,32 +829,35 @@
             wins: parseInt(localStorage.getItem('seasonWins')) || 0
         };
 
-        // Verificación de autenticación (opcional para trabajar localmente, activa para backend)
-        // document.addEventListener('DOMContentLoaded', async () => {
-        //   const token = localStorage.getItem('token');
-        //   if (!token) {
-        //     alert('Debes iniciar sesión para acceder a esta página.');
-        //     window.location.href = 'login.html';
-        //     return;
-        //   }
-        //   // Cargar datos del club desde el backend
-        //   try {
-        //     const response = await fetch(`https://lavirtualzone-backend.onrender.com/api/club/${jwt.decode(token).id}`, {
-        //       headers: { 'Authorization': `Bearer ${token}` }
-        //     });
-        //     const data = await response.json();
-        //     if (response.ok) {
-        //       club = data.club;
-        //       localStorage.setItem('clubName', club.name);
-        //       localStorage.setItem('clubBudget', club.budget);
-        //       localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-        //       localStorage.setItem('clubColor', club.color);
-        //       localStorage.setItem('clubWins', club.wins);
-        //     }
-        //   } catch (err) {
-        //     alert('Error al cargar el club: ' + err.message);
-        //   }
-        // });
+        // Verificación de autenticación (requerida para trabajar con backend)
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Debes iniciar sesión para acceder a esta página.');
+                window.location.href = 'login.html';
+                return;
+            }
+            // Cargar datos del club desde el backend
+            try {
+                const response = await fetch(`https://lavirtualzone-backend.onrender.com/api/club/${jwt.decode(token).id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    club = data.club;
+                    localStorage.setItem('clubName', club.name);
+                    localStorage.setItem('clubBudget', club.budget);
+                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                    localStorage.setItem('clubColor', club.color);
+                    localStorage.setItem('clubWins', club.wins);
+                    localStorage.setItem('seasonWins', club.wins || 0); // Sincroniza victorias de la temporada
+                } else {
+                    alert(data.message || 'Error al cargar el club');
+                }
+            } catch (err) {
+                alert('Error de conexión con el servidor: ' + err.message);
+            }
+        });
 
         function updateSeasonTimer() {
             const now = new Date().getTime();
@@ -874,17 +881,17 @@
             document.getElementById('clubName').textContent = club.name;
             document.getElementById('clubBudget').textContent = club.budget.toLocaleString();
             document.getElementById('playerCount').textContent = club.players.length;
-            const teamValue = club.players.reduce((sum, p) => sum + p.value, 0);
+            const teamValue = club.players.reduce((sum, p) => sum + (p.value || 0), 0);
             document.getElementById('teamValue').textContent = teamValue.toLocaleString();
-            const avgRating = club.players.length ? (club.players.reduce((sum, p) => sum + p.rating, 0) / club.players.length).toFixed(1) : 0;
+            const avgRating = club.players.length ? (club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length).toFixed(1) : 0;
             document.getElementById('avgRating').textContent = avgRating;
             document.querySelector('.club-preview-container').style.borderColor = club.color;
             document.getElementById('clubNameInput').value = club.name;
             document.getElementById('clubColor').value = club.color;
             const playerList = document.getElementById('playerList');
             playerList.innerHTML = club.players.length ? club.players.map(p => `
-                <li>${p.name} (Rating: ${p.rating}) 
-                    <button class="train-button" onclick="trainPlayer(${p.id})">Entrenar ($${Math.floor(p.value * 0.1).toLocaleString()})</button>
+                <li>${p.name} (Rating: ${p.rating || 0}) 
+                    <button class="train-button" ${isMarketOpen() ? '' : 'disabled'} onclick="trainPlayer(${p.id || p._id}, ${p.value || 0}, '${p.name}')">Entrenar ($${Math.floor((p.value || 0) * 0.1).toLocaleString()})</button>
                 </li>`).join('') : '<li>No hay jugadores.</li>';
         }
 
@@ -895,29 +902,68 @@
             document.getElementById('clubEmblem').style.backgroundColor = club.color;
         }
 
-        function trainPlayer(id) {
-            const player = club.players.find(p => p.id === id);
-            const cost = Math.floor(player.value * 0.1);
-            if (club.budget < cost) {
-                alert('No tienes suficiente presupuesto para entrenar a este jugador.');
+        function isMarketOpen() {
+            const now = new Date().getTime();
+            return now >= season.start && now <= season.end;
+        }
+
+        function trainPlayer(id, value, name) {
+            if (!isMarketOpen()) {
+                showNotification('El mercado está cerrado.', 'error');
                 return;
             }
+            const cost = Math.floor(value * 0.1);
+            if (club.budget < cost) {
+                showNotification('No tienes suficiente presupuesto para entrenar a este jugador.', 'error');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión para entrenar jugadores.', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const playerIndex = club.players.findIndex(p => p.id === id || p._id === id);
+            if (playerIndex === -1) {
+                showNotification('Jugador no encontrado.', 'error');
+                return;
+            }
+
             club.budget -= cost;
-            player.rating = Math.min(player.rating + 1, 99);
-            // Guardar en backend (descomenta para integrar)
-            // const token = localStorage.getItem('token');
-            // if (token) {
-            //   fetch(`https://lavirtualzone-backend.onrender.com/api/club/${jwt.decode(token).id}`, {
-            //     method: 'PUT',
-            //     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            //     body: JSON.stringify({ budget: club.budget, players: club.players })
-            //   });
-            // }
-            localStorage.setItem('clubBudget', club.budget);
-            localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-            updateClubPreview();
-            updateClubProfile();
-            updateAchievements();
+            club.players[playerIndex].rating = Math.min((club.players[playerIndex].rating || 0) + 1, 99);
+            club.players[playerIndex].value = value + cost; // Incrementa el valor del jugador
+
+            // Guardar en backend
+            fetch(`https://lavirtualzone-backend.onrender.com/api/club/${jwt.decode(token).id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ budget: club.budget, players: club.players, wins: club.wins })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('clubBudget', club.budget);
+                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                    localStorage.setItem('clubWins', club.wins);
+                    showNotification(`¡${name} ha sido entrenado! Rating aumentado a ${club.players[playerIndex].rating} (+$${cost.toLocaleString()})`);
+                    updateClubPreview();
+                    updateClubProfile();
+                    updateAchievements();
+                    updateStatsInIndex(); // Actualiza estadísticas en index.html si es necesario
+                } else {
+                    showNotification(data.message || 'Error al entrenar.', 'error');
+                }
+            })
+            .catch(err => {
+                showNotification('Error de conexión con el servidor: ' + err.message, 'error');
+                // Revertir cambios localmente en caso de error
+                club.budget += cost;
+                club.players[playerIndex].rating = (club.players[playerIndex].rating || 0) - 1;
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+            });
         }
 
         function updateAchievements() {
@@ -958,6 +1004,18 @@
             }
         }
 
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            notification.style.borderColor = type === 'success' ? '--accent-green' : '--secondary-purple';
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.5s ease-out forwards';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
         // Tutorial interactivo
         let currentStep = 1;
         const steps = document.querySelectorAll('.guide-step');
@@ -988,62 +1046,79 @@
         // Gestión del club
         document.getElementById('clubForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            // const token = localStorage.getItem('token');
-            // if (!token) {
-            //   alert('Debes iniciar sesión para crear un club.');
-            //   window.location.href = 'login.html';
-            //   return;
-            // }
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión para crear un club.', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
 
             club.name = document.getElementById('clubNameInput').value || '[Sin registrar]';
             club.color = document.getElementById('clubColor').value;
 
-            // Guardar en backend (descomenta para integrar)
-            // try {
-            //   const response = await fetch('https://lavirtualzone-backend.onrender.com/api/club/create', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            //     body: JSON.stringify({ userId: jwt.decode(token).id, name: club.name, color: club.color })
-            //   });
-            //   const data = await response.json();
-            //   if (response.ok) {
-            //     club = data.club;
-            //   } else {
-            //     alert(data.message || 'Error al crear el club');
-            //     return;
-            //   }
-            // } catch (err) {
-            //   alert('Error de conexión con el servidor: ' + err.message);
-            //   return;
-            // }
-
-            localStorage.setItem('clubName', club.name);
-            localStorage.setItem('clubColor', club.color);
-            updateClubPreview();
-            updateClubProfile();
+            try {
+                const response = await fetch('https://lavirtualzone-backend.onrender.com/api/club/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ userId: jwt.decode(token).id, name: club.name, color: club.color, budget: 100000000, players: [], wins: 0 })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    club = data.club;
+                    localStorage.setItem('clubName', club.name);
+                    localStorage.setItem('clubBudget', club.budget);
+                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                    localStorage.setItem('clubColor', club.color);
+                    localStorage.setItem('clubWins', club.wins);
+                    localStorage.setItem('seasonWins', club.wins || 0);
+                    showNotification(`¡Club ${club.name} creado con éxito!`);
+                    updateClubPreview();
+                    updateClubProfile();
+                    updateAchievements();
+                } else {
+                    showNotification(data.message || 'Error al crear el club', 'error');
+                }
+            } catch (err) {
+                showNotification('Error de conexión con el servidor: ' + err.message, 'error');
+            }
         });
 
-        document.getElementById('resetClub').addEventListener('click', () => {
+        document.getElementById('resetClub').addEventListener('click', async () => {
             if (confirm('¿Estás seguro de reiniciar tu club? Esto eliminará todos tus datos.')) {
-                // const token = localStorage.getItem('token');
-                // if (token) {
-                //   fetch(`https://lavirtualzone-backend.onrender.com/api/club/${jwt.decode(token).id}`, {
-                //     method: 'DELETE',
-                //     headers: { 'Authorization': `Bearer ${token}` }
-                //   });
-                // }
-                club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0 };
-                localStorage.setItem('clubName', club.name);
-                localStorage.setItem('clubBudget', club.budget);
-                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                localStorage.setItem('clubColor', club.color);
-                localStorage.setItem('clubWins', club.wins);
-                localStorage.setItem('transactions', JSON.stringify([]));
-                transactions = [];
-                updateClubPreview();
-                updateClubProfile();
-                updateTransactions();
-                updateAchievements();
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showNotification('Debes iniciar sesión para reiniciar tu club.', 'error');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`https://lavirtualzone-backend.onrender.com/api/club/${jwt.decode(token).id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0 };
+                        localStorage.setItem('clubName', club.name);
+                        localStorage.setItem('clubBudget', club.budget);
+                        localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                        localStorage.setItem('clubColor', club.color);
+                        localStorage.setItem('clubWins', club.wins);
+                        localStorage.setItem('transactions', JSON.stringify([]));
+                        localStorage.setItem('seasonWins', 0);
+                        transactions = [];
+                        showNotification('¡Tu club ha sido reiniciado!');
+                        updateClubPreview();
+                        updateClubProfile();
+                        updateTransactions();
+                        updateAchievements();
+                    } else {
+                        showNotification(data.message || 'Error al reiniciar el club', 'error');
+                    }
+                } catch (err) {
+                    showNotification('Error de conexión con el servidor: ' + err.message, 'error');
+                }
             }
         });
 
@@ -1066,6 +1141,17 @@
             });
         }, observerOptions);
 
+        // Botón volver arriba
+        const backToTop = document.querySelector('.back-to-top');
+        window.addEventListener('scroll', () => {
+            backToTop.classList.toggle('show', window.scrollY > 500);
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Inicialización
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
             updateSeasonTimer();
@@ -1073,11 +1159,17 @@
             updateClubProfile();
             updateTransactions();
             updateAchievements();
-            setInterval(updateMarketStatus, 1000);
             updateMarketStatus();
             setInterval(updateSeasonTimer, 1000);
+            setInterval(updateMarketStatus, 1000);
             updateStep();
         });
+
+        // Función para actualizar estadísticas en index.html (si es necesario)
+        function updateStatsInIndex() {
+            const event = new Event('updateStats');
+            window.dispatchEvent(event);
+        }
     </script>
 </body>
 </html>
