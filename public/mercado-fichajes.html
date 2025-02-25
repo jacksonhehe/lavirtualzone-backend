@@ -716,24 +716,60 @@
 
         // Verificación de autenticación y carga inicial
         document.addEventListener('DOMContentLoaded', async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                showNotification('Debes iniciar sesión para acceder al mercado.', 'error');
-                setTimeout(() => window.location.href = 'login.html', 2000);
-                return;
-            }
-            try {
-                await syncClubData();
-                await loadMarketData();
-                setInterval(updateTimer, 1000);
-                updateTimer();
-                renderChat();
-                updatePoints();
-                renderClubDetails();
-            } catch (err) {
-                showNotification('Error de conexión: ' + err.message, 'error');
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showNotification('Debes iniciar sesión para acceder al mercado.', 'error');
+        setTimeout(() => window.location.href = 'login.html', 2000);
+        return;
+    }
+    try {
+        await syncClubData();
+        await loadMarketData();
+        setInterval(updateTimer, 1000);
+        updateTimer();
+        renderChat();
+        updatePoints();
+        renderClubDetails();
+
+        // Manejador delegado para botones "Comprar"
+        document.getElementById('transferGrid').addEventListener('click', (e) => {
+            if (e.target.classList.contains('buy-button')) {
+                const name = e.target.getAttribute('data-name');
+                const value = parseInt(e.target.getAttribute('data-value'));
+                console.log('Intentando comprar', name);
+                buyPlayer(name, value);
             }
         });
+    } catch (err) {
+        showNotification('Error de conexión: ' + err.message, 'error');
+    }
+
+    // Resto de eventos existentes...
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
+        });
+    }, { threshold: 0.1, rootMargin: '0px' });
+    document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
+
+    document.querySelectorAll('.transition-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.add('fade-out');
+            setTimeout(() => window.location.href = link.getAttribute('data-href'), 500);
+        });
+    });
+
+    const backToTop = document.querySelector('.back-to-top');
+    window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
+    backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    document.getElementById('searchInput').addEventListener('input', (e) => 
+        renderMarket(e.target.value, document.getElementById('positionFilter').value));
+    document.getElementById('positionFilter').addEventListener('change', (e) => 
+        renderMarket(document.getElementById('searchInput').value, e.target.value));
+    document.getElementById('timeFilter').addEventListener('change', updateStats);
+});
 
         // Sincronizar datos del club con el backend
        // Sincronizar datos del club con el backend
@@ -1060,7 +1096,7 @@ async function syncClubData() {
     }
     const clubPlayers = Array.isArray(club.players) ? club.players : [];
     const filteredPlayers = playersMarket.filter(player => 
-        !clubPlayers.some(p => p.name === player.name) && // Evita jugadores ya comprados
+        !clubPlayers.some(p => p.name === player.name) &&
         player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
         (positionFilter === '' || player.position === positionFilter)
     );
@@ -1076,16 +1112,11 @@ async function syncClubData() {
                 <p>Posición: ${player.position}</p>
                 <p>Rating: ${player.rating}</p>
                 <p class="player-value">$${player.value.toLocaleString()}</p>
-                <button class="buy-button" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
+                <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
                 <button ${isMarketOpen ? '' : 'disabled'} onclick="negotiatePlayer('${player.name}', ${player.value})">Negociar</button>
                 <button class="sell-button follow-btn ${club.watchlist.some(p => p.name === player.name) ? 'active' : ''}" onclick="addToWatchlist('${player.name}')">Seguir</button>
             `;
             grid.appendChild(card);
-            const buyButton = card.querySelector('.buy-button');
-            buyButton.addEventListener('click', () => {
-                console.log('Intentando comprar', player.name);
-                buyPlayer(player.name, player.value);
-            });
         });
     }
     renderClubDetails();
