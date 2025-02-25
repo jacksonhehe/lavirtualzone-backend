@@ -1076,16 +1076,21 @@ async function syncClubData() {
                 <p>Posición: ${player.position}</p>
                 <p>Rating: ${player.rating}</p>
                 <p class="player-value">$${player.value.toLocaleString()}</p>
-                <button ${isMarketOpen ? '' : 'disabled'} onclick="console.log('Intentando comprar ${player.name}'); buyPlayer('${player.name}', ${player.value})">Comprar</button>
+                <button class="buy-button" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
                 <button ${isMarketOpen ? '' : 'disabled'} onclick="negotiatePlayer('${player.name}', ${player.value})">Negociar</button>
                 <button class="sell-button follow-btn ${club.watchlist.some(p => p.name === player.name) ? 'active' : ''}" onclick="addToWatchlist('${player.name}')">Seguir</button>
             `;
             grid.appendChild(card);
+            // Añadir evento manualmente
+            const buyButton = card.querySelector('.buy-button');
+            buyButton.addEventListener('click', () => {
+                console.log('Intentando comprar', player.name);
+                buyPlayer(player.name, player.value);
+            });
         });
     }
     renderClubDetails();
 }
-
         // Comprar jugador
         async function buyPlayer(name, value) {
     console.log('buyPlayer llamado con:', name, value); // Depuración
