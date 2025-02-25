@@ -1060,7 +1060,7 @@ async function syncClubData() {
     }
     const clubPlayers = Array.isArray(club.players) ? club.players : [];
     const filteredPlayers = playersMarket.filter(player => 
-        !clubPlayers.some(p => p.name === player.name) &&
+        !clubPlayers.some(p => p.name === player.name) && // Evita jugadores ya comprados
         player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
         (positionFilter === '' || player.position === positionFilter)
     );
@@ -1083,7 +1083,7 @@ async function syncClubData() {
             grid.appendChild(card);
             const buyButton = card.querySelector('.buy-button');
             buyButton.addEventListener('click', () => {
-                console.log('Botón Comprar clicado para:', player.name);
+                console.log('Intentando comprar', player.name);
                 buyPlayer(player.name, player.value);
             });
         });
