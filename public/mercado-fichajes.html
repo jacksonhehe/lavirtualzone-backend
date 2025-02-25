@@ -26,7 +26,8 @@
             --shadow-cyan: 0 6px 18px rgba(0, 255, 255, 0.15);
             --transition-base: 0.3s ease-in-out;
             --accent-green: #00ff00;
-            --neon-glow: 0 0 10px rgba(0, 255, 255, 0.5);
+            --pro-blue: #0288D1; /* Azul profesional */
+            --pro-grey: #455A64; /* Gris oscuro profesional */
         }
         *, *::before, *::after {
             box-sizing: border-box;
@@ -260,23 +261,23 @@
         .watchlist-card .follow-btn.active {
             background: var(--accent-green);
         }
-        /* Botones mejorados para secciones específicas */
+        /* Botones profesionales para secciones específicas */
         .recommendation-card .buy-button,
         .loan-card .loan-button,
         .player-card .buy-button,
         .offer-card .buy-button {
             padding: 0.8rem 2rem;
-            background: linear-gradient(45deg, var(--primary-cyan), var(--secondary-purple));
+            background: var(--pro-blue);
             color: var(--text-primary);
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1.1rem;
+            border: 1px solid var(--pro-blue);
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
             transition: var(--transition-base);
-            box-shadow: var(--shadow-soft);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         .recommendation-card .buy-button:hover,
         .loan-card .loan-button:hover,
@@ -286,18 +287,21 @@
         .loan-card .loan-button:focus,
         .player-card .buy-button:focus,
         .offer-card .buy-button:focus {
-            background: linear-gradient(45deg, var(--secondary-purple), var(--primary-cyan));
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            background: #01579B; /* Azul oscuro profesional */
+            border-color: #01579B;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
         }
         .recommendation-card .buy-button:disabled,
         .loan-card .loan-button:disabled,
         .player-card .buy-button:disabled,
         .offer-card .buy-button:disabled {
-            background: var(--text-secondary);
+            background: var(--pro-grey);
+            border-color: var(--pro-grey);
             cursor: not-allowed;
-            opacity: 0.6;
+            opacity: 0.7;
             box-shadow: none;
+            transform: none;
         }
         .chat-container {
             max-width: 960px;
