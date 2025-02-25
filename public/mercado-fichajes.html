@@ -261,14 +261,12 @@
         .watchlist-card .follow-btn.active {
             background: var(--accent-green);
         }
-        .recommendation-card .buy-button,
-        .loan-card .loan-button,
-        .player-card .buy-button,
-        .offer-card .buy-button {
+        /* Botones uniformes para todas las secciones */
+        .buy-button, .loan-button {
             padding: 0.8rem 2rem;
-            background: var(--pro-blue);
+            background: var(--primary-cyan);
             color: var(--text-primary);
-            border: 1px solid var(--pro-blue);
+            border: 1px solid var(--primary-cyan);
             border-radius: 6px;
             font-weight: 600;
             font-size: 1rem;
@@ -277,26 +275,18 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin: 0.5rem;
         }
-        .recommendation-card .buy-button:hover,
-        .loan-card .loan-button:hover,
-        .player-card .buy-button:hover,
-        .offer-card .buy-button:hover,
-        .recommendation-card .buy-button:focus,
-        .loan-card .loan-button:focus,
-        .player-card .buy-button:focus,
-        .offer-card .buy-button:focus {
-            background: #01579B;
-            border-color: #01579B;
+        .buy-button:hover, .loan-button:hover,
+        .buy-button:focus, .loan-button:focus {
+            background: var(--secondary-purple);
+            border-color: var(--secondary-purple);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transform: translateY(-2px);
         }
-        .recommendation-card .buy-button:disabled,
-        .loan-card .loan-button:disabled,
-        .player-card .buy-button:disabled,
-        .offer-card .buy-button:disabled {
-            background: var(--pro-grey);
-            border-color: var(--pro-grey);
+        .buy-button:disabled, .loan-button:disabled {
+            background: var(--text-secondary);
+            border-color: var(--text-secondary);
             cursor: not-allowed;
             opacity: 0.7;
             box-shadow: none;
@@ -437,7 +427,7 @@
             font-size: 1.3rem;
             margin-bottom: 1rem;
         }
-        .transfer-card button {
+        .transfer-card .negotiate-button {
             padding: 0.8rem 1.5rem;
             background: var(--primary-cyan);
             color: var(--text-primary);
@@ -448,12 +438,12 @@
             transition: var(--transition-base);
             margin: 0.5rem;
         }
-        .transfer-card button:hover,
-        .transfer-card button:focus {
+        .transfer-card .negotiate-button:hover,
+        .transfer-card .negotiate-button:focus {
             background: var(--secondary-purple);
             box-shadow: 0 4px 12px rgba(128, 0, 128, 0.25);
         }
-        .transfer-card button:disabled {
+        .transfer-card .negotiate-button:disabled {
             background: var(--text-secondary);
             cursor: not-allowed;
             opacity: 0.6;
