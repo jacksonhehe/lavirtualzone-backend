@@ -730,26 +730,10 @@
         renderChat();
         updatePoints();
         renderClubDetails();
-
-        // Manejador delegado para botones
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('buy-button')) {
-                const name = e.target.getAttribute('data-name');
-                const value = parseInt(e.target.getAttribute('data-value'));
-                console.log('Botón Comprar clicado para:', name);
-                buyPlayer(name, value);
-            } else if (e.target.classList.contains('negotiate-button')) {
-                const name = e.target.getAttribute('data-name');
-                const value = parseInt(e.target.getAttribute('data-value'));
-                console.log('Botón Negociar clicado para:', name);
-                negotiatePlayer(name, value);
-            }
-        });
     } catch (err) {
         showNotification('Error de conexión: ' + err.message, 'error');
     }
 
-    // Resto de eventos...
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
@@ -1122,6 +1106,25 @@ async function syncClubData() {
                 <button class="sell-button follow-btn ${club.watchlist.some(p => p.name === player.name) ? 'active' : ''}" onclick="addToWatchlist('${player.name}')">Seguir</button>
             `;
             grid.appendChild(card);
+        });
+        // Vincular eventos después de renderizar
+        const buyButtons = grid.querySelectorAll('.buy-button');
+        buyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const name = button.getAttribute('data-name');
+                const value = parseInt(button.getAttribute('data-value'));
+                console.log('Botón Comprar clicado para:', name);
+                buyPlayer(name, value);
+            });
+        });
+        const negotiateButtons = grid.querySelectorAll('.negotiate-button');
+        negotiateButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const name = button.getAttribute('data-name');
+                const value = parseInt(button.getAttribute('data-value'));
+                console.log('Botón Negociar clicado para:', name);
+                negotiatePlayer(name, value);
+            });
         });
     }
     console.log('renderMarket completado, botones renderizados:', grid.querySelectorAll('.buy-button').length);
