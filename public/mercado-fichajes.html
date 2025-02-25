@@ -265,7 +265,8 @@
         .recommendation-card .buy-button,
         .loan-card .loan-button,
         .player-card .buy-button,
-        .offer-card .buy-button {
+        .offer-card .buy-button,
+        .watchlist-card .buy-button {
             padding: 0.8rem 2rem;
             background: var(--primary-cyan);
             color: var(--text-primary);
@@ -283,10 +284,12 @@
         .loan-card .loan-button:hover,
         .player-card .buy-button:hover,
         .offer-card .buy-button:hover,
+        .watchlist-card .buy-button:hover,
         .recommendation-card .buy-button:focus,
         .loan-card .loan-button:focus,
         .player-card .buy-button:focus,
-        .offer-card .buy-button:focus {
+        .offer-card .buy-button:focus,
+        .watchlist-card .buy-button:focus {
             background: var(--secondary-purple);
             border-color: var(--secondary-purple);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -295,7 +298,8 @@
         .recommendation-card .buy-button:disabled,
         .loan-card .loan-button:disabled,
         .player-card .buy-button:disabled,
-        .offer-card .buy-button:disabled {
+        .offer-card .buy-button:disabled,
+        .watchlist-card .buy-button:disabled {
             background: var(--text-secondary);
             border-color: var(--text-secondary);
             cursor: not-allowed;
@@ -303,10 +307,12 @@
             box-shadow: none;
             transform: none;
         }
-        /* Botones originales para Jugadores Disponibles */
-        .transfer-card .buy-button {
+        /* Botones originales verdes para Jugadores Disponibles */
+        .transfer-card .buy-button,
+        .transfer-card .negotiate-button,
+        .transfer-card .follow-btn {
             padding: 0.8rem 1.5rem;
-            background: var(--primary-cyan);
+            background: var(--accent-green);
             color: var(--text-primary);
             border: none;
             border-radius: 8px;
@@ -316,11 +322,17 @@
             margin: 0.5rem;
         }
         .transfer-card .buy-button:hover,
-        .transfer-card .buy-button:focus {
+        .transfer-card .negotiate-button:hover,
+        .transfer-card .follow-btn:hover,
+        .transfer-card .buy-button:focus,
+        .transfer-card .negotiate-button:focus,
+        .transfer-card .follow-btn:focus {
             background: var(--secondary-purple);
-            box-shadow: 0 4px 12px rgba(128, 0, 0, 0.25);
+            box-shadow: 0 4px 12px rgba(128, 0, 128, 0.25);
         }
-        .transfer-card .buy-button:disabled {
+        .transfer-card .buy-button:disabled,
+        .transfer-card .negotiate-button:disabled,
+        .transfer-card .follow-btn:disabled {
             background: var(--text-secondary);
             cursor: not-allowed;
             opacity: 0.6;
@@ -459,27 +471,6 @@
             font-weight: 700;
             font-size: 1.3rem;
             margin-bottom: 1rem;
-        }
-        .transfer-card .negotiate-button {
-            padding: 0.8rem 1.5rem;
-            background: var(--primary-cyan);
-            color: var(--text-primary);
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition-base);
-            margin: 0.5rem;
-        }
-        .transfer-card .negotiate-button:hover,
-        .transfer-card .negotiate-button:focus {
-            background: var(--secondary-purple);
-            box-shadow: 0 4px 12px rgba(128, 0, 128, 0.25);
-        }
-        .transfer-card .negotiate-button:disabled {
-            background: var(--text-secondary);
-            cursor: not-allowed;
-            opacity: 0.6;
         }
         .notification {
             position: fixed;
