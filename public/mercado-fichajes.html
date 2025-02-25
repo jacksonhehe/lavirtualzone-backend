@@ -727,7 +727,8 @@
         await loadMarketData();
         setTimeout(() => {
             renderMarket();
-            renderLoans(); // Añadir préstamos al cargar
+            renderLoans();
+            renderWatchlist(); // Añadir para actualizar al inicio
             bindMarketEvents();
             console.log('Re-renderizado inicial completado');
         }, 100);
@@ -903,7 +904,7 @@ async function syncClubData() {
         grid.appendChild(card);
     });
     if (availableWatchlist.length === 0) grid.innerHTML = '<p>No hay jugadores en tu lista de seguimiento.</p>';
-    bindMarketEvents(); // Vincular eventos tras renderizar
+    bindMarketEvents();
 }
 
         async function addToWatchlist(name) {
@@ -1201,41 +1202,45 @@ async function syncClubData() {
 
         // Prestar jugador
         async function loanPlayer(name, value) {
-            if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
-            const token = localStorage.getItem('token');
-            if (club.budget < value) return showNotification('No tienes suficiente presupuesto para el préstamo.', 'error');
+    if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
+    const token = localStorage.getItem('token');
+    if (club.budget < value) return showNotification('No tienes suficiente presupuesto para el préstamo.', 'error');
 
-            showNotification('Procesando préstamo...', 'info');
-            try {
-                const response = await fetch(`${BASE_URL}/api/transaction`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                    body: JSON.stringify({ type: 'prestamo', playerName: name, value })
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    club.budget -= value;
-                    club.points += 5;
-                    const player = playersMarket.find(p => p.name === name);
-                    club.players.push(player);
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    localStorage.setItem('marketPoints', club.points);
-                    transactions.unshift(data.transaction);
-                    showNotification(`¡Has prestado a ${name} por $${value.toLocaleString()}! (+5 puntos)`);
-                    renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
-                    updatePoints();
-                    renderRecommendations();
-                    updateStats();
-                    renderHistory();
-                } else {
-                    showNotification(data.msg || 'Error al prestar', 'error');
-                }
-            } catch (err) {
-                showNotification('Error de conexión: ' + err.message, 'error');
-            }
+    const loanButtons = document.querySelectorAll('.loan-button');
+    loanButtons.forEach(button => button.disabled = true);
+
+    showNotification('Procesando préstamo...', 'info');
+    try {
+        const response = await fetch(`${BASE_URL}/api/transaction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+            body: JSON.stringify({ type: 'prestamo', playerName: name, value })
+        });
+        const data = await response.json();
+        if (response.ok) {
+            club.budget -= value;
+            club.points += 5;
+            // No añadir a club.players, solo registrar la transacción
+            localStorage.setItem('clubBudget', club.budget);
+            localStorage.setItem('marketPoints', club.points);
+            transactions.unshift(data.transaction);
+            showNotification(`¡Has prestado a ${name} por $${value.toLocaleString()}! (+5 puntos)`);
+            renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
+            renderLoans();
+            bindMarketEvents();
+            updatePoints();
+            renderRecommendations();
+            updateStats();
+            renderHistory();
+        } else {
+            showNotification(data.msg || 'Error al prestar', 'error');
         }
-
+    } catch (err) {
+        showNotification('Error de conexión: ' + err.message, 'error');
+    } finally {
+        loanButtons.forEach(button => button.disabled = !isMarketOpen);
+    }
+}
         // Actualizar estadísticas (simulado por ahora)
         function updateStats() {
             const filter = document.getElementById('timeFilter').value;
