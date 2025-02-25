@@ -48,3 +48,17 @@ router.get('/me', auth, async (req, res) => {
 });
 
 module.exports = router;
+
+router.put('/me', auth, async (req, res) => {
+  const { watchlist } = req.body;
+  try {
+      const club = await Club.findOne({ userId: req.user });
+      if (!club) return res.status(404).json({ msg: 'Club no encontrado' });
+      club.watchlist = watchlist || club.watchlist;
+      await club.save();
+      res.json(club);
+  } catch (err) {
+      console.error('Error en PUT /club/me:', err);
+      res.status(500).json({ msg: 'Error del servidor' });
+  }
+});
