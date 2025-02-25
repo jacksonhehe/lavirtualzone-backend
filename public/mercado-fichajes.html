@@ -1039,25 +1039,31 @@
         }
 
         function renderFeaturedPlayers() {
-            const grid = document.getElementById('featuredPlayersGrid');
-            grid.innerHTML = '';
-            const featuredPlayers = playersMarket.slice(0, 3);
-            featuredPlayers.forEach(player => {
-                const card = document.createElement('article');
-                card.className = 'player-card animate-fade-in';
-                card.innerHTML = `
-                    <img src="https://via.placeholder.com/120?text=${player.name.slice(0, 5)}" alt="${player.name}" class="player-avatar">
-                    <h3>${player.name}</h3>
-                    <ul class="player-stats">
-                        <li><strong>Rating:</strong> ${player.rating}</li>
-                        <li><strong>Posición:</strong> ${player.position}</li>
-                    </ul>
-                    <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar por $${player.value.toLocaleString()}</button>
-                `;
-                grid.appendChild(card);
-            });
-            bindMarketEvents();
-        }
+    const grid = document.getElementById('featuredPlayersGrid');
+    grid.innerHTML = '';
+    const clubPlayers = Array.isArray(club.players) ? club.players : [];
+    const featuredPlayers = playersMarket
+        .filter(player => !clubPlayers.some(p => p.name === player.name))
+        .slice(0, 3); // Solo 3 jugadores no comprados
+    featuredPlayers.forEach(player => {
+        const card = document.createElement('article');
+        card.className = 'player-card animate-fade-in';
+        card.innerHTML = `
+            <img src="https://via.placeholder.com/120?text=${player.name.slice(0, 5)}" alt="${player.name}" class="player-avatar">
+            <h3>${player.name}</h3>
+            <ul class="player-stats">
+                <li><strong>Rating:</strong> ${player.rating}</li>
+                <li><strong>Posición:</strong> ${player.position}</li>
+            </ul>
+            <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar por $${player.value.toLocaleString()}</button>
+        `;
+        grid.appendChild(card);
+    });
+    if (featuredPlayers.length === 0) {
+        grid.innerHTML = '<p>No hay jugadores destacados disponibles.</p>';
+    }
+    bindMarketEvents();
+}
 
         function updatePoints() {
             document.getElementById('marketPoints').textContent = club.points || 0;
@@ -1160,114 +1166,116 @@
         }
 
         async function buyPlayer(name, value) {
-            if (isBuying) return;
-            isBuying = true;
+    if (isBuying) return;
+    isBuying = true;
 
-            console.log('buyPlayer iniciado para:', name, value);
-            if (!isMarketOpen) {
-                isBuying = false;
-                return showNotification('El mercado está cerrado.', 'error');
-            }
-            const token = localStorage.getItem('token');
-            console.log('Token en buyPlayer:', token);
-            if (!token) {
-                isBuying = false;
-                return showNotification('Debes iniciar sesión.', 'error') && (window.location.href = 'login.html');
-            }
-            if (club.name === '[Sin registrar]') {
-                isBuying = false;
-                return showNotification('Registra tu club primero en "Liga Master".', 'error') && (window.location.href = 'liga-master.html');
-            }
-            if (club.budget < value) {
-                isBuying = false;
-                return showNotification('No tienes suficiente presupuesto.', 'error');
-            }
-            if (club.players.some(p => p.name === name)) {
-                isBuying = false;
-                return showNotification(`${name} ya está en tu club.`, 'error');
-            }
+    console.log('buyPlayer iniciado para:', name, value);
+    if (!isMarketOpen) {
+        isBuying = false;
+        return showNotification('El mercado está cerrado.', 'error');
+    }
+    const token = localStorage.getItem('token');
+    console.log('Token en buyPlayer:', token);
+    if (!token) {
+        isBuying = false;
+        return showNotification('Debes iniciar sesión.', 'error') && (window.location.href = 'login.html');
+    }
+    if (club.name === '[Sin registrar]') {
+        isBuying = false;
+        return showNotification('Registra tu club primero en "Liga Master".', 'error') && (window.location.href = 'liga-master.html');
+    }
+    if (club.budget < value) {
+        isBuying = false;
+        return showNotification('No tienes suficiente presupuesto.', 'error');
+    }
+    if (club.players.some(p => p.name === name)) {
+        isBuying = false;
+        return showNotification(`${name} ya está en tu club.`, 'error');
+    }
 
-            const buyButtons = document.querySelectorAll('.buy-button');
-            buyButtons.forEach(button => button.disabled = true);
+    const buyButtons = document.querySelectorAll('.buy-button');
+    buyButtons.forEach(button => button.disabled = true);
 
-            showNotification('Procesando compra...', 'info');
-            try {
-                console.log('Enviando solicitud a /api/transaction');
-                const response = await fetch(`${BASE_URL}/api/transaction`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                    body: JSON.stringify({ type: 'compra', playerName: name, value })
-                });
-                console.log('Respuesta de /api/transaction:', response.status);
-                const data = await response.json();
-                if (response.ok) {
-                    club.budget -= value;
-                    club.points += 10;
-                    const player = playersMarket.find(p => p.name === name);
-                    club.players.push(player);
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    localStorage.setItem('marketPoints', club.points);
-                    transactions.unshift(data.transaction);
-                    showNotification(`¡Has comprado a ${name} por $${value.toLocaleString()}! (+10 puntos)`);
-                    renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
-                    renderWatchlist();
-                    renderLoans();
-                    bindMarketEvents();
-                    updatePoints();
-                    renderRecommendations();
-                    updateStats();
-                    renderHistory();
-                } else {
-                    console.log('Error en respuesta:', data);
-                    showNotification(data.msg || 'Error al comprar', 'error');
-                }
-            } catch (err) {
-                console.error('Error en fetch:', err);
-                showNotification('Error de conexión: ' + err.message, 'error');
-            } finally {
-                buyButtons.forEach(button => button.disabled = !isMarketOpen);
-                isBuying = false;
-            }
+    showNotification('Procesando compra...', 'info');
+    try {
+        console.log('Enviando solicitud a /api/transaction');
+        const response = await fetch(`${BASE_URL}/api/transaction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+            body: JSON.stringify({ type: 'compra', playerName: name, value })
+        });
+        console.log('Respuesta de /api/transaction:', response.status);
+        const data = await response.json();
+        if (response.ok) {
+            club.budget -= value;
+            club.points += 10;
+            const player = playersMarket.find(p => p.name === name);
+            club.players.push(player);
+            localStorage.setItem('clubBudget', club.budget);
+            localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+            localStorage.setItem('marketPoints', club.points);
+            transactions.unshift(data.transaction);
+            showNotification(`¡Has comprado a ${name} por $${value.toLocaleString()}! (+10 puntos)`);
+            renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
+            renderWatchlist();
+            renderLoans();
+            renderFeaturedPlayers(); // Añadido para actualizar jugadores destacados
+            bindMarketEvents();
+            updatePoints();
+            renderRecommendations();
+            updateStats();
+            renderHistory();
+        } else {
+            console.log('Error en respuesta:', data);
+            showNotification(data.msg || 'Error al comprar', 'error');
         }
+    } catch (err) {
+        console.error('Error en fetch:', err);
+        showNotification('Error de conexión: ' + err.message, 'error');
+    } finally {
+        buyButtons.forEach(button => button.disabled = !isMarketOpen);
+        isBuying = false;
+    }
+}
 
-        async function sellPlayer(name, value) {
-            if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
-            const token = localStorage.getItem('token');
-            const sellValue = Math.floor(value * 0.8);
-            showNotification('Procesando venta...', 'info');
-            try {
-                const response = await fetch(`${BASE_URL}/api/transaction`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                    body: JSON.stringify({ type: 'venta', playerName: name, value: sellValue })
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    club.budget += sellValue;
-                    club.points += 5;
-                    club.players = club.players.filter(p => p.name !== name);
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    localStorage.setItem('marketPoints', club.points);
-                    transactions.unshift(data.transaction);
-                    showNotification(`¡Has vendido a ${name} por $${sellValue.toLocaleString()}! (+5 puntos)`);
-                    await loadMarketData();
-                    renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
-                    renderWatchlist();
-                    bindMarketEvents();
-                    updatePoints();
-                    renderRecommendations();
-                    updateStats();
-                    renderHistory();
-                    console.log('Jugadores tras venta:', club.players);
-                } else {
-                    showNotification(data.msg || 'Error al vender', 'error');
-                }
-            } catch (err) {
-                showNotification('Error de conexión: ' + err.message, 'error');
-            }
+async function sellPlayer(name, value) {
+    if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
+    const token = localStorage.getItem('token');
+    const sellValue = Math.floor(value * 0.8);
+    showNotification('Procesando venta...', 'info');
+    try {
+        const response = await fetch(`${BASE_URL}/api/transaction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+            body: JSON.stringify({ type: 'venta', playerName: name, value: sellValue })
+        });
+        const data = await response.json();
+        if (response.ok) {
+            club.budget += sellValue;
+            club.points += 5;
+            club.players = club.players.filter(p => p.name !== name);
+            localStorage.setItem('clubBudget', club.budget);
+            localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+            localStorage.setItem('marketPoints', club.points);
+            transactions.unshift(data.transaction);
+            showNotification(`¡Has vendido a ${name} por $${sellValue.toLocaleString()}! (+5 puntos)`);
+            await loadMarketData();
+            renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
+            renderWatchlist();
+            renderFeaturedPlayers(); // Añadido para actualizar jugadores destacados
+            bindMarketEvents();
+            updatePoints();
+            renderRecommendations();
+            updateStats();
+            renderHistory();
+            console.log('Jugadores tras venta:', club.players);
+        } else {
+            showNotification(data.msg || 'Error al vender', 'error');
         }
+    } catch (err) {
+        showNotification('Error de conexión: ' + err.message, 'error');
+    }
+}
 
         async function negotiatePlayer(name, value) {
             const offer = prompt(`Ingresa tu oferta para ${name} (Valor actual: $${value.toLocaleString()})`, value * 0.9);
