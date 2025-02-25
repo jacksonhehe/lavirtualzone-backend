@@ -707,9 +707,9 @@
             watchlist: JSON.parse(localStorage.getItem('watchlist')) || []
         };
         const season = {
-            start: new Date("2025-03-01T00:00:00").getTime(),
-            end: new Date("2025-04-01T00:00:00").getTime()
-        };
+    start: new Date("2025-02-24T00:00:00").getTime(), // Ayer, para que esté abierto
+    end: new Date("2025-03-24T00:00:00").getTime()   // Un mes desde ayer
+};
         let isMarketOpen = false;
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         let playersMarket = [];
