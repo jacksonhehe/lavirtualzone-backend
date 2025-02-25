@@ -261,8 +261,11 @@
         .watchlist-card .follow-btn.active {
             background: var(--accent-green);
         }
-        /* Botones uniformes para todas las secciones */
-        .buy-button, .loan-button {
+        /* Botones mejorados para secciones específicas */
+        .recommendation-card .buy-button,
+        .loan-card .loan-button,
+        .player-card .buy-button,
+        .offer-card .buy-button {
             padding: 0.8rem 2rem;
             background: var(--primary-cyan);
             color: var(--text-primary);
@@ -275,22 +278,52 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin: 0.5rem;
         }
-        .buy-button:hover, .loan-button:hover,
-        .buy-button:focus, .loan-button:focus {
+        .recommendation-card .buy-button:hover,
+        .loan-card .loan-button:hover,
+        .player-card .buy-button:hover,
+        .offer-card .buy-button:hover,
+        .recommendation-card .buy-button:focus,
+        .loan-card .loan-button:focus,
+        .player-card .buy-button:focus,
+        .offer-card .buy-button:focus {
             background: var(--secondary-purple);
             border-color: var(--secondary-purple);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transform: translateY(-2px);
         }
-        .buy-button:disabled, .loan-button:disabled {
+        .recommendation-card .buy-button:disabled,
+        .loan-card .loan-button:disabled,
+        .player-card .buy-button:disabled,
+        .offer-card .buy-button:disabled {
             background: var(--text-secondary);
             border-color: var(--text-secondary);
             cursor: not-allowed;
             opacity: 0.7;
             box-shadow: none;
             transform: none;
+        }
+        /* Botones originales para Jugadores Disponibles */
+        .transfer-card .buy-button {
+            padding: 0.8rem 1.5rem;
+            background: var(--primary-cyan);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-base);
+            margin: 0.5rem;
+        }
+        .transfer-card .buy-button:hover,
+        .transfer-card .buy-button:focus {
+            background: var(--secondary-purple);
+            box-shadow: 0 4px 12px rgba(128, 0, 0, 0.25);
+        }
+        .transfer-card .buy-button:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.6;
         }
         .chat-container {
             max-width: 960px;
