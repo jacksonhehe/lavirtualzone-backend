@@ -725,6 +725,7 @@
     try {
         await syncClubData();
         await loadMarketData();
+        bindMarketEvents(); // Vincular eventos después de cargar datos
         setInterval(updateTimer, 1000);
         updateTimer();
         renderChat();
@@ -753,10 +754,14 @@
     window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
     backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-    document.getElementById('searchInput').addEventListener('input', (e) => 
-        renderMarket(e.target.value, document.getElementById('positionFilter').value));
-    document.getElementById('positionFilter').addEventListener('change', (e) => 
-        renderMarket(document.getElementById('searchInput').value, e.target.value));
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        renderMarket(e.target.value, document.getElementById('positionFilter').value);
+        bindMarketEvents(); // Re-vincular eventos tras filtrar
+    });
+    document.getElementById('positionFilter').addEventListener('change', (e) => {
+        renderMarket(document.getElementById('searchInput').value, e.target.value);
+        bindMarketEvents(); // Re-vincular eventos tras filtrar
+    });
     document.getElementById('timeFilter').addEventListener('change', updateStats);
 });
 
@@ -1107,25 +1112,6 @@ async function syncClubData() {
             `;
             grid.appendChild(card);
         });
-        // Vincular eventos después de renderizar
-        const buyButtons = grid.querySelectorAll('.buy-button');
-        buyButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const name = button.getAttribute('data-name');
-                const value = parseInt(button.getAttribute('data-value'));
-                console.log('Botón Comprar clicado para:', name);
-                buyPlayer(name, value);
-            });
-        });
-        const negotiateButtons = grid.querySelectorAll('.negotiate-button');
-        negotiateButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const name = button.getAttribute('data-name');
-                const value = parseInt(button.getAttribute('data-value'));
-                console.log('Botón Negociar clicado para:', name);
-                negotiatePlayer(name, value);
-            });
-        });
     }
     console.log('renderMarket completado, botones renderizados:', grid.querySelectorAll('.buy-button').length);
     renderClubDetails();
@@ -1315,6 +1301,32 @@ async function syncClubData() {
                 renderMarket(document.getElementById('searchInput').value, e.target.value));
             document.getElementById('timeFilter').addEventListener('change', updateStats);
         });
+
+        function bindMarketEvents() {
+    const grid = document.getElementById('transferGrid');
+    const buyButtons = grid.querySelectorAll('.buy-button');
+    const negotiateButtons = grid.querySelectorAll('.negotiate-button');
+    
+    console.log('Vinculando eventos, botones encontrados:', buyButtons.length);
+    
+    buyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const name = button.getAttribute('data-name');
+            const value = parseInt(button.getAttribute('data-value'));
+            console.log('Botón Comprar clicado para:', name);
+            buyPlayer(name, value);
+        });
+    });
+
+    negotiateButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const name = button.getAttribute('data-name');
+            const value = parseInt(button.getAttribute('data-value'));
+            console.log('Botón Negociar clicado para:', name);
+            negotiatePlayer(name, value);
+        });
+    });
+}
     </script>
 </body>
 </html>
