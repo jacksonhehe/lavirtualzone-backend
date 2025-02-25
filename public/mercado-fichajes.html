@@ -731,20 +731,25 @@
         updatePoints();
         renderClubDetails();
 
-        // Manejador delegado para botones "Comprar"
-        document.getElementById('transferGrid').addEventListener('click', (e) => {
+        // Manejador delegado para botones
+        document.addEventListener('click', (e) => {
             if (e.target.classList.contains('buy-button')) {
                 const name = e.target.getAttribute('data-name');
                 const value = parseInt(e.target.getAttribute('data-value'));
-                console.log('Intentando comprar', name);
+                console.log('Botón Comprar clicado para:', name);
                 buyPlayer(name, value);
+            } else if (e.target.classList.contains('negotiate-button')) {
+                const name = e.target.getAttribute('data-name');
+                const value = parseInt(e.target.getAttribute('data-value'));
+                console.log('Botón Negociar clicado para:', name);
+                negotiatePlayer(name, value);
             }
         });
     } catch (err) {
         showNotification('Error de conexión: ' + err.message, 'error');
     }
 
-    // Resto de eventos existentes...
+    // Resto de eventos...
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
@@ -1113,12 +1118,13 @@ async function syncClubData() {
                 <p>Rating: ${player.rating}</p>
                 <p class="player-value">$${player.value.toLocaleString()}</p>
                 <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
-                <button ${isMarketOpen ? '' : 'disabled'} onclick="negotiatePlayer('${player.name}', ${player.value})">Negociar</button>
+                <button class="negotiate-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Negociar</button>
                 <button class="sell-button follow-btn ${club.watchlist.some(p => p.name === player.name) ? 'active' : ''}" onclick="addToWatchlist('${player.name}')">Seguir</button>
             `;
             grid.appendChild(card);
         });
     }
+    console.log('renderMarket completado, botones renderizados:', grid.querySelectorAll('.buy-button').length);
     renderClubDetails();
 }
 
