@@ -26,8 +26,8 @@
             --shadow-cyan: 0 6px 18px rgba(0, 255, 255, 0.15);
             --transition-base: 0.3s ease-in-out;
             --accent-green: #00ff00;
-            --pro-blue: #0288D1; /* Azul profesional */
-            --pro-grey: #455A64; /* Gris oscuro profesional */
+            --pro-blue: #0288D1;
+            --pro-grey: #455A64;
         }
         *, *::before, *::after {
             box-sizing: border-box;
@@ -261,7 +261,6 @@
         .watchlist-card .follow-btn.active {
             background: var(--accent-green);
         }
-        /* Botones profesionales para secciones específicas */
         .recommendation-card .buy-button,
         .loan-card .loan-button,
         .player-card .buy-button,
@@ -287,7 +286,7 @@
         .loan-card .loan-button:focus,
         .player-card .buy-button:focus,
         .offer-card .buy-button:focus {
-            background: #01579B; /* Azul oscuro profesional */
+            background: #01579B;
             border-color: #01579B;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transform: translateY(-2px);
@@ -741,7 +740,6 @@
     </footer>
 
     <script>
-        // Configuración base
         const BASE_URL = window.location.origin;
         let club = {
             name: localStorage.getItem('clubName') || '[Sin registrar]',
@@ -751,8 +749,8 @@
             watchlist: JSON.parse(localStorage.getItem('watchlist') || '[]') || []
         };
         const season = {
-            start: new Date().getTime() - 24 * 60 * 60 * 1000, // Ayer
-            end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000 // 30 días desde hoy
+            start: new Date().getTime() - 24 * 60 * 60 * 1000,
+            end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000
         };
         let isMarketOpen = false;
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
@@ -760,7 +758,6 @@
         let isBuying = false;
         let playersMarket = [];
 
-        // Verificación de autenticación y carga inicial
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -817,7 +814,6 @@
             document.getElementById('timeFilter').addEventListener('change', updateStats);
         });
 
-        // Sincronizar datos del club con el backend
         async function syncClubData() {
             const token = localStorage.getItem('token');
             try {
@@ -849,7 +845,6 @@
             }
         }
 
-        // Cargar datos del mercado
         async function loadMarketData() {
             const token = localStorage.getItem('token');
             console.log('Token usado:', token);
@@ -881,7 +876,6 @@
             }
         }
 
-        // Notificaciones
         function showNotification(message, type = 'success') {
             const notification = document.createElement('div');
             notification.className = 'notification';
@@ -894,7 +888,6 @@
             }, 3000);
         }
 
-        // Temporizador del mercado
         function updateTimer() {
             const now = new Date().getTime();
             isMarketOpen = now >= season.start && now <= season.end;
@@ -914,7 +907,6 @@
             }
         }
 
-        // Renderizar recomendaciones
         function renderRecommendations() {
             const grid = document.getElementById('recommendationsGrid');
             grid.innerHTML = '';
@@ -940,7 +932,6 @@
             bindMarketEvents();
         }
 
-        // Renderizar chat
         function renderChat() {
             const messages = document.getElementById('chatMessages');
             messages.innerHTML = '';
@@ -960,7 +951,6 @@
             });
         }
 
-        // Renderizar lista de seguimiento
         function renderWatchlist() {
             const grid = document.getElementById('watchlistGrid');
             grid.innerHTML = '';
@@ -1029,7 +1019,6 @@
             }
         }
 
-        // Renderizar préstamos
         function renderLoans() {
             const grid = document.getElementById('loansGrid');
             grid.innerHTML = '';
@@ -1049,7 +1038,6 @@
             bindMarketEvents();
         }
 
-        // Renderizar jugadores destacados
         function renderFeaturedPlayers() {
             const grid = document.getElementById('featuredPlayersGrid');
             grid.innerHTML = '';
@@ -1071,12 +1059,10 @@
             bindMarketEvents();
         }
 
-        // Actualizar puntos
         function updatePoints() {
             document.getElementById('marketPoints').textContent = club.points || 0;
         }
 
-        // Renderizar historial
         function renderHistory() {
             const grid = document.getElementById('historyGrid');
             grid.innerHTML = '';
@@ -1092,7 +1078,6 @@
             if (transactions.length === 0) grid.innerHTML = '<p>No hay transacciones recientes.</p>';
         }
 
-        // Renderizar subastas (simulado)
         function renderOffers() {
             const grid = document.getElementById('offersGrid');
             grid.innerHTML = '';
@@ -1125,7 +1110,6 @@
             bindMarketEvents();
         }
 
-        // Renderizar detalles del club
         function renderClubDetails() {
             document.getElementById('clubName').textContent = club.name;
             document.getElementById('clubBudget').textContent = club.budget.toLocaleString();
@@ -1138,7 +1122,6 @@
             `).join('') : '<li>No hay jugadores en tu club.</li>';
         }
 
-        // Renderizar mercado
         function renderMarket(searchTerm = '', positionFilter = '') {
             const grid = document.getElementById('transferGrid');
             grid.innerHTML = '';
@@ -1176,7 +1159,6 @@
             renderClubDetails();
         }
 
-        // Comprar jugador
         async function buyPlayer(name, value) {
             if (isBuying) return;
             isBuying = true;
@@ -1249,7 +1231,6 @@
             }
         }
 
-        // Vender jugador
         async function sellPlayer(name, value) {
             if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
             const token = localStorage.getItem('token');
@@ -1279,6 +1260,7 @@
                     renderRecommendations();
                     updateStats();
                     renderHistory();
+                    console.log('Jugadores tras venta:', club.players);
                 } else {
                     showNotification(data.msg || 'Error al vender', 'error');
                 }
@@ -1287,7 +1269,6 @@
             }
         }
 
-        // Negociar jugador
         async function negotiatePlayer(name, value) {
             const offer = prompt(`Ingresa tu oferta para ${name} (Valor actual: $${value.toLocaleString()})`, value * 0.9);
             if (offer && !isNaN(offer) && parseInt(offer) > 0) {
@@ -1300,7 +1281,6 @@
             }
         }
 
-        // Prestar jugador
         async function loanPlayer(name, value) {
             console.log('loanPlayer iniciado para:', name, value);
             if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
@@ -1352,7 +1332,6 @@
             }
         }
 
-        // Actualizar estadísticas (simulado por ahora)
         function updateStats() {
             const filter = document.getElementById('timeFilter').value;
             let filteredTransactions = transactions;
@@ -1379,7 +1358,6 @@
             document.getElementById('mostExpensive').textContent = mostExpensive.name ? `${mostExpensive.name} ($${mostExpensive.value.toLocaleString()})` : 'N/A';
         }
 
-        // Vincular eventos a botones
         function bindMarketEvents() {
             const buyButtons = document.querySelectorAll('.buy-button');
             const negotiateButtons = document.querySelectorAll('.negotiate-button');
