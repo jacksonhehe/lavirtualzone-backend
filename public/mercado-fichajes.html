@@ -1131,6 +1131,10 @@ async function syncClubData() {
     if (club.name === '[Sin registrar]') return showNotification('Registra tu club primero en "Liga Master".', 'error') && (window.location.href = 'liga-master.html');
     if (club.budget < value) return showNotification('No tienes suficiente presupuesto.', 'error');
 
+    // Desactivar todos los botones "Comprar" durante la transacción
+    const buyButtons = document.querySelectorAll('.buy-button');
+    buyButtons.forEach(button => button.disabled = true);
+
     showNotification('Procesando compra...', 'info');
     try {
         console.log('Enviando solicitud a /api/transaction');
@@ -1164,6 +1168,9 @@ async function syncClubData() {
     } catch (err) {
         console.error('Error en fetch:', err);
         showNotification('Error de conexión: ' + err.message, 'error');
+    } finally {
+        // Reactivar botones tras completar la transacción (éxito o fallo)
+        buyButtons.forEach(button => button.disabled = !isMarketOpen);
     }
 }
 
