@@ -707,73 +707,103 @@
             watchlist: JSON.parse(localStorage.getItem('watchlist')) || []
         };
         const season = {
-    start: new Date("2025-02-24T00:00:00").getTime(), // Ayer, para que esté abierto
-    end: new Date("2025-03-24T00:00:00").getTime()   // Un mes desde ayer
-};
+            start: new Date("2025-02-24T00:00:00").getTime(),
+            end: new Date("2025-03-24T00:00:00").getTime()
+        };
         let isMarketOpen = false;
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let loanedPlayers = JSON.parse(localStorage.getItem('loanedPlayers')) || [];
         let playersMarket = [];
 
         // Verificación de autenticación y carga inicial
         document.addEventListener('DOMContentLoaded', async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        showNotification('Debes iniciar sesión para acceder al mercado.', 'error');
-        setTimeout(() => window.location.href = 'login.html', 2000);
-        return;
-    }
-    try {
-        await syncClubData();
-        await loadMarketData();
-        setTimeout(() => {
-            renderMarket();
-            renderLoans();
-            renderWatchlist(); // Añadir para actualizar al inicio
-            bindMarketEvents();
-            console.log('Re-renderizado inicial completado');
-        }, 100);
-        setInterval(updateTimer, 1000);
-        updateTimer();
-        renderChat();
-        updatePoints();
-        renderClubDetails();
-    } catch (err) {
-        showNotification('Error de conexión: ' + err.message, 'error');
-    }
-    // ... resto de eventos ...
-});
-        // Sincronizar datos del club con el backend
-       // Sincronizar datos del club con el backend
-async function syncClubData() {
-    const token = localStorage.getItem('token');
-    try {
-        const response = await fetch(`${BASE_URL}/api/club/me`, {
-            headers: { 'x-auth-token': token }
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión para acceder al mercado.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+            try {
+                await syncClubData();
+                await loadMarketData();
+                setTimeout(() => {
+                    renderMarket();
+                    renderLoans();
+                    renderWatchlist();
+                    bindMarketEvents();
+                    console.log('Re-renderizado inicial completado');
+                }, 100);
+                setInterval(updateTimer, 1000);
+                updateTimer();
+                renderChat();
+                updatePoints();
+                renderClubDetails();
+            } catch (err) {
+                showNotification('Error de conexión: ' + err.message, 'error');
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
+                });
+            }, { threshold: 0.1, rootMargin: '0px' });
+            document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
+
+            document.querySelectorAll('.transition-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.body.classList.add('fade-out');
+                    setTimeout(() => window.location.href = link.getAttribute('data-href'), 500);
+                });
+            });
+
+            const backToTop = document.querySelector('.back-to-top');
+            window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
+            backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                renderMarket(e.target.value, document.getElementById('positionFilter').value);
+                bindMarketEvents();
+            });
+            document.getElementById('positionFilter').addEventListener('change', (e) => {
+                renderMarket(document.getElementById('searchInput').value, e.target.value);
+                bindMarketEvents();
+            });
+            document.getElementById('timeFilter').addEventListener('change', updateStats);
         });
-        console.log('Estado de syncClubData:', response.status);
-        const data = await response.json();
-        if (response.ok) {
-            club = {
-                ...data,
-                players: Array.isArray(data.players) ? data.players : [],
-                watchlist: Array.isArray(data.watchlist) ? data.watchlist : [] // Asegura que watchlist sea un array
-            };
-            console.log('Datos del club:', club);
-            localStorage.setItem('clubName', club.name);
-            localStorage.setItem('clubBudget', club.budget);
-            localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-            localStorage.setItem('marketPoints', club.points || 0);
-            localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
-        } else {
-            throw new Error(data.msg || 'Error al cargar el club');
+
+        // Sincronizar datos del club con el backend
+        async function syncClubData() {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
+                    headers: { 'x-auth-token': token }
+                });
+                console.log('Estado de syncClubData:', response.status);
+                const data = await response.json();
+                if (response.ok) {
+                    club = {
+                        ...data,
+                        players: Array.isArray(data.players) ? data.players : [],
+                        watchlist: Array.isArray(data.watchlist) ? data.watchlist : []
+                    };
+                    console.log('Datos del club:', club);
+                    localStorage.setItem('clubName', club.name);
+                    localStorage.setItem('clubBudget', club.budget);
+                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                    localStorage.setItem('marketPoints', club.points || 0);
+                    localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
+                } else {
+                    throw new Error(data.msg || 'Error al cargar el club');
+                }
+            } catch (err) {
+                console.error('Error en syncClubData:', err);
+                showNotification('Error al sincronizar datos del club: ' + err.message, 'error');
+                club.players = club.players || [];
+                club.watchlist = club.watchlist || [];
+            }
         }
-    } catch (err) {
-        console.error('Error en syncClubData:', err);
-        showNotification('Error al sincronizar datos del club: ' + err.message, 'error');
-        club.players = club.players || [];
-        club.watchlist = club.watchlist || []; // Fallback para watchlist
-    }
-}
+
         // Cargar datos del mercado
         async function loadMarketData() {
             const token = localStorage.getItem('token');
@@ -857,11 +887,12 @@ async function syncClubData() {
                     <p>Posición: ${player.position}</p>
                     <p>Rating: ${player.rating}</p>
                     <p class="player-value">$${player.value.toLocaleString()}</p>
-                    <button ${isMarketOpen ? '' : 'disabled'} onclick="buyPlayer('${player.name}', ${player.value})">Comprar</button>
+                    <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
                 `;
                 grid.appendChild(card);
             });
             if (recommendations.length === 0) grid.innerHTML = '<p>No se necesitan refuerzos específicos.</p>';
+            bindMarketEvents();
         }
 
         // Renderizar chat
@@ -886,26 +917,26 @@ async function syncClubData() {
 
         // Renderizar lista de seguimiento
         function renderWatchlist() {
-    const grid = document.getElementById('watchlistGrid');
-    grid.innerHTML = '';
-    const clubPlayers = Array.isArray(club.players) ? club.players : [];
-    const availableWatchlist = club.watchlist.filter(player => !clubPlayers.some(p => p.name === player.name));
-    availableWatchlist.forEach(player => {
-        const card = document.createElement('div');
-        card.className = 'watchlist-card animate-fade-in';
-        card.innerHTML = `
-            <h3>${player.name}</h3>
-            <p>Posición: ${player.position}</p>
-            <p>Rating: ${player.rating}</p>
-            <p class="player-value">$${player.value.toLocaleString()}</p>
-            <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
-            <button class="sell-button" onclick="removeFromWatchlist('${player.name}')">Quitar</button>
-        `;
-        grid.appendChild(card);
-    });
-    if (availableWatchlist.length === 0) grid.innerHTML = '<p>No hay jugadores en tu lista de seguimiento.</p>';
-    bindMarketEvents();
-}
+            const grid = document.getElementById('watchlistGrid');
+            grid.innerHTML = '';
+            const clubPlayers = Array.isArray(club.players) ? club.players : [];
+            const availableWatchlist = club.watchlist.filter(player => !clubPlayers.some(p => p.name === player.name));
+            availableWatchlist.forEach(player => {
+                const card = document.createElement('div');
+                card.className = 'watchlist-card animate-fade-in';
+                card.innerHTML = `
+                    <h3>${player.name}</h3>
+                    <p>Posición: ${player.position}</p>
+                    <p>Rating: ${player.rating}</p>
+                    <p class="player-value">$${player.value.toLocaleString()}</p>
+                    <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
+                    <button class="sell-button" onclick="removeFromWatchlist('${player.name}')">Quitar</button>
+                `;
+                grid.appendChild(card);
+            });
+            if (availableWatchlist.length === 0) grid.innerHTML = '<p>No hay jugadores en tu lista de seguimiento.</p>';
+            bindMarketEvents();
+        }
 
         async function addToWatchlist(name) {
             const token = localStorage.getItem('token');
@@ -955,23 +986,23 @@ async function syncClubData() {
 
         // Renderizar préstamos
         function renderLoans() {
-    const grid = document.getElementById('loansGrid');
-    grid.innerHTML = '';
-    const loanPlayers = playersMarket.slice(0, 2).map(p => ({ ...p, duration: "1 mes" }));
-    loanPlayers.forEach(player => {
-        const card = document.createElement('div');
-        card.className = 'loan-card animate-fade-in';
-        card.innerHTML = `
-            <h3>${player.name}</h3>
-            <p>Posición: ${player.position}</p>
-            <p>Rating: ${player.rating}</p>
-            <p class="player-value">$${Math.floor(player.value * 0.1).toLocaleString()} (${player.duration})</p>
-            <button class="loan-button" data-name="${player.name}" data-value="${Math.floor(player.value * 0.1)}" ${isMarketOpen ? '' : 'disabled'}>Prestar</button>
-        `;
-        grid.appendChild(card);
-    });
-    bindMarketEvents(); // Vincular eventos tras renderizar
-}
+            const grid = document.getElementById('loansGrid');
+            grid.innerHTML = '';
+            const loanPlayers = playersMarket.slice(0, 2).map(p => ({ ...p, duration: "1 mes" }));
+            loanPlayers.forEach(player => {
+                const card = document.createElement('div');
+                card.className = 'loan-card animate-fade-in';
+                card.innerHTML = `
+                    <h3>${player.name}</h3>
+                    <p>Posición: ${player.position}</p>
+                    <p>Rating: ${player.rating}</p>
+                    <p class="player-value">$${Math.floor(player.value * 0.1).toLocaleString()} (${player.duration})</p>
+                    <button class="loan-button" data-name="${player.name}" data-value="${Math.floor(player.value * 0.1)}" ${isMarketOpen ? '' : 'disabled'}>Prestar</button>
+                `;
+                grid.appendChild(card);
+            });
+            bindMarketEvents();
+        }
 
         // Renderizar jugadores destacados
         function renderFeaturedPlayers() {
@@ -988,10 +1019,11 @@ async function syncClubData() {
                         <li><strong>Rating:</strong> ${player.rating}</li>
                         <li><strong>Posición:</strong> ${player.position}</li>
                     </ul>
-                    <button class="cta-button" ${isMarketOpen ? '' : 'disabled'} onclick="buyPlayer('${player.name}', ${player.value})">Comprar por $${player.value.toLocaleString()}</button>
+                    <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar por $${player.value.toLocaleString()}</button>
                 `;
                 grid.appendChild(card);
             });
+            bindMarketEvents();
         }
 
         // Actualizar puntos
@@ -1029,7 +1061,7 @@ async function syncClubData() {
                 <p>Rating: ${offer.rating}</p>
                 <p class="player-value">$${offer.value.toLocaleString()}</p>
                 <p>Tiempo restante: <span id="timer-${offer.name}"></span></p>
-                <button ${isMarketOpen ? '' : 'disabled'} onclick="buyPlayer('${offer.name}', ${offer.value})">Pujar</button>
+                <button class="buy-button" data-name="${offer.name}" data-value="${offer.value}" ${isMarketOpen ? '' : 'disabled'}>Pujar</button>
             `;
             grid.appendChild(card);
             const timer = setInterval(() => {
@@ -1045,6 +1077,7 @@ async function syncClubData() {
                     showNotification(`¡Subasta de ${offer.name} finalizada!`, 'error');
                 }
             }, 1000);
+            bindMarketEvents();
         }
 
         // Renderizar detalles del club
@@ -1062,131 +1095,134 @@ async function syncClubData() {
 
         // Renderizar mercado
         function renderMarket(searchTerm = '', positionFilter = '') {
-    const grid = document.getElementById('transferGrid');
-    grid.innerHTML = '';
-    if (!Array.isArray(playersMarket)) {
-        console.error('playersMarket no es un array:', playersMarket);
-        grid.innerHTML = '<p>No hay jugadores disponibles.</p>';
-        return;
-    }
-    const clubPlayers = Array.isArray(club.players) ? club.players : [];
-    const filteredPlayers = playersMarket.filter(player => 
-        !clubPlayers.some(p => p.name === player.name) &&
-        player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (positionFilter === '' || player.position === positionFilter)
-    );
-    console.log('Jugadores filtrados:', filteredPlayers);
-    if (filteredPlayers.length === 0) {
-        grid.innerHTML = '<p>No hay jugadores que coincidan con los filtros.</p>';
-    } else {
-        filteredPlayers.forEach(player => {
-            const card = document.createElement('div');
-            card.className = 'transfer-card animate-fade-in available';
-            card.innerHTML = `
-                <h3>${player.name}</h3>
-                <p>Posición: ${player.position}</p>
-                <p>Rating: ${player.rating}</p>
-                <p class="player-value">$${player.value.toLocaleString()}</p>
-                <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
-                <button class="negotiate-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Negociar</button>
-                <button class="sell-button follow-btn ${club.watchlist.some(p => p.name === player.name) ? 'active' : ''}" onclick="addToWatchlist('${player.name}')">Seguir</button>
-            `;
-            grid.appendChild(card);
-        });
-    }
-    console.log('renderMarket completado, botones renderizados:', grid.querySelectorAll('.buy-button').length);
-    renderClubDetails();
-}
+            const grid = document.getElementById('transferGrid');
+            grid.innerHTML = '';
+            if (!Array.isArray(playersMarket)) {
+                console.error('playersMarket no es un array:', playersMarket);
+                grid.innerHTML = '<p>No hay jugadores disponibles.</p>';
+                return;
+            }
+            const clubPlayers = Array.isArray(club.players) ? club.players : [];
+            const filteredPlayers = playersMarket.filter(player => 
+                !clubPlayers.some(p => p.name === player.name) &&
+                player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+                (positionFilter === '' || player.position === positionFilter)
+            );
+            console.log('Jugadores filtrados:', filteredPlayers);
+            if (filteredPlayers.length === 0) {
+                grid.innerHTML = '<p>No hay jugadores que coincidan con los filtros.</p>';
+            } else {
+                filteredPlayers.forEach(player => {
+                    const card = document.createElement('div');
+                    card.className = 'transfer-card animate-fade-in available';
+                    card.innerHTML = `
+                        <h3>${player.name}</h3>
+                        <p>Posición: ${player.position}</p>
+                        <p>Rating: ${player.rating}</p>
+                        <p class="player-value">$${player.value.toLocaleString()}</p>
+                        <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
+                        <button class="negotiate-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Negociar</button>
+                        <button class="sell-button follow-btn ${club.watchlist.some(p => p.name === player.name) ? 'active' : ''}" onclick="addToWatchlist('${player.name}')">Seguir</button>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+            console.log('renderMarket completado, botones renderizados:', grid.querySelectorAll('.buy-button').length);
+            renderClubDetails();
+        }
 
         // Comprar jugador
         async function buyPlayer(name, value) {
-    console.log('buyPlayer iniciado para:', name, value);
-    if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
-    const token = localStorage.getItem('token');
-    console.log('Token en buyPlayer:', token);
-    if (!token) return showNotification('Debes iniciar sesión.', 'error') && (window.location.href = 'login.html');
-    if (club.name === '[Sin registrar]') return showNotification('Registra tu club primero en "Liga Master".', 'error') && (window.location.href = 'liga-master.html');
-    if (club.budget < value) return showNotification('No tienes suficiente presupuesto.', 'error');
-    if (club.players.some(p => p.name === name)) return showNotification(`${name} ya está en tu club.`, 'error');
+            console.log('buyPlayer iniciado para:', name, value);
+            if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
+            const token = localStorage.getItem('token');
+            console.log('Token en buyPlayer:', token);
+            if (!token) return showNotification('Debes iniciar sesión.', 'error') && (window.location.href = 'login.html');
+            if (club.name === '[Sin registrar]') return showNotification('Registra tu club primero en "Liga Master".', 'error') && (window.location.href = 'liga-master.html');
+            if (club.budget < value) return showNotification('No tienes suficiente presupuesto.', 'error');
+            if (club.players.some(p => p.name === name)) return showNotification(`${name} ya está en tu club.`, 'error');
 
-    const buyButtons = document.querySelectorAll('.buy-button');
-    buyButtons.forEach(button => button.disabled = true);
+            const buyButtons = document.querySelectorAll('.buy-button');
+            buyButtons.forEach(button => {
+                button.disabled = true;
+                button.removeEventListener('click', buyPlayer); // Evitar eventos duplicados
+            });
 
-    showNotification('Procesando compra...', 'info');
-    try {
-        console.log('Enviando solicitud a /api/transaction');
-        const response = await fetch(`${BASE_URL}/api/transaction`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-            body: JSON.stringify({ type: 'compra', playerName: name, value })
-        });
-        console.log('Respuesta de /api/transaction:', response.status);
-        const data = await response.json();
-        if (response.ok) {
-            club.budget -= value;
-            club.points += 10;
-            const player = playersMarket.find(p => p.name === name);
-            club.players.push(player);
-            localStorage.setItem('clubBudget', club.budget);
-            localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-            localStorage.setItem('marketPoints', club.points);
-            transactions.unshift(data.transaction);
-            showNotification(`¡Has comprado a ${name} por $${value.toLocaleString()}! (+10 puntos)`);
-            renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
-            renderWatchlist(); // Actualizar Lista de Seguimiento
-            renderLoans();
-            bindMarketEvents();
-            updatePoints();
-            renderRecommendations();
-            updateStats();
-            renderHistory();
-        } else {
-            console.log('Error en respuesta:', data);
-            showNotification(data.msg || 'Error al comprar', 'error');
+            showNotification('Procesando compra...', 'info');
+            try {
+                console.log('Enviando solicitud a /api/transaction');
+                const response = await fetch(`${BASE_URL}/api/transaction`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({ type: 'compra', playerName: name, value })
+                });
+                console.log('Respuesta de /api/transaction:', response.status);
+                const data = await response.json();
+                if (response.ok) {
+                    club.budget -= value;
+                    club.points += 10;
+                    const player = playersMarket.find(p => p.name === name);
+                    club.players.push(player);
+                    localStorage.setItem('clubBudget', club.budget);
+                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                    localStorage.setItem('marketPoints', club.points);
+                    transactions.unshift(data.transaction);
+                    showNotification(`¡Has comprado a ${name} por $${value.toLocaleString()}! (+10 puntos)`);
+                    renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
+                    renderWatchlist();
+                    renderLoans();
+                    bindMarketEvents();
+                    updatePoints();
+                    renderRecommendations();
+                    updateStats();
+                    renderHistory();
+                } else {
+                    console.log('Error en respuesta:', data);
+                    showNotification(data.msg || 'Error al comprar', 'error');
+                }
+            } catch (err) {
+                console.error('Error en fetch:', err);
+                showNotification('Error de conexión: ' + err.message, 'error');
+            } finally {
+                buyButtons.forEach(button => button.disabled = !isMarketOpen);
+            }
         }
-    } catch (err) {
-        console.error('Error en fetch:', err);
-        showNotification('Error de conexión: ' + err.message, 'error');
-    } finally {
-        buyButtons.forEach(button => button.disabled = !isMarketOpen);
-    }
-}
 
         // Vender jugador
         async function sellPlayer(name, value) {
-    if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
-    const token = localStorage.getItem('token');
-    const sellValue = Math.floor(value * 0.8);
-    showNotification('Procesando venta...', 'info');
-    try {
-        const response = await fetch(`${BASE_URL}/api/transaction`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-            body: JSON.stringify({ type: 'venta', playerName: name, value: sellValue })
-        });
-        const data = await response.json();
-        if (response.ok) {
-            club.budget += sellValue;
-            club.points += 5;
-            club.players = club.players.filter(p => p.name !== name);
-            localStorage.setItem('clubBudget', club.budget);
-            localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-            localStorage.setItem('marketPoints', club.points);
-            transactions.unshift(data.transaction);
-            showNotification(`¡Has vendido a ${name} por $${sellValue.toLocaleString()}! (+5 puntos)`);
-            renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
-            bindMarketEvents(); // Re-vincular eventos tras venta
-            updatePoints();
-            renderRecommendations();
-            updateStats();
-            renderHistory();
-        } else {
-            showNotification(data.msg || 'Error al vender', 'error');
+            if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
+            const token = localStorage.getItem('token');
+            const sellValue = Math.floor(value * 0.8);
+            showNotification('Procesando venta...', 'info');
+            try {
+                const response = await fetch(`${BASE_URL}/api/transaction`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({ type: 'venta', playerName: name, value: sellValue })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    club.budget += sellValue;
+                    club.points += 5;
+                    club.players = club.players.filter(p => p.name !== name);
+                    localStorage.setItem('clubBudget', club.budget);
+                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                    localStorage.setItem('marketPoints', club.points);
+                    transactions.unshift(data.transaction);
+                    showNotification(`¡Has vendido a ${name} por $${sellValue.toLocaleString()}! (+5 puntos)`);
+                    renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
+                    bindMarketEvents();
+                    updatePoints();
+                    renderRecommendations();
+                    updateStats();
+                    renderHistory();
+                } else {
+                    showNotification(data.msg || 'Error al vender', 'error');
+                }
+            } catch (err) {
+                showNotification('Error de conexión: ' + err.message, 'error');
+            }
         }
-    } catch (err) {
-        showNotification('Error de conexión: ' + err.message, 'error');
-    }
-}
 
         // Negociar jugador
         async function negotiatePlayer(name, value) {
@@ -1203,51 +1239,55 @@ async function syncClubData() {
 
         // Prestar jugador
         async function loanPlayer(name, value) {
-    console.log('loanPlayer iniciado para:', name, value);
-    if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
-    const token = localStorage.getItem('token');
-    console.log('Token en loanPlayer:', token);
-    if (club.budget < value) return showNotification('No tienes suficiente presupuesto para el préstamo.', 'error');
+            console.log('loanPlayer iniciado para:', name, value);
+            if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
+            const token = localStorage.getItem('token');
+            console.log('Token en loanPlayer:', token);
+            if (club.budget < value) return showNotification('No tienes suficiente presupuesto para el préstamo.', 'error');
+            if (loanedPlayers.includes(name)) return showNotification(`${name} ya está prestado.`, 'error');
 
-    const loanButtons = document.querySelectorAll('.loan-button');
-    loanButtons.forEach(button => button.disabled = true);
+            const loanButtons = document.querySelectorAll('.loan-button');
+            loanButtons.forEach(button => button.disabled = true);
 
-    showNotification('Procesando préstamo...', 'info');
-    try {
-        console.log('Enviando solicitud a /api/transaction');
-        const response = await fetch(`${BASE_URL}/api/transaction`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-            body: JSON.stringify({ type: 'prestamo', playerName: name, value })
-        });
-        console.log('Respuesta de /api/transaction:', response.status);
-        const data = await response.json();
-        if (response.ok) {
-            club.budget -= value;
-            club.points += 5;
-            localStorage.setItem('clubBudget', club.budget);
-            localStorage.setItem('marketPoints', club.points);
-            transactions.unshift(data.transaction);
-            showNotification(`¡Has prestado a ${name} por $${value.toLocaleString()}! (+5 puntos)`);
-            renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
-            renderLoans();
-            renderWatchlist();
-            bindMarketEvents();
-            updatePoints();
-            renderRecommendations();
-            updateStats();
-            renderHistory();
-        } else {
-            console.log('Error en respuesta:', data);
-            showNotification(data.msg || 'Error al prestar', 'error');
+            showNotification('Procesando préstamo...', 'info');
+            try {
+                console.log('Enviando solicitud a /api/transaction');
+                const response = await fetch(`${BASE_URL}/api/transaction`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({ type: 'prestamo', playerName: name, value })
+                });
+                console.log('Respuesta de /api/transaction:', response.status);
+                const data = await response.json();
+                if (response.ok) {
+                    club.budget -= value;
+                    club.points += 5;
+                    loanedPlayers.push(name);
+                    localStorage.setItem('clubBudget', club.budget);
+                    localStorage.setItem('marketPoints', club.points);
+                    localStorage.setItem('loanedPlayers', JSON.stringify(loanedPlayers));
+                    transactions.unshift(data.transaction);
+                    showNotification(`¡Has prestado a ${name} por $${value.toLocaleString()}! (+5 puntos)`);
+                    renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
+                    renderLoans();
+                    renderWatchlist();
+                    bindMarketEvents();
+                    updatePoints();
+                    renderRecommendations();
+                    updateStats();
+                    renderHistory();
+                } else {
+                    console.log('Error en respuesta:', data);
+                    showNotification(data.msg || 'Error al prestar', 'error');
+                }
+            } catch (err) {
+                console.error('Error en fetch:', err);
+                showNotification('Error de conexión: ' + err.message, 'error');
+            } finally {
+                loanButtons.forEach(button => button.disabled = !isMarketOpen);
+            }
         }
-    } catch (err) {
-        console.error('Error en fetch:', err);
-        showNotification('Error de conexión: ' + err.message, 'error');
-    } finally {
-        loanButtons.forEach(button => button.disabled = !isMarketOpen);
-    }
-}
+
         // Actualizar estadísticas (simulado por ahora)
         function updateStats() {
             const filter = document.getElementById('timeFilter').value;
@@ -1275,69 +1315,42 @@ async function syncClubData() {
             document.getElementById('mostExpensive').textContent = mostExpensive.name ? `${mostExpensive.name} ($${mostExpensive.value.toLocaleString()})` : 'N/A';
         }
 
-        // Eventos
-        document.addEventListener('DOMContentLoaded', () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
-                });
-            }, { threshold: 0.1, rootMargin: '0px' });
-            document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
-
-            document.querySelectorAll('.transition-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.body.classList.add('fade-out');
-                    setTimeout(() => window.location.href = link.getAttribute('data-href'), 500);
+        // Vincular eventos a botones
+        function bindMarketEvents() {
+            const grid = document.getElementById('transferGrid');
+            const buyButtons = document.querySelectorAll('.buy-button');
+            const negotiateButtons = document.querySelectorAll('.negotiate-button');
+            const loanButtons = document.querySelectorAll('.loan-button');
+            
+            console.log('Vinculando eventos, botones encontrados:', buyButtons.length, 'comprar,', negotiateButtons.length, 'negociar,', loanButtons.length, 'prestar');
+            
+            buyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const name = button.getAttribute('data-name');
+                    const value = parseInt(button.getAttribute('data-value'));
+                    console.log('Botón Comprar clicado para:', name);
+                    buyPlayer(name, value);
                 });
             });
 
-            const backToTop = document.querySelector('.back-to-top');
-            window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
-            backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+            negotiateButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const name = button.getAttribute('data-name');
+                    const value = parseInt(button.getAttribute('data-value'));
+                    console.log('Botón Negociar clicado para:', name);
+                    negotiatePlayer(name, value);
+                });
+            });
 
-            document.getElementById('searchInput').addEventListener('input', (e) => 
-                renderMarket(e.target.value, document.getElementById('positionFilter').value));
-            document.getElementById('positionFilter').addEventListener('change', (e) => 
-                renderMarket(document.getElementById('searchInput').value, e.target.value));
-            document.getElementById('timeFilter').addEventListener('change', updateStats);
-        });
-
-        function bindMarketEvents() {
-    const grid = document.getElementById('transferGrid');
-    const buyButtons = grid.querySelectorAll('.buy-button');
-    const negotiateButtons = grid.querySelectorAll('.negotiate-button');
-    const loanButtons = document.querySelectorAll('.loan-button');
-    
-    console.log('Vinculando eventos, botones encontrados:', buyButtons.length, 'comprar,', negotiateButtons.length, 'negociar,', loanButtons.length, 'prestar');
-    
-    buyButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const name = button.getAttribute('data-name');
-            const value = parseInt(button.getAttribute('data-value'));
-            console.log('Botón Comprar clicado para:', name);
-            buyPlayer(name, value);
-        });
-    });
-
-    negotiateButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const name = button.getAttribute('data-name');
-            const value = parseInt(button.getAttribute('data-value'));
-            console.log('Botón Negociar clicado para:', name);
-            negotiatePlayer(name, value);
-        });
-    });
-
-    loanButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const name = button.getAttribute('data-name');
-            const value = parseInt(button.getAttribute('data-value'));
-            console.log('Botón Prestar clicado para:', name);
-            loanPlayer(name, value);
-        });
-    });
-}
+            loanButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const name = button.getAttribute('data-name');
+                    const value = parseInt(button.getAttribute('data-value'));
+                    console.log('Botón Prestar clicado para:', name);
+                    loanPlayer(name, value);
+                });
+            });
+        }
     </script>
 </body>
 </html>
