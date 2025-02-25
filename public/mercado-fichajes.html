@@ -1081,34 +1081,35 @@ async function syncClubData() {
                 <button class="sell-button follow-btn ${club.watchlist.some(p => p.name === player.name) ? 'active' : ''}" onclick="addToWatchlist('${player.name}')">Seguir</button>
             `;
             grid.appendChild(card);
-            // Añadir evento manualmente
             const buyButton = card.querySelector('.buy-button');
             buyButton.addEventListener('click', () => {
-                console.log('Intentando comprar', player.name);
+                console.log('Botón Comprar clicado para:', player.name);
                 buyPlayer(player.name, player.value);
             });
         });
     }
     renderClubDetails();
 }
+
         // Comprar jugador
         async function buyPlayer(name, value) {
-    console.log('buyPlayer llamado con:', name, value); // Depuración
+    console.log('buyPlayer iniciado para:', name, value);
     if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
     const token = localStorage.getItem('token');
-    console.log('Token en buyPlayer:', token); // Depuración
+    console.log('Token en buyPlayer:', token);
     if (!token) return showNotification('Debes iniciar sesión.', 'error') && (window.location.href = 'login.html');
     if (club.name === '[Sin registrar]') return showNotification('Registra tu club primero en "Liga Master".', 'error') && (window.location.href = 'liga-master.html');
     if (club.budget < value) return showNotification('No tienes suficiente presupuesto.', 'error');
 
     showNotification('Procesando compra...', 'info');
     try {
+        console.log('Enviando solicitud a /api/transaction');
         const response = await fetch(`${BASE_URL}/api/transaction`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
             body: JSON.stringify({ type: 'compra', playerName: name, value })
         });
-        console.log('Respuesta de /api/transaction:', response.status); // Depuración
+        console.log('Respuesta de /api/transaction:', response.status);
         const data = await response.json();
         if (response.ok) {
             club.budget -= value;
@@ -1126,9 +1127,11 @@ async function syncClubData() {
             updateStats();
             renderHistory();
         } else {
+            console.log('Error en respuesta:', data);
             showNotification(data.msg || 'Error al comprar', 'error');
         }
     } catch (err) {
+        console.error('Error en fetch:', err);
         showNotification('Error de conexión: ' + err.message, 'error');
     }
 }
