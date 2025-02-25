@@ -1152,6 +1152,7 @@ async function syncClubData() {
             transactions.unshift(data.transaction);
             showNotification(`¡Has comprado a ${name} por $${value.toLocaleString()}! (+10 puntos)`);
             renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
+            bindMarketEvents(); // Re-vincular eventos tras compra
             updatePoints();
             renderRecommendations();
             updateStats();
