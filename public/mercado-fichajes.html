@@ -1176,38 +1176,39 @@ async function syncClubData() {
 
         // Vender jugador
         async function sellPlayer(name, value) {
-            if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
-            const token = localStorage.getItem('token');
-            const sellValue = Math.floor(value * 0.8);
-            showNotification('Procesando venta...', 'info');
-            try {
-                const response = await fetch(`${BASE_URL}/api/transaction`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                    body: JSON.stringify({ type: 'venta', playerName: name, value: sellValue })
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    club.budget += sellValue;
-                    club.points += 5;
-                    club.players = club.players.filter(p => p.name !== name);
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    localStorage.setItem('marketPoints', club.points);
-                    transactions.unshift(data.transaction);
-                    showNotification(`¡Has vendido a ${name} por $${sellValue.toLocaleString()}! (+5 puntos)`);
-                    renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
-                    updatePoints();
-                    renderRecommendations();
-                    updateStats();
-                    renderHistory();
-                } else {
-                    showNotification(data.msg || 'Error al vender', 'error');
-                }
-            } catch (err) {
-                showNotification('Error de conexión: ' + err.message, 'error');
-            }
+    if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
+    const token = localStorage.getItem('token');
+    const sellValue = Math.floor(value * 0.8);
+    showNotification('Procesando venta...', 'info');
+    try {
+        const response = await fetch(`${BASE_URL}/api/transaction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+            body: JSON.stringify({ type: 'venta', playerName: name, value: sellValue })
+        });
+        const data = await response.json();
+        if (response.ok) {
+            club.budget += sellValue;
+            club.points += 5;
+            club.players = club.players.filter(p => p.name !== name);
+            localStorage.setItem('clubBudget', club.budget);
+            localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+            localStorage.setItem('marketPoints', club.points);
+            transactions.unshift(data.transaction);
+            showNotification(`¡Has vendido a ${name} por $${sellValue.toLocaleString()}! (+5 puntos)`);
+            renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
+            bindMarketEvents(); // Re-vincular eventos tras venta
+            updatePoints();
+            renderRecommendations();
+            updateStats();
+            renderHistory();
+        } else {
+            showNotification(data.msg || 'Error al vender', 'error');
         }
+    } catch (err) {
+        showNotification('Error de conexión: ' + err.message, 'error');
+    }
+}
 
         // Negociar jugador
         async function negotiatePlayer(name, value) {
