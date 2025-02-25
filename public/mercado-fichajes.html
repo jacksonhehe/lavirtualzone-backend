@@ -725,7 +725,12 @@
     try {
         await syncClubData();
         await loadMarketData();
-        bindMarketEvents(); // Vincular eventos después de cargar datos
+        // Forzar re-renderizado y vinculación inicial
+        setTimeout(() => {
+            renderMarket(); // Re-renderizar
+            bindMarketEvents(); // Re-vincular eventos
+            console.log('Re-renderizado inicial completado');
+        }, 100);
         setInterval(updateTimer, 1000);
         updateTimer();
         renderChat();
@@ -756,15 +761,14 @@
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
         renderMarket(e.target.value, document.getElementById('positionFilter').value);
-        bindMarketEvents(); // Re-vincular eventos tras filtrar
+        bindMarketEvents();
     });
     document.getElementById('positionFilter').addEventListener('change', (e) => {
         renderMarket(document.getElementById('searchInput').value, e.target.value);
-        bindMarketEvents(); // Re-vincular eventos tras filtrar
+        bindMarketEvents();
     });
     document.getElementById('timeFilter').addEventListener('change', updateStats);
 });
-
         // Sincronizar datos del club con el backend
        // Sincronizar datos del club con el backend
 async function syncClubData() {
