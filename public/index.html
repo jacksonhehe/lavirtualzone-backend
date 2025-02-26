@@ -253,19 +253,6 @@
             box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
         }
 
-        /* Sección de Temporada */
-        .season-status {
-            padding: 4rem 3rem;
-            text-align: center;
-            background: var(--dark-bg);
-        }
-
-        .season-status p {
-            font-size: 1.5rem;
-            color: var(--accent-green);
-            margin: 1rem 0;
-        }
-
         /* Secciones Generales */
         .tournaments-section,
         .liga-master-section,
@@ -905,7 +892,6 @@
                 <button class="close-menu" aria-label="Cerrar menú"><i class="fas fa-times" aria-hidden="true"></i></button>
                 <a href="#torneos" class="nav-link">Torneos</a>
                 <a href="liga-master.html" class="nav-link transition-link" data-href="liga-master.html">Liga Master</a>
-                <a href="mercado-fichajes.html" class="nav-link transition-link" data-href="mercado-fichajes.html">Mercado de Fichajes</a>
                 <a href="#clasificacion" class="nav-link">Clasificación</a>
                 <a href="login.html" class="nav-link transition-link" data-href="login.html">Iniciar Sesión</a>
                 <a href="#contacto" class="nav-link">Contacto</a>
@@ -922,11 +908,6 @@
                     <a href="#torneos" class="cta-button">Explora Ahora</a>
                 </div>
             </div>
-        </section>
-
-        <section class="season-status" aria-labelledby="season-heading">
-            <h2 class="section-title" id="season-heading">Estado Actual</h2>
-            <p id="seasonTimer">Cargando Temporada...</p>
         </section>
 
         <section class="tournaments-section" id="torneos" aria-labelledby="torneos-heading">
@@ -1360,23 +1341,19 @@
 
         function updateSeason() {
             const now = new Date().getTime();
-            const seasonTimer = document.getElementById('seasonTimer');
             const lmSeasonStatus = document.getElementById('lmSeasonStatus');
 
             if (now < season.start) {
                 const timeUntil = season.start - now;
                 const days = Math.floor(timeUntil / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((timeUntil % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                seasonTimer.textContent = `Temporada comienza en ${days}d ${hours}h`;
                 lmSeasonStatus.textContent = `Comienza en ${days}d ${hours}h`;
             } else if (now <= season.end) {
                 const timeLeft = season.end - now;
                 const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                seasonTimer.textContent = `Temporada termina en ${days}d ${hours}h`;
                 lmSeasonStatus.textContent = `Activa - Termina en ${days}d ${hours}h`;
             } else {
-                seasonTimer.textContent = "Temporada finalizada";
                 lmSeasonStatus.textContent = "Finalizada";
             }
         }
