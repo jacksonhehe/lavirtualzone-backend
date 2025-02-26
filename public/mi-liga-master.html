@@ -530,7 +530,7 @@
                         <div class="stat-number" id="seasonProgress">0/5</div>
                         <p>Progreso Temporada</p>
                     </div>
-                    <div class="stat-item">
+                    <div class="stat-item" id="winRateContainer">
                         <canvas id="winRateChart" width="100" height="100"></canvas>
                         <p>Porcentaje de Victorias</p>
                     </div>
@@ -593,11 +593,12 @@
         };
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         let season = {
-            start: new Date().getTime() - 24 * 60 * 60 * 1000, // Temporada activa para pruebas
+            start: new Date().getTime() - 24 * 60 * 60 * 1000,
             end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000,
             wins: parseInt(localStorage.getItem('seasonWins')) || 0
         };
         let isProcessing = false;
+        let chartInstance = null; // Para controlar instancias de Chart.js
 
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
@@ -612,7 +613,31 @@
             const headerHeight = header.offsetHeight;
             document.querySelector('main').style.paddingTop = `${headerHeight}px`;
 
-            await syncClubData();
+            try {
+                await syncClubData();
+                updateClubPreview();
+                updateWatchlist();
+                updateTransactions();
+                updateStats(); // Renderizar estadísticas solo una vez
+                updateAchievements();
+            } catch (err) {
+                showNotification('Error inicial al cargar datos: ' + err.message, 'error');
+                // Usar datos predeterminados si el backend falla
+                club = {
+                    name: '[Sin registrar]',
+                    budget: 100000000,
+                    players: [],
+                    color: '#00ffff',
+                    wins: 0,
+                    watchlist: [],
+                    gamesPlayed: 0
+                };
+                updateClubPreview();
+                updateWatchlist();
+                updateTransactions();
+                updateStats();
+                updateAchievements();
+            }
 
             document.querySelectorAll('.transition-link').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -639,12 +664,6 @@
                 console.log('Scroll position:', window.scrollY, 'Document height:', document.body.scrollHeight, 'Viewport height:', window.innerHeight);
             });
             backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-            updateClubPreview();
-            updateWatchlist();
-            updateTransactions();
-            updateStats();
-            updateAchievements();
 
             document.getElementById('clubForm').addEventListener('submit', saveClub);
             document.getElementById('resetClub').addEventListener('click', resetClub);
@@ -682,11 +701,15 @@
                     updateClubPreview();
                     updateWatchlist();
                     updateTransactions();
-                    updateStats();
+                    updateStats(); // Renderizar estadísticas solo una vez
                     updateAchievements();
                 }
             } catch (err) {
-                showNotification('Error al sincronizar datos: ' + err.message, 'error');
+                console.error('Error en syncClubData:', err);
+                showNotification('No se pudo sincronizar con el servidor. Usando datos locales.', 'warning');
+                // Usar datos locales si el backend falla
+                if (!club.players || !Array.isArray(club.players)) club.players = [];
+                if (!club.watchlist || !Array.isArray(club.watchlist)) club.watchlist = [];
             }
         }
 
@@ -696,7 +719,14 @@
             for (let i = 0; i < retries; i++) {
                 try {
                     const response = await fetch(url, options);
-                    if (!response.ok) throw new Error('Respuesta no OK');
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            showNotification('Sesión expirada o no autorizada. Por favor, inicia sesión de nuevo.', 'error');
+                            setTimeout(() => window.location.href = 'login.html', 2000);
+                            throw new Error('No autorizado');
+                        }
+                        throw new Error('Respuesta no OK');
+                    }
                     const data = await response.json();
                     spinner.classList.remove('active');
                     return data;
@@ -757,27 +787,32 @@
         }
 
         function updateStats() {
-            document.getElementById('winsCount').textContent = club.wins;
-            document.getElementById('gamesPlayed').textContent = club.gamesPlayed;
-            document.getElementById('seasonProgress').textContent = `${season.wins}/5`;
-            const winRate = club.gamesPlayed > 0 ? ((club.wins / club.gamesPlayed) * 100).toFixed(1) : 0;
+            // Destruir instancia anterior de Chart.js si existe
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            document.getElementById('winsCount').textContent = club.wins || 0;
+            document.getElementById('gamesPlayed').textContent = club.gamesPlayed || 0;
+            document.getElementById('seasonProgress').textContent = `${season.wins || 0}/5`;
+            const winRate = (club.gamesPlayed || 0) > 0 ? ((club.wins / club.gamesPlayed) * 100).toFixed(1) : 0;
 
             const statsContainer = document.getElementById('stats-container');
             statsContainer.innerHTML = `
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <div class="stat-number" id="winsCount">${club.wins}</div>
+                        <div class="stat-number" id="winsCount">${club.wins || 0}</div>
                         <p>Victorias</p>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number" id="gamesPlayed">${club.gamesPlayed}</div>
+                        <div class="stat-number" id="gamesPlayed">${club.gamesPlayed || 0}</div>
                         <p>Partidos Jugados</p>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number" id="seasonProgress">${season.wins}/5</div>
+                        <div class="stat-number" id="seasonProgress">${season.wins || 0}/5</div>
                         <p>Progreso Temporada</p>
                     </div>
-                    <div class="stat-item">
+                    <div class="stat-item" id="winRateContainer">
                         <canvas id="winRateChart" width="100" height="100"></canvas>
                         <p>Porcentaje de Victorias</p>
                     </div>
@@ -785,7 +820,7 @@
             `;
 
             const ctx = document.getElementById('winRateChart').getContext('2d');
-            new Chart(ctx, {
+            chartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Victorias', 'Derrotas'],
@@ -818,15 +853,19 @@
                 if (response.ok) {
                     const leaderboard = await response.json();
                     isTop10 = leaderboard.slice(0, 10).some(entry => entry.clubName === club.name);
+                } else if (response.status === 404) {
+                    console.warn('Endpoint /api/leaderboard no encontrado, usando datos locales para Top 10.');
+                    isTop10 = false; // Asumir falso si no hay backend
                 }
             } catch (err) {
                 console.error('Error al verificar Top 10:', err);
+                isTop10 = false; // Usar datos locales si falla
             }
             top10.innerHTML = `<i class="fas fa-trophy" ${isTop10 ? '' : 'style="color: gray;"'}></i><h3>Top 10</h3><p>${isTop10 ? 'Completado' : 'Clasifícate entre los 10 mejores'}</p>`;
             if (isTop10) top10.classList.add('completed');
 
             const millionSpent = document.getElementById('million-spent');
-            const spent = 100000000 - club.budget;
+            const spent = 100000000 - (club.budget || 100000000);
             millionSpent.innerHTML = `<i class="fas fa-money-bill-wave" ${spent >= 1000000 ? '' : 'style="color: gray;"'}></i><h3>Millonario</h3><p>${spent >= 1000000 ? 'Completado' : 'Gasta $1M'}</p>`;
             if (spent >= 1000000) millionSpent.classList.add('completed');
 
@@ -842,6 +881,8 @@
                     const achievements = await response.json();
                     if (achievements.bestTeamOfMonth) newAchievement.classList.add('completed');
                     showAchievementNotification({ name: 'Mejor Equipo del Mes' });
+                } else if (response.status === 404) {
+                    console.warn('Endpoint /api/achievements no encontrado, usando datos locales.');
                 }
             } catch (err) {
                 console.error('Error al verificar logros:', err);
@@ -858,7 +899,7 @@
             button.disabled = true;
 
             const cost = Math.floor(value * 0.1);
-            if (club.budget < cost) {
+            if ((club.budget || 0) < cost) {
                 showNotification('No tienes suficiente presupuesto.', 'error');
                 isProcessing = false;
                 button.disabled = false;
@@ -866,7 +907,7 @@
             }
 
             const token = localStorage.getItem('token');
-            const playerIndex = club.players.findIndex(p => p._id === id || p.id === id);
+            const playerIndex = (club.players || []).findIndex(p => p._id === id || p.id === id);
             if (playerIndex === -1) {
                 showNotification('Jugador no encontrado.', 'error');
                 isProcessing = false;
