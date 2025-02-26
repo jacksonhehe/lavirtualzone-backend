@@ -25,7 +25,7 @@
             --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
             --shadow-cyan: 0 6px 18px rgba(0, 255, 255, 0.15);
             --transition-base: 0.3s ease-in-out;
-            --accent-green: #66ff66; /* Verde más suave */
+            --accent-green: #66ff66;
             --pro-blue: #0288D1;
             --pro-grey: #455A64;
         }
@@ -611,16 +611,73 @@
             </div>
         </section>
 
+        <!-- 1. Estado del Mercado -->
         <section class="mercado-timer" aria-labelledby="timer-heading">
             <h2 class="section-title" id="timer-heading">Estado del Mercado</h2>
             <p id="market-timer" class="animate-fade-in">Cargando...</p>
         </section>
 
+        <!-- 2. Jugadores Disponibles -->
+        <section class="mercado-search" aria-labelledby="search-heading">
+            <h2 class="section-title" id="search-heading">Jugadores Disponibles</h2>
+            <div class="mercado-search-container animate-fade-in">
+                <input type="text" id="searchInput" class="form-input" placeholder="Buscar por nombre...">
+                <select id="positionFilter" class="form-select">
+                    <option value="">Todas las Posiciones</option>
+                    <option value="Delantero">Delantero</option>
+                    <option value="Mediocampista">Mediocampista</option>
+                    <option value="Defensor">Defensor</option>
+                    <option value="Portero">Portero</option>
+                </select>
+            </div>
+        </section>
+        <section class="mercado-transfer">
+            <div class="transfer-grid" id="transferGrid"></div>
+        </section>
+
+        <!-- 3. Jugadores Destacados en Venta -->
+        <section class="mercado-featured-players" aria-labelledby="featured-heading">
+            <h2 class="section-title" id="featured-heading">Jugadores Destacados en Venta</h2>
+            <div class="featured-players-grid" id="featuredPlayersGrid"></div>
+        </section>
+
+        <!-- 4. Recomendaciones para tu Club -->
         <section class="mercado-recommendations" aria-labelledby="recommendations-heading">
             <h2 class="section-title" id="recommendations-heading">Recomendaciones para tu Club</h2>
             <div class="recommendations-grid" id="recommendationsGrid"></div>
         </section>
 
+        <!-- 5. Préstamos Disponibles -->
+        <section class="mercado-loans" aria-labelledby="loans-heading">
+            <h2 class="section-title" id="loans-heading">Préstamos Disponibles</h2>
+            <div class="loans-grid" id="loansGrid"></div>
+        </section>
+
+        <!-- 6. Lista de Seguimiento -->
+        <section class="mercado-watchlist" aria-labelledby="watchlist-heading">
+            <h2 class="section-title" id="watchlist-heading">Lista de Seguimiento</h2>
+            <div class="watchlist-grid" id="watchlistGrid"></div>
+        </section>
+
+        <!-- 7. Detalles de tu Club -->
+        <section class="club-details" aria-labelledby="club-heading">
+            <h2 class="section-title" id="club-heading">Detalles de tu Club</h2>
+            <div class="club-details-container animate-fade-in">
+                <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
+                <p>Presupuesto: $<span id="clubBudget">100,000,000</span></p>
+                <ul id="clubPlayers"></ul>
+            </div>
+        </section>
+
+        <!-- 8. Tus Puntos de Mercado -->
+        <section class="mercado-points" aria-labelledby="points-heading">
+            <h2 class="section-title" id="points-heading">Tus Puntos de Mercado</h2>
+            <div class="points-container animate-fade-in">
+                <p>Puntos: <span id="marketPoints">0</span></p>
+            </div>
+        </section>
+
+        <!-- 9. Negociaciones en Vivo -->
         <section class="mercado-chat" aria-labelledby="chat-heading">
             <h2 class="section-title" id="chat-heading">Negociaciones en Vivo</h2>
             <div class="chat-container animate-fade-in">
@@ -632,38 +689,19 @@
             </div>
         </section>
 
-        <section class="mercado-watchlist" aria-labelledby="watchlist-heading">
-            <h2 class="section-title" id="watchlist-heading">Lista de Seguimiento</h2>
-            <div class="watchlist-grid" id="watchlistGrid"></div>
-        </section>
-
-        <section class="mercado-loans" aria-labelledby="loans-heading">
-            <h2 class="section-title" id="loans-heading">Préstamos Disponibles</h2>
-            <div class="loans-grid" id="loansGrid"></div>
-        </section>
-
-        <section class="mercado-featured-players" aria-labelledby="featured-heading">
-            <h2 class="section-title" id="featured-heading">Jugadores Destacados en Venta</h2>
-            <div class="featured-players-grid" id="featuredPlayersGrid"></div>
-        </section>
-
-        <section class="mercado-points" aria-labelledby="points-heading">
-            <h2 class="section-title" id="points-heading">Tus Puntos de Mercado</h2>
-            <div class="points-container animate-fade-in">
-                <p>Puntos: <span id="marketPoints">0</span></p>
-            </div>
-        </section>
-
-        <section class="mercado-history" aria-labelledby="history-heading">
-            <h2 class="section-title" id="history-heading">Historial de Transacciones</h2>
-            <div class="history-grid" id="historyGrid"></div>
-        </section>
-
+        <!-- 10. Subastas en Curso -->
         <section class="mercado-offers" aria-labelledby="offers-heading">
             <h2 class="section-title" id="offers-heading">Subastas en Curso</h2>
             <div class="offers-grid" id="offersGrid"></div>
         </section>
 
+        <!-- 11. Historial de Transacciones -->
+        <section class="mercado-history" aria-labelledby="history-heading">
+            <h2 class="section-title" id="history-heading">Historial de Transacciones</h2>
+            <div class="history-grid" id="historyGrid"></div>
+        </section>
+
+        <!-- 12. Estadísticas del Mercado -->
         <section class="mercado-stats" aria-labelledby="stats-heading">
             <h2 class="section-title" id="stats-heading">Estadísticas del Mercado</h2>
             <div class="mercado-search-container">
@@ -691,33 +729,6 @@
                     <p>Jugador Más Caro</p>
                 </div>
             </div>
-        </section>
-
-        <section class="club-details" aria-labelledby="club-heading">
-            <h2 class="section-title" id="club-heading">Detalles de tu Club</h2>
-            <div class="club-details-container animate-fade-in">
-                <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
-                <p>Presupuesto: $<span id="clubBudget">100,000,000</span></p>
-                <ul id="clubPlayers"></ul>
-            </div>
-        </section>
-
-        <section class="mercado-search" aria-labelledby="search-heading">
-            <h2 class="section-title" id="search-heading">Jugadores Disponibles</h2>
-            <div class="mercado-search-container animate-fade-in">
-                <input type="text" id="searchInput" class="form-input" placeholder="Buscar por nombre...">
-                <select id="positionFilter" class="form-select">
-                    <option value="">Todas las Posiciones</option>
-                    <option value="Delantero">Delantero</option>
-                    <option value="Mediocampista">Mediocampista</option>
-                    <option value="Defensor">Defensor</option>
-                    <option value="Portero">Portero</option>
-                </select>
-            </div>
-        </section>
-
-        <section class="mercado-transfer">
-            <div class="transfer-grid" id="transferGrid"></div>
         </section>
     </main>
 
