@@ -293,6 +293,7 @@
             border-color: var(--secondary-purple);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             transform: translateY(-2px);
+            outline: none;
         }
         .recommendation-card .buy-button:disabled,
         .loan-card .loan-button:disabled,
@@ -327,6 +328,7 @@
         .transfer-card .follow-btn:focus {
             background: var(--secondary-purple);
             box-shadow: 0 4px 12px rgba(128, 0, 128, 0.25);
+            outline: none;
         }
         .transfer-card .buy-button:disabled,
         .transfer-card .negotiate-button:disabled,
@@ -381,6 +383,7 @@
             transition: var(--transition-base);
         }
         .chat-input input:focus {
+            outline: none;
             border-color: var(--primary-cyan);
             box-shadow: var(--shadow-cyan);
         }
@@ -621,8 +624,8 @@
         <section class="mercado-search" aria-labelledby="search-heading">
             <h2 class="section-title" id="search-heading">Jugadores Disponibles</h2>
             <div class="mercado-search-container animate-fade-in">
-                <input type="text" id="searchInput" class="form-input" placeholder="Buscar por nombre...">
-                <select id="positionFilter" class="form-select">
+                <input type="text" id="searchInput" class="form-input" placeholder="Buscar por nombre..." aria-label="Buscar jugadores por nombre">
+                <select id="positionFilter" class="form-select" aria-label="Filtrar por posición">
                     <option value="">Todas las Posiciones</option>
                     <option value="Delantero">Delantero</option>
                     <option value="Mediocampista">Mediocampista</option>
@@ -665,7 +668,7 @@
             <div class="club-details-container animate-fade-in">
                 <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
                 <p>Presupuesto: $<span id="clubBudget">100,000,000</span></p>
-                <ul id="clubPlayers"></ul>
+                <ul id="clubPlayers" role="list"></ul>
             </div>
         </section>
 
@@ -681,9 +684,9 @@
         <section class="mercado-chat" aria-labelledby="chat-heading">
             <h2 class="section-title" id="chat-heading">Negociaciones en Vivo</h2>
             <div class="chat-container animate-fade-in">
-                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-messages" id="chatMessages" role="log" aria-live="polite"></div>
                 <form id="chatForm" class="chat-input" aria-label="Enviar mensaje al chat">
-                    <input type="text" placeholder="Escribe tu mensaje..." required>
+                    <input type="text" placeholder="Escribe tu mensaje..." required aria-label="Mensaje de chat">
                     <button type="submit" class="cta-button"><i class="fas fa-paper-plane" aria-hidden="true"></i> Enviar</button>
                 </form>
             </div>
@@ -705,7 +708,7 @@
         <section class="mercado-stats" aria-labelledby="stats-heading">
             <h2 class="section-title" id="stats-heading">Estadísticas del Mercado</h2>
             <div class="mercado-search-container">
-                <select id="timeFilter" class="form-select">
+                <select id="timeFilter" class="form-select" aria-label="Filtrar estadísticas por tiempo">
                     <option value="all">Toda la Temporada</option>
                     <option value="week">Última Semana</option>
                     <option value="day">Último Día</option>
@@ -800,7 +803,6 @@
                     renderHistory();
                     renderOffers();
                     bindMarketEvents();
-                    console.log('Re-renderizado inicial completado');
                 });
                 setInterval(updateTimer, 1000);
                 updateTimer();
@@ -816,6 +818,7 @@
                     if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
                 });
             }, { threshold: 0.1, rootMargin: '0px' });
+
             document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
 
             document.querySelectorAll('.transition-link').forEach(link => {
@@ -847,7 +850,6 @@
                 const response = await fetch(`${BASE_URL}/api/club/me`, {
                     headers: { 'x-auth-token': token }
                 });
-                console.log('Estado de syncClubData:', response.status);
                 const data = await response.json();
                 if (response.ok) {
                     club = {
@@ -855,7 +857,6 @@
                         players: Array.isArray(data.players) ? data.players : [],
                         watchlist: Array.isArray(data.watchlist) ? data.watchlist : []
                     };
-                    console.log('Datos del club:', club);
                     localStorage.setItem('clubName', club.name);
                     localStorage.setItem('clubBudget', club.budget);
                     localStorage.setItem('clubPlayers', JSON.stringify(club.players));
@@ -865,7 +866,6 @@
                     throw new Error(data.msg || 'Error al cargar el club');
                 }
             } catch (err) {
-                console.error('Error en syncClubData:', err);
                 showNotification('Error al sincronizar datos del club: ' + err.message, 'error');
                 club.players = club.players || [];
                 club.watchlist = club.watchlist || [];
@@ -874,18 +874,15 @@
 
         async function loadMarketData() {
             const token = localStorage.getItem('token');
-            console.log('Token usado:', token);
             try {
                 const response = await fetch(`${BASE_URL}/api/players`, {
                     headers: { 'x-auth-token': token }
                 });
-                console.log('Estado de la respuesta:', response.status);
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.msg || 'Error al cargar jugadores');
                 }
                 const data = await response.json();
-                console.log('Datos recibidos:', data);
                 playersMarket = Array.isArray(data) ? data : [];
                 renderMarket();
                 renderRecommendations();
@@ -896,7 +893,6 @@
                 renderOffers();
                 updateStats();
             } catch (err) {
-                console.error('Error en loadMarketData:', err);
                 showNotification('Error al cargar datos del mercado: ' + err.message, 'error');
                 playersMarket = [];
                 renderMarket();
@@ -924,13 +920,16 @@
                 const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 timer.textContent = `Mercado abierto - Temporada termina en ${days}d ${hours}h`;
+                timer.classList.add('pulse');
             } else if (now < season.start) {
                 const timeUntil = season.start - now;
                 const days = Math.floor(timeUntil / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((timeUntil % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 timer.textContent = `Mercado cerrado - Temporada comienza en ${days}d ${hours}h`;
+                timer.classList.remove('pulse');
             } else {
                 timer.textContent = "Mercado cerrado - Temporada finalizada";
+                timer.classList.remove('pulse');
             }
         }
 
@@ -938,7 +937,7 @@
             const grid = document.getElementById('recommendationsGrid');
             grid.innerHTML = '';
             const positions = ["Delantero", "Mediocampista", "Defensor", "Portero"];
-            const clubPositions = club.players.map(p => p.position);
+            const clubPositions = club.players.map(p => p.position || '');
             const missingPositions = positions.filter(pos => !clubPositions.includes(pos));
             const recommendations = playersMarket.filter(player => 
                 missingPositions.includes(player.position) && !club.players.some(p => p.name === player.name)
@@ -949,7 +948,7 @@
                 card.innerHTML = `
                     <h3>${player.name}</h3>
                     <p>Posición: ${player.position}</p>
-                    <p>Rating: ${player.rating}</p>
+                    <p>Rating: ${player.rating || 0}</p>
                     <p class="player-value">$${player.value.toLocaleString()}</p>
                     <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
                 `;
@@ -988,8 +987,8 @@
                 card.className = 'watchlist-card animate-fade-in';
                 card.innerHTML = `
                     <h3>${player.name}</h3>
-                    <p>Posición: ${player.position}</p>
-                    <p>Rating: ${player.rating}</p>
+                    <p>Posición: ${player.position || 'N/A'}</p>
+                    <p>Rating: ${player.rating || 0}</p>
                     <p class="player-value">$${player.value.toLocaleString()}</p>
                     <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
                     <button class="sell-button" onclick="removeFromWatchlist('${player.name}')">Quitar</button>
@@ -1013,7 +1012,7 @@
                     });
                     if (response.ok) {
                         localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
-                        showNotification(`¡${player.name} añadido a tu lista de seguimiento!`);
+                        showNotification(`¡${player.name} añadido a tu lista de seguimiento!`, 'success');
                         renderWatchlist();
                     } else {
                         club.watchlist.pop();
@@ -1038,6 +1037,7 @@
                 if (response.ok) {
                     localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
                     renderWatchlist();
+                    showNotification(`¡${name} eliminado de la lista de seguimiento!`, 'success');
                 } else {
                     showNotification('Error al quitar de la lista de seguimiento', 'error');
                 }
@@ -1055,8 +1055,8 @@
                 card.className = 'loan-card animate-fade-in';
                 card.innerHTML = `
                     <h3>${player.name}</h3>
-                    <p>Posición: ${player.position}</p>
-                    <p>Rating: ${player.rating}</p>
+                    <p>Posición: ${player.position || 'N/A'}</p>
+                    <p>Rating: ${player.rating || 0}</p>
                     <p class="player-value">$${Math.floor(player.value * 0.1).toLocaleString()} (${player.duration})</p>
                     <button class="loan-button" data-name="${player.name}" data-value="${Math.floor(player.value * 0.1)}" ${isMarketOpen ? '' : 'disabled'}>Prestar</button>
                 `;
@@ -1071,6 +1071,7 @@
             const clubPlayers = Array.isArray(club.players) ? club.players : [];
             const featuredPlayers = playersMarket
                 .filter(player => !clubPlayers.some(p => p.name === player.name))
+                .sort((a, b) => b.rating - a.rating)
                 .slice(0, 3);
             featuredPlayers.forEach(player => {
                 const card = document.createElement('article');
@@ -1079,8 +1080,8 @@
                     <img src="https://via.placeholder.com/120?text=${player.name.slice(0, 5)}" alt="${player.name}" class="player-avatar">
                     <h3>${player.name}</h3>
                     <ul class="player-stats">
-                        <li><strong>Rating:</strong> ${player.rating}</li>
-                        <li><strong>Posición:</strong> ${player.position}</li>
+                        <li><strong>Rating:</strong> ${player.rating || 0}</li>
+                        <li><strong>Posición:</strong> ${player.position || 'N/A'}</li>
                     </ul>
                     <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar por $${player.value.toLocaleString()}</button>
                 `;
@@ -1101,7 +1102,7 @@
                 const card = document.createElement('div');
                 card.className = 'history-card animate-fade-in';
                 card.innerHTML = `
-                    <time class="history-date">${new Date(t.date).toLocaleDateString()}</time>
+                    <time class="history-date" datetime="${new Date(t.date).toISOString()}">${new Date(t.date).toLocaleDateString()}</time>
                     <p>${t.type.charAt(0).toUpperCase() + t.type.slice(1)}: ${t.playerName} por $${t.value.toLocaleString()}</p>
                 `;
                 grid.appendChild(card);
@@ -1118,8 +1119,8 @@
             const endTime = new Date().getTime() + 60000;
             card.innerHTML = `
                 <h3>${offer.name} (Subasta)</h3>
-                <p>Posición: ${offer.position}</p>
-                <p>Rating: ${offer.rating}</p>
+                <p>Posición: ${offer.position || 'N/A'}</p>
+                <p>Rating: ${offer.rating || 0}</p>
                 <p class="player-value">$${offer.value.toLocaleString()}</p>
                 <p>Tiempo restante: <span id="timer-${offer.name}"></span></p>
                 <button class="buy-button" data-name="${offer.name}" data-value="${offer.value}" ${isMarketOpen ? '' : 'disabled'}>Pujar</button>
@@ -1148,7 +1149,7 @@
             playersList.innerHTML = club.players.length ? club.players.map(p => `
                 <li>
                     ${p.name} (Rating: ${p.rating || 0}) - $${p.value.toLocaleString()}
-                    <button class="sell-button" ${isMarketOpen ? '' : 'disabled'} onclick="sellPlayer('${p.name}', ${p.value})">Vender</button>
+                    <button class="sell-button" ${isMarketOpen ? '' : 'disabled'} onclick="sellPlayer('${p.name}', ${p.value || 0})">Vender</button>
                 </li>
             `).join('') : '<li>No hay jugadores en tu club.</li>';
         }
@@ -1157,7 +1158,6 @@
             const grid = document.getElementById('transferGrid');
             grid.innerHTML = '';
             if (!Array.isArray(playersMarket)) {
-                console.error('playersMarket no es un array:', playersMarket);
                 grid.innerHTML = '<p>No hay jugadores disponibles.</p>';
                 return;
             }
@@ -1167,7 +1167,6 @@
                 player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
                 (positionFilter === '' || player.position === positionFilter)
             );
-            console.log('Jugadores filtrados:', filteredPlayers);
             if (filteredPlayers.length === 0) {
                 grid.innerHTML = '<p>No hay jugadores que coincidan con los filtros.</p>';
             } else {
@@ -1176,8 +1175,8 @@
                     card.className = 'transfer-card animate-fade-in available';
                     card.innerHTML = `
                         <h3>${player.name}</h3>
-                        <p>Posición: ${player.position}</p>
-                        <p>Rating: ${player.rating}</p>
+                        <p>Posición: ${player.position || 'N/A'}</p>
+                        <p>Rating: ${player.rating || 0}</p>
                         <p class="player-value">$${player.value.toLocaleString()}</p>
                         <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
                         <button class="negotiate-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Negociar</button>
@@ -1186,21 +1185,19 @@
                     grid.appendChild(card);
                 });
             }
-            console.log('renderMarket completado, botones renderizados:', grid.querySelectorAll('.buy-button').length);
             renderClubDetails();
+            bindMarketEvents();
         }
 
         async function buyPlayer(name, value) {
             if (isBuying) return;
             isBuying = true;
 
-            console.log('buyPlayer iniciado para:', name, value);
             if (!isMarketOpen) {
                 isBuying = false;
                 return showNotification('El mercado está cerrado.', 'error');
             }
             const token = localStorage.getItem('token');
-            console.log('Token en buyPlayer:', token);
             if (!token) {
                 isBuying = false;
                 return showNotification('Debes iniciar sesión.', 'error') && (window.location.href = 'login.html');
@@ -1223,13 +1220,11 @@
 
             showNotification('Procesando compra...', 'info');
             try {
-                console.log('Enviando solicitud a /api/transaction');
                 const response = await fetch(`${BASE_URL}/api/transaction`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ type: 'compra', playerName: name, value })
                 });
-                console.log('Respuesta de /api/transaction:', response.status);
                 const data = await response.json();
                 if (response.ok) {
                     club.budget -= value;
@@ -1240,7 +1235,8 @@
                     localStorage.setItem('clubPlayers', JSON.stringify(club.players));
                     localStorage.setItem('marketPoints', club.points);
                     transactions.unshift(data.transaction);
-                    showNotification(`¡Has comprado a ${name} por $${value.toLocaleString()}! (+10 puntos)`);
+                    showNotification(`¡Has comprado a ${name} por $${value.toLocaleString()}! (+10 puntos)`, 'success');
+                    await loadMarketData();
                     renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
                     renderWatchlist();
                     renderLoans();
@@ -1251,11 +1247,9 @@
                     updateStats();
                     renderHistory();
                 } else {
-                    console.log('Error en respuesta:', data);
                     showNotification(data.msg || 'Error al comprar', 'error');
                 }
             } catch (err) {
-                console.error('Error en fetch:', err);
                 showNotification('Error de conexión: ' + err.message, 'error');
             } finally {
                 buyButtons.forEach(button => button.disabled = !isMarketOpen);
@@ -1283,7 +1277,7 @@
                     localStorage.setItem('clubPlayers', JSON.stringify(club.players));
                     localStorage.setItem('marketPoints', club.points);
                     transactions.unshift(data.transaction);
-                    showNotification(`¡Has vendido a ${name} por $${sellValue.toLocaleString()}! (+5 puntos)`);
+                    showNotification(`¡Has vendido a ${name} por $${sellValue.toLocaleString()}! (+5 puntos)`, 'success');
                     await loadMarketData();
                     renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
                     renderWatchlist();
@@ -1293,7 +1287,6 @@
                     renderRecommendations();
                     updateStats();
                     renderHistory();
-                    console.log('Jugadores tras venta:', club.players);
                 } else {
                     showNotification(data.msg || 'Error al vender', 'error');
                 }
@@ -1315,10 +1308,8 @@
         }
 
         async function loanPlayer(name, value) {
-            console.log('loanPlayer iniciado para:', name, value);
             if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
             const token = localStorage.getItem('token');
-            console.log('Token en loanPlayer:', token);
             if (club.budget < value) return showNotification('No tienes suficiente presupuesto para el préstamo.', 'error');
             if (loanedPlayers.includes(name)) return showNotification(`${name} ya está prestado.`, 'error');
             if (club.players.some(p => p.name === name)) return showNotification('No puedes prestar a un jugador de tu club.', 'error');
@@ -1328,13 +1319,11 @@
 
             showNotification('Procesando préstamo...', 'info');
             try {
-                console.log('Enviando solicitud a /api/transaction');
                 const response = await fetch(`${BASE_URL}/api/transaction`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ type: 'prestamo', playerName: name, value })
                 });
-                console.log('Respuesta de /api/transaction:', response.status);
                 const data = await response.json();
                 if (response.ok) {
                     club.budget -= value;
@@ -1344,7 +1333,8 @@
                     localStorage.setItem('marketPoints', club.points);
                     localStorage.setItem('loanedPlayers', JSON.stringify(loanedPlayers));
                     transactions.unshift(data.transaction);
-                    showNotification(`¡Has prestado a ${name} por $${value.toLocaleString()}! (+5 puntos)`);
+                    showNotification(`¡Has prestado a ${name} por $${value.toLocaleString()}! (+5 puntos)`, 'success');
+                    await loadMarketData();
                     renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
                     renderLoans();
                     renderWatchlist();
@@ -1354,11 +1344,9 @@
                     updateStats();
                     renderHistory();
                 } else {
-                    console.log('Error en respuesta:', data);
                     showNotification(data.msg || 'Error al prestar', 'error');
                 }
             } catch (err) {
-                console.error('Error en fetch:', err);
                 showNotification('Error de conexión: ' + err.message, 'error');
             } finally {
                 loanButtons.forEach(button => button.disabled = !isMarketOpen);
@@ -1381,13 +1369,13 @@
             const mostBought = Object.entries(buyCounts).sort((a, b) => b[1] - a[1])[0];
             document.getElementById('mostBought').textContent = mostBought ? mostBought[0] : 'N/A';
 
-            const values = playersMarket.map(p => p.value);
+            const values = playersMarket.map(p => p.value || 0);
             const avgValue = values.length ? Math.floor(values.reduce((a, b) => a + b, 0) / values.length) : 0;
             document.getElementById('avgValue').textContent = `$${avgValue.toLocaleString()}`;
 
             document.getElementById('totalTrans').textContent = filteredTransactions.length;
 
-            const mostExpensive = playersMarket.reduce((max, p) => p.value > max.value ? p : max, playersMarket[0] || {});
+            const mostExpensive = playersMarket.reduce((max, p) => (p.value || 0) > (max.value || 0) ? p : max, playersMarket[0] || {});
             document.getElementById('mostExpensive').textContent = mostExpensive.name ? `${mostExpensive.name} ($${mostExpensive.value.toLocaleString()})` : 'N/A';
         }
 
@@ -1396,13 +1384,10 @@
             const negotiateButtons = document.querySelectorAll('.negotiate-button');
             const loanButtons = document.querySelectorAll('.loan-button');
             
-            console.log('Vinculando eventos, botones encontrados:', buyButtons.length, 'comprar,', negotiateButtons.length, 'negociar,', loanButtons.length, 'prestar');
-            
             buyButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const name = button.getAttribute('data-name');
-                    const value = parseInt(button.getAttribute('data-value'));
-                    console.log('Botón Comprar clicado para:', name);
+                    const value = parseInt(button.getAttribute('data-value') || 0);
                     buyPlayer(name, value);
                 });
             });
@@ -1410,8 +1395,7 @@
             negotiateButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const name = button.getAttribute('data-name');
-                    const value = parseInt(button.getAttribute('data-value'));
-                    console.log('Botón Negociar clicado para:', name);
+                    const value = parseInt(button.getAttribute('data-value') || 0);
                     negotiatePlayer(name, value);
                 });
             });
@@ -1419,8 +1403,7 @@
             loanButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const name = button.getAttribute('data-name');
-                    const value = parseInt(button.getAttribute('data-value'));
-                    console.log('Botón Prestar clicado para:', name);
+                    const value = parseInt(button.getAttribute('data-value') || 0);
                     loanPlayer(name, value);
                 });
             });
