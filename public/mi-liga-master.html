@@ -13,7 +13,6 @@
           integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
           crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-cyan: #00ffff;
@@ -42,7 +41,7 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
-            overflow-y: auto;
+            transition: opacity 0.5s ease;
         }
         body.fade-out {
             opacity: 0;
@@ -130,10 +129,9 @@
             font-family: 'Orbitron', sans-serif;
             text-align: center;
             font-size: clamp(1.5rem, 4vw, 2.5rem);
-            margin-bottom: 4rem;
+            margin-bottom: 3rem;
             color: var(--primary-cyan);
             position: relative;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
         }
         .section-title::after {
             content: '';
@@ -149,21 +147,15 @@
         .club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section {
             padding: 5rem 3rem;
             background: var(--dark-bg);
-            min-height: auto;
-            max-height: none;
         }
         .club-container, .watchlist-container, .transactions-container, .stats-container, .achievements-container {
             max-width: 1280px;
             margin: 0 auto;
             background: var(--light-bg);
-            padding: 2.5rem;
+            padding: 2rem;
             border-radius: 12px;
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-soft);
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            min-height: 0;
         }
         .club-container h3, .watchlist-container h3, .transactions-container h3, .stats-container h3, .achievements-container h3 {
             font-family: 'Orbitron', sans-serif;
@@ -176,7 +168,7 @@
             margin-bottom: 0.5rem;
         }
         .club-form {
-            margin-top: 1rem;
+            margin-top: 2rem;
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -240,28 +232,10 @@
         .player-list, .watchlist, .transactions-list {
             list-style: none;
             margin-top: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            padding: 1rem;
-            border-radius: 8px;
-            max-height: 300px;
-            overflow-y: auto;
         }
         .player-list li, .watchlist li, .transactions-list li {
             padding: 0.5rem 0;
             border-bottom: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            max-height: 60px;
-            overflow-y: hidden;
-        }
-        .player-list img, .watchlist img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
         }
         .stats-grid {
             display: grid;
@@ -315,7 +289,6 @@
             padding: 6rem 3rem;
             border-top: 1px solid var(--border-light);
             box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-            flex-shrink: 0;
         }
         .footer-content {
             max-width: 1280px;
@@ -357,20 +330,6 @@
             display: flex;
             align-items: center;
             gap: 1rem;
-            will-change: transform, opacity;
-        }
-        .loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.5rem;
-            color: var(--primary-cyan);
-            display: none;
-            z-index: 2000;
-        }
-        .loading.active {
-            display: block;
         }
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(100%); }
@@ -386,7 +345,6 @@
         }
         .animate-fade-in {
             animation: fadeIn 0.6s ease-out forwards;
-            will-change: opacity, transform;
         }
         .back-to-top {
             position: fixed;
@@ -402,7 +360,6 @@
             transition: var(--transition-base);
             box-shadow: var(--shadow-cyan);
             transform: translateY(20px);
-            z-index: 1000;
         }
         .back-to-top.show {
             opacity: 1;
@@ -422,40 +379,6 @@
                 grid-template-columns: 1fr;
             }
         }
-        @media (max-width: 480px) {
-            .section-title {
-                font-size: 1.2rem;
-                margin-bottom: 2rem;
-            }
-            .club-container, .watchlist-container, .transactions-container, .stats-container, .achievements-container {
-                padding: 1.5rem;
-            }
-            .player-list, .watchlist, .transactions-list {
-                padding: 0.5rem;
-            }
-            .cta-button, .reset-button, .train-button {
-                padding: 0.7rem 1.2rem;
-                font-size: 0.9rem;
-            }
-        }
-        @media (max-width: 320px) {
-            .section-title {
-                font-size: 1rem;
-                margin-bottom: 1.5rem;
-            }
-            .stats-grid, .achievements-grid {
-                grid-template-columns: 1fr;
-                gap: 0.8rem;
-            }
-            .player-list li, .watchlist li {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-            .player-list img, .watchlist img {
-                margin-bottom: 0.3rem;
-            }
-        }
     </style>
 </head>
 <body>
@@ -472,7 +395,7 @@
         </nav>
     </header>
 
-    <main role="main" style="padding-top: 92px; flex: 1 0 auto; overflow-y: auto;">
+    <main role="main">
         <section class="dashboard-hero" aria-labelledby="dashboard-heading">
             <h1 class="section-title animate-fade-in" id="dashboard-heading">Mi Liga Master</h1>
         </section>
@@ -485,38 +408,37 @@
                 <p>Jugadores: <span id="playerCount">0</span></p>
                 <p>Valor Total: $<span id="teamValue">0</span></p>
                 <p>Rating Promedio: <span id="avgRating">0</span></p>
-                <ul id="playerList" class="player-list" role="list"></ul>
-                <form class="club-form" id="clubForm" aria-label="Formulario de tu club">
-                    <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club" aria-label="Nombre del club">
-                    <select id="clubColor" class="form-select" aria-label="Color del club">
+                <ul id="playerList" class="player-list"></ul>
+                <form class="club-form" id="clubForm">
+                    <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club">
+                    <select id="clubColor" class="form-select">
                         <option value="#00ffff">Cian</option>
                         <option value="#800080">Púrpura</option>
                         <option value="#66ff66">Verde</option>
                     </select>
                     <button type="submit" class="cta-button">Guardar</button>
                 </form>
-                <button id="resetClub" class="reset-button" aria-label="Reiniciar club">Reiniciar Club</button>
-                <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html" aria-label="Ir al Mercado de Fichajes">Ir al Mercado</a>
+                <button id="resetClub" class="reset-button">Reiniciar Club</button>
             </div>
         </section>
 
         <section class="watchlist-section" aria-labelledby="watchlist-heading">
             <h2 class="section-title" id="watchlist-heading">Jugadores Seguidos</h2>
             <div class="watchlist-container animate-fade-in">
-                <ul id="watchlist" class="watchlist" role="list"></ul>
+                <ul id="watchlist" class="watchlist"></ul>
             </div>
         </section>
 
         <section class="transactions-section" aria-labelledby="transactions-heading">
             <h2 class="section-title" id="transactions-heading">Historial de Transacciones</h2>
             <div class="transactions-container animate-fade-in">
-                <ul id="transactionList" class="transactions-list" role="list"></ul>
+                <ul id="transactionList" class="transactions-list"></ul>
             </div>
         </section>
 
         <section class="stats-section" aria-labelledby="stats-heading">
             <h2 class="section-title" id="stats-heading">Estadísticas del Club</h2>
-            <div class="stats-container animate-fade-in" id="stats-container">
+            <div class="stats-container animate-fade-in">
                 <div class="stats-grid">
                     <div class="stat-item">
                         <div class="stat-number" id="winsCount">0</div>
@@ -529,10 +451,6 @@
                     <div class="stat-item">
                         <div class="stat-number" id="seasonProgress">0/5</div>
                         <p>Progreso Temporada</p>
-                    </div>
-                    <div class="stat-item" id="winRateContainer">
-                        <canvas id="winRateChart" width="100" height="100"></canvas>
-                        <p>Porcentaje de Victorias</p>
                     </div>
                 </div>
             </div>
@@ -549,8 +467,6 @@
             </div>
         </section>
     </main>
-
-    <div class="loading" id="loadingSpinner"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
 
     <button class="back-to-top" aria-label="Volver al inicio">
         <i class="fas fa-arrow-up" aria-hidden="true"></i>
@@ -593,12 +509,10 @@
         };
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         let season = {
-            start: new Date().getTime() - 24 * 60 * 60 * 1000,
+            start: new Date().getTime() - 24 * 60 * 60 * 1000, // Temporada activa para pruebas
             end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000,
             wins: parseInt(localStorage.getItem('seasonWins')) || 0
         };
-        let isProcessing = false;
-        let chartInstance = null; // Para controlar instancias de Chart.js
 
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
@@ -608,82 +522,12 @@
                 return;
             }
 
-            // Calcular padding-top dinámicamente para main basado en la altura del header
-            const header = document.querySelector('.main-header');
-            const headerHeight = header.offsetHeight;
-            document.querySelector('main').style.paddingTop = `${headerHeight}px`;
-
             try {
-                await syncClubData();
-                updateClubPreview();
-                updateWatchlist();
-                updateTransactions();
-                updateStats(); // Renderizar estadísticas solo una vez
-                updateAchievements();
-            } catch (err) {
-                showNotification('Error inicial al cargar datos: ' + err.message, 'error');
-                // Usar datos predeterminados si el backend falla
-                club = {
-                    name: '[Sin registrar]',
-                    budget: 100000000,
-                    players: [],
-                    color: '#00ffff',
-                    wins: 0,
-                    watchlist: [],
-                    gamesPlayed: 0
-                };
-                updateClubPreview();
-                updateWatchlist();
-                updateTransactions();
-                updateStats();
-                updateAchievements();
-            }
-
-            document.querySelectorAll('.transition-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.body.classList.add('fade-out');
-                    setTimeout(() => window.location.href = link.getAttribute('data-href'), 500);
-                });
-            });
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fade-in');
-                        observer.unobserve(entry.target); // Evitar múltiples observaciones
-                    }
-                });
-            }, { threshold: 0.1, rootMargin: '0px' });
-
-            document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
-
-            const backToTop = document.querySelector('.back-to-top');
-            window.addEventListener('scroll', () => {
-                backToTop.classList.toggle('show', window.scrollY > 500);
-                console.log('Scroll position:', window.scrollY, 'Document height:', document.body.scrollHeight, 'Viewport height:', window.innerHeight);
-            });
-            backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-            document.getElementById('clubForm').addEventListener('submit', saveClub);
-            document.getElementById('resetClub').addEventListener('click', resetClub);
-
-            setInterval(syncClubData, 300000); // Sincronización cada 5 minutos
-
-            // Verificar dimensiones de las secciones después de renderizar
-            const sections = document.querySelectorAll('.club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section');
-            sections.forEach(section => {
-                console.log(`Section ${section.id || section.className}: Height = ${section.offsetHeight}, ScrollHeight = ${section.scrollHeight}`);
-            });
-        });
-
-        async function syncClubData() {
-            const token = localStorage.getItem('token');
-            try {
-                const data = await fetchWithRetry(`${BASE_URL}/api/club/me`, {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
                     headers: { 'x-auth-token': token }
                 });
-                if (data) {
+                const data = await response.json();
+                if (response.ok) {
                     club = {
                         ...data,
                         players: Array.isArray(data.players) ? data.players : [],
@@ -698,52 +542,41 @@
                     localStorage.setItem('clubWins', club.wins);
                     localStorage.setItem('clubWatchlist', JSON.stringify(club.watchlist));
                     localStorage.setItem('gamesPlayed', club.gamesPlayed);
-                    updateClubPreview();
-                    updateWatchlist();
-                    updateTransactions();
-                    updateStats(); // Renderizar estadísticas solo una vez
-                    updateAchievements();
+                } else {
+                    showNotification(data.msg || 'Error al cargar el club', 'error');
                 }
             } catch (err) {
-                console.error('Error en syncClubData:', err);
-                showNotification('No se pudo sincronizar con el servidor. Usando datos locales.', 'warning');
-                // Usar datos locales si el backend falla
-                if (!club.players || !Array.isArray(club.players)) club.players = [];
-                if (!club.watchlist || !Array.isArray(club.watchlist)) club.watchlist = [];
+                showNotification('Error de conexión: ' + err.message, 'error');
             }
-        }
 
-        async function fetchWithRetry(url, options, retries = 3) {
-            const spinner = document.getElementById('loadingSpinner');
-            spinner.classList.add('active');
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (!response.ok) {
-                        if (response.status === 401) {
-                            showNotification('Sesión expirada o no autorizada. Por favor, inicia sesión de nuevo.', 'error');
-                            setTimeout(() => window.location.href = 'login.html', 2000);
-                            throw new Error('No autorizado');
-                        }
-                        throw new Error('Respuesta no OK');
-                    }
-                    const data = await response.json();
-                    spinner.classList.remove('active');
-                    return data;
-                } catch (err) {
-                    if (i === retries - 1) {
-                        spinner.classList.remove('active');
-                        throw err;
-                    }
-                    await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i))); // Exponential backoff
-                }
-            }
-        }
+            document.querySelectorAll('.transition-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.body.classList.add('fade-out');
+                    setTimeout(() => window.location.href = link.getAttribute('data-href'), 500);
+                });
+            });
 
-        function isMarketOpen() {
-            const now = new Date().getTime();
-            return now >= season.start && now <= season.end;
-        }
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
+
+            const backToTop = document.querySelector('.back-to-top');
+            window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
+            backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+            updateClubPreview();
+            updateWatchlist();
+            updateTransactions();
+            updateStats();
+            updateAchievements();
+
+            document.getElementById('clubForm').addEventListener('submit', saveClub);
+            document.getElementById('resetClub').addEventListener('click', resetClub);
+        });
 
         function updateClubPreview() {
             document.getElementById('clubName').textContent = club.name;
@@ -758,160 +591,66 @@
             document.getElementById('clubColor').value = club.color;
             const playerList = document.getElementById('playerList');
             playerList.innerHTML = club.players.length ? club.players.map(p => `
-                <li role="listitem" style="max-height: 60px; overflow-y: hidden;">
-                    <img src="${p.image || 'https://api.dicebear.com/6.x/pixel-art/svg?seed=' + p.name}" alt="${p.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                    ${p.name} (Rating: ${p.rating || 0}) 
+                <li>${p.name} (Rating: ${p.rating || 0}) 
                     <button class="train-button" ${isMarketOpen() ? '' : 'disabled'} onclick="trainPlayer('${p._id || p.id}', ${p.value || 0}, '${p.name}')">Entrenar ($${Math.floor((p.value || 0) * 0.1).toLocaleString()})</button>
-                </li>`).join('') : '<li role="listitem">No hay jugadores.</li>';
+                </li>`).join('') : '<li>No hay jugadores.</li>';
         }
 
         function updateWatchlist() {
             const watchlist = document.getElementById('watchlist');
             watchlist.innerHTML = club.watchlist.length ? club.watchlist.map(p => `
-                <li role="listitem" style="max-height: 60px; overflow-y: hidden;">
-                    <img src="${p.image || 'https://api.dicebear.com/6.x/pixel-art/svg?seed=' + p.name}" alt="${p.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                    ${p.name} ($${p.value.toLocaleString()}) 
-                    <div class="player-actions">
-                        <button class="cta-button" onclick="confirmBuy('${p._id || p.id}', '${p.name}')">Comprar</button>
-                        <a href="mercado-fichajes.html?playerId=${p._id || p.id}" class="cta-button transition-link" data-href="mercado-fichajes.html?playerId=${p._id || p.id}" aria-label="Ver en Mercado">Ver en Mercado</a>
-                    </div>
-                </li>`).join('') : '<li role="listitem">No hay jugadores seguidos.</li>';
+                <li>${p.name} ($${p.value.toLocaleString()}) 
+                    <button class="cta-button" onclick="window.location.href='mercado-fichajes.html'">Comprar</button>
+                </li>`).join('') : '<li>No hay jugadores seguidos.</li>';
         }
 
         function updateTransactions() {
             const list = document.getElementById('transactionList');
             list.innerHTML = transactions.length ? transactions.map(t => `
-                <li role="listitem" style="max-height: 40px; overflow-y: hidden;">
-                    ${t.date ? new Date(t.date).toLocaleString() : ''} - ${t.type}: ${t.playerName} por $${t.value.toLocaleString()}
-                </li>`).join('') : '<li role="listitem">No hay transacciones recientes.</li>';
+                <li>${t.date ? new Date(t.date).toLocaleString() : ''} - ${t.type}: ${t.playerName} por $${t.value.toLocaleString()}</li>
+            `).join('') : '<li>No hay transacciones recientes.</li>';
         }
 
         function updateStats() {
-            // Destruir instancia anterior de Chart.js si existe
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
-            document.getElementById('winsCount').textContent = club.wins || 0;
-            document.getElementById('gamesPlayed').textContent = club.gamesPlayed || 0;
-            document.getElementById('seasonProgress').textContent = `${season.wins || 0}/5`;
-            const winRate = (club.gamesPlayed || 0) > 0 ? ((club.wins / club.gamesPlayed) * 100).toFixed(1) : 0;
-
-            const statsContainer = document.getElementById('stats-container');
-            statsContainer.innerHTML = `
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number" id="winsCount">${club.wins || 0}</div>
-                        <p>Victorias</p>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="gamesPlayed">${club.gamesPlayed || 0}</div>
-                        <p>Partidos Jugados</p>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="seasonProgress">${season.wins || 0}/5</div>
-                        <p>Progreso Temporada</p>
-                    </div>
-                    <div class="stat-item" id="winRateContainer">
-                        <canvas id="winRateChart" width="100" height="100"></canvas>
-                        <p>Porcentaje de Victorias</p>
-                    </div>
-                </div>
-            `;
-
-            const ctx = document.getElementById('winRateChart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Victorias', 'Derrotas'],
-                    datasets: [{
-                        data: [winRate, 100 - winRate],
-                        backgroundColor: ['var(--primary-cyan)', 'rgba(128, 0, 128, 0.5)'],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
+            document.getElementById('winsCount').textContent = club.wins;
+            document.getElementById('gamesPlayed').textContent = club.gamesPlayed;
+            document.getElementById('seasonProgress').textContent = `${season.wins}/5`;
         }
 
-        async function updateAchievements() {
+        function updateAchievements() {
             const firstBuy = document.getElementById('first-buy');
             firstBuy.innerHTML = `<i class="fas fa-shopping-bag" ${club.players.length > 0 ? '' : 'style="color: gray;"'}></i><h3>Primera Compra</h3><p>${club.players.length > 0 ? 'Completado' : 'Compra tu primer jugador'}</p>`;
             if (club.players.length > 0) firstBuy.classList.add('completed');
 
             const top10 = document.getElementById('top-10');
-            let isTop10 = false;
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${BASE_URL}/api/leaderboard`, { headers: { 'x-auth-token': token } });
-                if (response.ok) {
-                    const leaderboard = await response.json();
-                    isTop10 = leaderboard.slice(0, 10).some(entry => entry.clubName === club.name);
-                } else if (response.status === 404) {
-                    console.warn('Endpoint /api/leaderboard no encontrado, usando datos locales para Top 10.');
-                    isTop10 = false; // Asumir falso si no hay backend
-                }
-            } catch (err) {
-                console.error('Error al verificar Top 10:', err);
-                isTop10 = false; // Usar datos locales si falla
-            }
-            top10.innerHTML = `<i class="fas fa-trophy" ${isTop10 ? '' : 'style="color: gray;"'}></i><h3>Top 10</h3><p>${isTop10 ? 'Completado' : 'Clasifícate entre los 10 mejores'}</p>`;
-            if (isTop10) top10.classList.add('completed');
+            top10.innerHTML = `<i class="fas fa-trophy" style="color: gray;"></i><h3>Top 10</h3><p>Clasifícate entre los 10 mejores clubes</p>`; // Podría ser dinámico con backend
 
             const millionSpent = document.getElementById('million-spent');
-            const spent = 100000000 - (club.budget || 100000000);
+            const spent = 100000000 - club.budget;
             millionSpent.innerHTML = `<i class="fas fa-money-bill-wave" ${spent >= 1000000 ? '' : 'style="color: gray;"'}></i><h3>Millonario</h3><p>${spent >= 1000000 ? 'Completado' : 'Gasta $1M'}</p>`;
             if (spent >= 1000000) millionSpent.classList.add('completed');
+        }
 
-            // Nuevo logro
-            const newAchievement = document.createElement('div');
-            newAchievement.className = 'achievement-card';
-            newAchievement.innerHTML = `<i class="fas fa-star" style="color: gray;"></i><h3>Mejor Equipo del Mes</h3><p>Alcanza el mejor rating promedio en un mes</p>`;
-            document.querySelector('.achievements-grid').appendChild(newAchievement);
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${BASE_URL}/api/achievements`, { headers: { 'x-auth-token': token } });
-                if (response.ok) {
-                    const achievements = await response.json();
-                    if (achievements.bestTeamOfMonth) newAchievement.classList.add('completed');
-                    showAchievementNotification({ name: 'Mejor Equipo del Mes' });
-                } else if (response.status === 404) {
-                    console.warn('Endpoint /api/achievements no encontrado, usando datos locales.');
-                }
-            } catch (err) {
-                console.error('Error al verificar logros:', err);
-            }
+        function isMarketOpen() {
+            const now = new Date().getTime();
+            return now >= season.start && now <= season.end;
         }
 
         async function trainPlayer(id, value, name) {
-            if (isProcessing || !isMarketOpen()) {
-                if (!isMarketOpen()) showNotification('El mercado está cerrado.', 'error');
+            if (!isMarketOpen()) {
+                showNotification('El mercado está cerrado.', 'error');
                 return;
             }
-            isProcessing = true;
-            const button = document.querySelector(`button[onclick="trainPlayer('${id}', ${value}, '${name}')"]`);
-            button.disabled = true;
-
             const cost = Math.floor(value * 0.1);
-            if ((club.budget || 0) < cost) {
+            if (club.budget < cost) {
                 showNotification('No tienes suficiente presupuesto.', 'error');
-                isProcessing = false;
-                button.disabled = false;
                 return;
             }
 
             const token = localStorage.getItem('token');
-            const playerIndex = (club.players || []).findIndex(p => p._id === id || p.id === id);
+            const playerIndex = club.players.findIndex(p => p._id === id || p.id === id);
             if (playerIndex === -1) {
                 showNotification('Jugador no encontrado.', 'error');
-                isProcessing = false;
-                button.disabled = false;
                 return;
             }
 
@@ -920,12 +659,13 @@
             club.players[playerIndex].value = (value || 0) + cost;
 
             try {
-                const data = await fetchWithRetry(`${BASE_URL}/api/club/me`, {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ budget: club.budget, players: club.players, wins: club.wins, watchlist: club.watchlist, gamesPlayed: club.gamesPlayed })
                 });
-                if (data) {
+                const data = await response.json();
+                if (response.ok) {
                     localStorage.setItem('clubBudget', club.budget);
                     localStorage.setItem('clubPlayers', JSON.stringify(club.players));
                     transactions.push({ type: 'Entrenamiento', playerName: name, value: cost, date: new Date() });
@@ -934,6 +674,8 @@
                     updateClubPreview();
                     updateTransactions();
                     updateAchievements();
+                } else {
+                    throw new Error(data.msg || 'Error al entrenar');
                 }
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
@@ -942,21 +684,15 @@
                 club.players[playerIndex].value = value;
                 localStorage.setItem('clubBudget', club.budget);
                 localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-            } finally {
-                isProcessing = false;
-                button.disabled = false;
             }
         }
 
         async function saveClub(e) {
-            if (isProcessing) return;
-            isProcessing = true;
             e.preventDefault();
             const token = localStorage.getItem('token');
             if (!token) {
                 showNotification('Debes iniciar sesión.', 'error');
                 setTimeout(() => window.location.href = 'login.html', 2000);
-                isProcessing = false;
                 return;
             }
 
@@ -964,40 +700,37 @@
             club.color = document.getElementById('clubColor').value;
 
             try {
-                const data = await fetchWithRetry(`${BASE_URL}/api/club/me`, {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ name: club.name, color: club.color, budget: club.budget, players: club.players, wins: club.wins, watchlist: club.watchlist, gamesPlayed: club.gamesPlayed })
                 });
-                if (data) {
+                const data = await response.json();
+                if (response.ok) {
                     localStorage.setItem('clubName', club.name);
                     localStorage.setItem('clubColor', club.color);
                     showNotification(`¡Club ${club.name} actualizado!`);
                     updateClubPreview();
+                } else {
+                    throw new Error(data.msg || 'Error al actualizar');
                 }
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
-            } finally {
-                isProcessing = false;
             }
         }
 
         async function resetClub() {
-            if (isProcessing) return;
-            isProcessing = true;
-            if (!confirm('¿Estás seguro de reiniciar tu club? Esto eliminará todos tus datos.')) {
-                isProcessing = false;
-                return;
-            }
+            if (!confirm('¿Estás seguro de reiniciar tu club? Esto eliminará todos tus datos.')) return;
 
             const token = localStorage.getItem('token');
             try {
-                const data = await fetchWithRetry(`${BASE_URL}/api/club/me`, {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0, watchlist: [], gamesPlayed: 0 })
                 });
-                if (data) {
+                const data = await response.json();
+                if (response.ok) {
                     club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0, watchlist: [], gamesPlayed: 0 };
                     localStorage.setItem('clubName', club.name);
                     localStorage.setItem('clubBudget', club.budget);
@@ -1015,17 +748,11 @@
                     updateTransactions();
                     updateStats();
                     updateAchievements();
+                } else {
+                    throw new Error(data.msg || 'Error al reiniciar');
                 }
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
-            } finally {
-                isProcessing = false;
-            }
-        }
-
-        function confirmBuy(playerId, playerName) {
-            if (confirm(`¿Quieres ir al Mercado de Fichajes para comprar a ${playerName}?`)) {
-                window.location.href = `mercado-fichajes.html?playerId=${playerId}`;
             }
         }
 
@@ -1039,10 +766,6 @@
                 notification.style.animation = 'fadeOut 0.5s ease-out forwards';
                 setTimeout(() => notification.remove(), 500);
             }, 3000);
-        }
-
-        function showAchievementNotification(achievement) {
-            showNotification(`¡Logro desbloqueado: ${achievement.name}!`, 'success');
         }
     </script>
 </body>
