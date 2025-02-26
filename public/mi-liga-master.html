@@ -80,20 +80,13 @@
         .logo {
             width: 60px;
             height: 60px;
-            background: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: var(--primary-cyan);
+            background: url('logo-la-virtual-zone.svg') no-repeat center center;
+            background-size: contain;
+            text-indent: -9999px;
+            transition: var(--transition-base);
             border: 1px solid var(--border-light);
             border-radius: 50%;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-        .logo::before {
-            content: '\f11b'; /* Ícono de gamepad */
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
         }
         .logo:hover {
             opacity: 0.9;
@@ -161,10 +154,13 @@
             max-width: 1280px;
             margin: 0 auto;
             background: var(--light-bg);
-            padding: 2rem;
+            padding: 2.5rem;
             border-radius: 12px;
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-soft);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
         .club-container h3, .watchlist-container h3, .transactions-container h3, .stats-container h3, .achievements-container h3 {
             font-family: 'Orbitron', sans-serif;
@@ -177,7 +173,7 @@
             margin-bottom: 0.5rem;
         }
         .club-form {
-            margin-top: 2rem;
+            margin-top: 1rem;
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -241,13 +237,18 @@
         .player-list, .watchlist, .transactions-list {
             list-style: none;
             margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
         }
         .player-list li, .watchlist li, .transactions-list li {
             padding: 0.5rem 0;
             border-bottom: 1px solid var(--border-light);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 1rem;
         }
         .player-list img, .watchlist img {
             width: 40px;
@@ -376,6 +377,7 @@
         }
         .animate-fade-in {
             animation: fadeIn 0.6s ease-out forwards;
+            will-change: opacity, transform;
         }
         .back-to-top {
             position: fixed;
@@ -399,16 +401,6 @@
         .back-to-top:hover {
             background: var(--secondary-purple);
         }
-        .club-form, .club-container .cta-button, .club-container .reset-button {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-        .club-container .cta-button, .club-container .reset-button {
-            width: auto;
-            min-width: 120px;
-        }
         @media (max-width: 768px) {
             .dashboard-hero {
                 padding: 100px 2rem 4rem;
@@ -418,7 +410,6 @@
             }
             .stats-grid, .achievements-grid {
                 grid-template-columns: 1fr;
-                gap: 1rem;
             }
         }
         @media (max-width: 480px) {
@@ -429,20 +420,30 @@
             .club-container, .watchlist-container, .transactions-container, .stats-container, .achievements-container {
                 padding: 1.5rem;
             }
-            .player-list li, .watchlist li, .transactions-list li {
-                flex-direction: column;
-                align-items: flex-start;
+            .player-list, .watchlist, .transactions-list {
+                padding: 0.5rem;
             }
-            .player-list img, .watchlist img {
-                margin-bottom: 0.5rem;
+            .cta-button, .reset-button, .train-button {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+        }
+        @media (max-width: 320px) {
+            .section-title {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
             }
             .stats-grid, .achievements-grid {
                 grid-template-columns: 1fr;
-                gap: 1rem;
+                gap: 0.8rem;
             }
-            .cta-button, .reset-button, .train-button {
-                padding: 0.8rem 1.5rem;
-                font-size: 1rem;
+            .player-list li, .watchlist li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .player-list img, .watchlist img {
+                margin-bottom: 0.3rem;
             }
         }
     </style>
@@ -474,39 +475,52 @@
                 <p>Jugadores: <span id="playerCount">0</span></p>
                 <p>Valor Total: $<span id="teamValue">0</span></p>
                 <p>Rating Promedio: <span id="avgRating">0</span></p>
-                <ul id="playerList" class="player-list"></ul>
-                <form class="club-form" id="clubForm">
-                    <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club">
-                    <select id="clubColor" class="form-select">
+                <ul id="playerList" class="player-list" role="list"></ul>
+                <form class="club-form" id="clubForm" aria-label="Formulario de tu club">
+                    <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club" aria-label="Nombre del club">
+                    <select id="clubColor" class="form-select" aria-label="Color del club">
                         <option value="#00ffff">Cian</option>
                         <option value="#800080">Púrpura</option>
                         <option value="#66ff66">Verde</option>
                     </select>
                     <button type="submit" class="cta-button">Guardar</button>
                 </form>
-                <button id="resetClub" class="reset-button">Reiniciar Club</button>
-                <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html">Ir al Mercado</a>
+                <button id="resetClub" class="reset-button" aria-label="Reiniciar club">Reiniciar Club</button>
+                <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html" aria-label="Ir al Mercado de Fichajes">Ir al Mercado</a>
             </div>
         </section>
 
         <section class="watchlist-section" aria-labelledby="watchlist-heading">
             <h2 class="section-title" id="watchlist-heading">Jugadores Seguidos</h2>
             <div class="watchlist-container animate-fade-in">
-                <ul id="watchlist" class="watchlist"></ul>
+                <ul id="watchlist" class="watchlist" role="list"></ul>
             </div>
         </section>
 
         <section class="transactions-section" aria-labelledby="transactions-heading">
             <h2 class="section-title" id="transactions-heading">Historial de Transacciones</h2>
             <div class="transactions-container animate-fade-in">
-                <ul id="transactionList" class="transactions-list"></ul>
+                <ul id="transactionList" class="transactions-list" role="list"></ul>
             </div>
         </section>
 
         <section class="stats-section" aria-labelledby="stats-heading">
             <h2 class="section-title" id="stats-heading">Estadísticas del Club</h2>
-            <div class="stats-container animate-fade-in">
-                <div class="stats-grid" id="statsGrid"></div>
+            <div class="stats-container animate-fade-in" id="stats-container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="winsCount">0</div>
+                        <p>Victorias</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="gamesPlayed">0</div>
+                        <p>Partidos Jugados</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="seasonProgress">0/5</div>
+                        <p>Progreso Temporada</p>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -569,7 +583,7 @@
             end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000,
             wins: parseInt(localStorage.getItem('seasonWins')) || 0
         };
-        let isTraining = false;
+        let isProcessing = false;
 
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
@@ -640,7 +654,7 @@
                     updateAchievements();
                 }
             } catch (err) {
-                console.error('Error en syncClubData:', err);
+                showNotification('Error al sincronizar datos: ' + err.message, 'error');
             }
         }
 
@@ -662,6 +676,11 @@
                     await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i))); // Exponential backoff
                 }
             }
+        }
+
+        function isMarketOpen() {
+            const now = new Date().getTime();
+            return now >= season.start && now <= season.end;
         }
 
         function updateClubPreview() {
@@ -690,7 +709,10 @@
                 <li>
                     <img src="${p.image || 'https://api.dicebear.com/6.x/pixel-art/svg?seed=' + p.name}" alt="${p.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                     ${p.name} ($${p.value.toLocaleString()}) 
-                    <button class="cta-button" onclick="confirmBuy('${p._id || p.id}')">Comprar</button>
+                    <div class="player-actions">
+                        <button class="cta-button" onclick="confirmBuy('${p._id || p.id}', '${p.name}')">Comprar</button>
+                        <a href="mercado-fichajes.html?playerId=${p._id || p.id}" class="cta-button transition-link" data-href="mercado-fichajes.html?playerId=${p._id || p.id}" aria-label="Ver en Mercado">Ver en Mercado</a>
+                    </div>
                 </li>`).join('') : '<li>No hay jugadores seguidos.</li>';
         }
 
@@ -707,23 +729,25 @@
             document.getElementById('seasonProgress').textContent = `${season.wins}/5`;
             const winRate = club.gamesPlayed > 0 ? ((club.wins / club.gamesPlayed) * 100).toFixed(1) : 0;
 
-            const statsGrid = document.getElementById('statsGrid');
-            statsGrid.innerHTML = `
-                <div class="stat-item">
-                    <div class="stat-number" id="winsCount">${club.wins}</div>
-                    <p>Victorias</p>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="gamesPlayed">${club.gamesPlayed}</div>
-                    <p>Partidos Jugados</p>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="seasonProgress">${season.wins}/5</div>
-                    <p>Progreso Temporada</p>
-                </div>
-                <div class="stat-item">
-                    <canvas id="winRateChart" width="100" height="100"></canvas>
-                    <p>Porcentaje de Victorias</p>
+            const statsContainer = document.getElementById('stats-container');
+            statsContainer.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="winsCount">${club.wins}</div>
+                        <p>Victorias</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="gamesPlayed">${club.gamesPlayed}</div>
+                        <p>Partidos Jugados</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="seasonProgress">${season.wins}/5</div>
+                        <p>Progreso Temporada</p>
+                    </div>
+                    <div class="stat-item">
+                        <canvas id="winRateChart" width="100" height="100"></canvas>
+                        <p>Porcentaje de Victorias</p>
+                    </div>
                 </div>
             `;
 
@@ -772,26 +796,38 @@
             const spent = 100000000 - club.budget;
             millionSpent.innerHTML = `<i class="fas fa-money-bill-wave" ${spent >= 1000000 ? '' : 'style="color: gray;"'}></i><h3>Millonario</h3><p>${spent >= 1000000 ? 'Completado' : 'Gasta $1M'}</p>`;
             if (spent >= 1000000) millionSpent.classList.add('completed');
-        }
 
-        function isMarketOpen() {
-            const now = new Date().getTime();
-            return now >= season.start && now <= season.end;
+            // Nuevo logro
+            const newAchievement = document.createElement('div');
+            newAchievement.className = 'achievement-card';
+            newAchievement.innerHTML = `<i class="fas fa-star" style="color: gray;"></i><h3>Mejor Equipo del Mes</h3><p>Alcanza el mejor rating promedio en un mes</p>`;
+            document.querySelector('.achievements-grid').appendChild(newAchievement);
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${BASE_URL}/api/achievements`, { headers: { 'x-auth-token': token } });
+                if (response.ok) {
+                    const achievements = await response.json();
+                    if (achievements.bestTeamOfMonth) newAchievement.classList.add('completed');
+                    showAchievementNotification({ name: 'Mejor Equipo del Mes' });
+                }
+            } catch (err) {
+                console.error('Error al verificar logros:', err);
+            }
         }
 
         async function trainPlayer(id, value, name) {
-            if (isTraining || !isMarketOpen()) {
+            if (isProcessing || !isMarketOpen()) {
                 if (!isMarketOpen()) showNotification('El mercado está cerrado.', 'error');
                 return;
             }
-            isTraining = true;
+            isProcessing = true;
             const button = document.querySelector(`button[onclick="trainPlayer('${id}', ${value}, '${name}')"]`);
             button.disabled = true;
 
             const cost = Math.floor(value * 0.1);
             if (club.budget < cost) {
                 showNotification('No tienes suficiente presupuesto.', 'error');
-                isTraining = false;
+                isProcessing = false;
                 button.disabled = false;
                 return;
             }
@@ -800,7 +836,7 @@
             const playerIndex = club.players.findIndex(p => p._id === id || p.id === id);
             if (playerIndex === -1) {
                 showNotification('Jugador no encontrado.', 'error');
-                isTraining = false;
+                isProcessing = false;
                 button.disabled = false;
                 return;
             }
@@ -833,17 +869,20 @@
                 localStorage.setItem('clubBudget', club.budget);
                 localStorage.setItem('clubPlayers', JSON.stringify(club.players));
             } finally {
-                isTraining = false;
+                isProcessing = false;
                 button.disabled = false;
             }
         }
 
         async function saveClub(e) {
+            if (isProcessing) return;
+            isProcessing = true;
             e.preventDefault();
             const token = localStorage.getItem('token');
             if (!token) {
                 showNotification('Debes iniciar sesión.', 'error');
                 setTimeout(() => window.location.href = 'login.html', 2000);
+                isProcessing = false;
                 return;
             }
 
@@ -864,11 +903,18 @@
                 }
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
+            } finally {
+                isProcessing = false;
             }
         }
 
         async function resetClub() {
-            if (!confirm('¿Estás seguro de reiniciar tu club? Esto eliminará todos tus datos.')) return;
+            if (isProcessing) return;
+            isProcessing = true;
+            if (!confirm('¿Estás seguro de reiniciar tu club? Esto eliminará todos tus datos.')) {
+                isProcessing = false;
+                return;
+            }
 
             const token = localStorage.getItem('token');
             try {
@@ -898,12 +944,14 @@
                 }
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
+            } finally {
+                isProcessing = false;
             }
         }
 
-        function confirmBuy(playerId) {
-            if (confirm('¿Quieres ir al Mercado de Fichajes para comprar este jugador?')) {
-                window.location.href = 'mercado-fichajes.html?playerId=' + playerId;
+        function confirmBuy(playerId, playerName) {
+            if (confirm(`¿Quieres ir al Mercado de Fichajes para comprar a ${playerName}?`)) {
+                window.location.href = `mercado-fichajes.html?playerId=${playerId}`;
             }
         }
 
@@ -917,6 +965,10 @@
                 notification.style.animation = 'fadeOut 0.5s ease-out forwards';
                 setTimeout(() => notification.remove(), 500);
             }, 3000);
+        }
+
+        function showAchievementNotification(achievement) {
+            showNotification(`¡Logro desbloqueado: ${achievement.name}!`, 'success');
         }
     </script>
 </body>
