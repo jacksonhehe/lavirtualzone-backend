@@ -277,8 +277,7 @@
         .stats-section,
         .chat-section,
         .partners-section,
-        .support-section,
-        .market-preview-section {
+        .support-section {
             padding: 7rem 3rem;
             background: var(--dark-bg);
         }
@@ -647,31 +646,6 @@
             font-weight: 700;
         }
 
-        /* Mercado de Fichajes */
-        .market-preview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2.5rem;
-            max-width: 1280px;
-            margin: 0 auto;
-        }
-
-        .market-card {
-            background: var(--light-bg);
-            border-radius: 12px;
-            padding: 2.5rem;
-            transition: var(--transition-base);
-            border: 1px solid var(--border-light);
-            box-shadow: var(--shadow-soft);
-            text-align: center;
-        }
-
-        .market-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-cyan);
-            border-color: var(--primary-cyan);
-        }
-
         /* Chat */
         .chat-container {
             max-width: 960px;
@@ -914,8 +888,7 @@
             .calendar-grid,
             .hosts-grid,
             .news-grid,
-            .stats-grid,
-            .market-preview-grid {
+            .stats-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -1149,14 +1122,6 @@
             </div>
         </section>
 
-        <section class="market-preview-section" id="mercado" aria-labelledby="mercado-heading">
-            <h2 class="section-title" id="mercado-heading">Mercado de Fichajes</h2>
-            <div class="market-preview-grid" id="marketPreviewGrid">
-                <p>Cargando jugadores destacados...</p>
-            </div>
-            <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html">Ir al Mercado</a>
-        </section>
-
         <section class="news-section" id="noticias" aria-labelledby="noticias-heading">
             <h2 class="section-title" id="noticias-heading">Últimas Noticias</h2>
             <div class="news-grid">
@@ -1314,10 +1279,6 @@
 
     <script>
         const BASE_URL = window.location.origin;
-        const season = {
-            start: new Date("2025-03-01T00:00:00").getTime(),
-            end: new Date("2025-04-01T00:00:00").getTime()
-        };
 
         document.addEventListener('DOMContentLoaded', () => {
             const menuButton = document.querySelector('.mobile-menu');
@@ -1374,7 +1335,6 @@
             setInterval(updateSeason, 1000);
             updateSeason();
             updateStats();
-            renderMarketPreview();
 
             document.getElementById('chatForm').addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -1392,6 +1352,11 @@
                 }
             });
         });
+
+        const season = {
+            start: new Date("2025-03-01T00:00:00").getTime(),
+            end: new Date("2025-04-01T00:00:00").getTime()
+        };
 
         function updateSeason() {
             const now = new Date().getTime();
@@ -1420,30 +1385,6 @@
             const clubs = JSON.parse(localStorage.getItem('clubPlayers')) || [];
             document.getElementById('clubsCount').textContent = clubs.length;
             document.getElementById('lmClubsCount').textContent = clubs.length;
-        }
-
-        async function renderMarketPreview() {
-            const token = localStorage.getItem('token');
-            const grid = document.getElementById('marketPreviewGrid');
-            if (!token) {
-                grid.innerHTML = '<p>Inicia sesión para ver el mercado.</p>';
-                return;
-            }
-            try {
-                const response = await fetch(`${BASE_URL}/api/players`, {
-                    headers: { 'x-auth-token': token }
-                });
-                const players = await response.json();
-                grid.innerHTML = players.slice(0, 3).map(p => `
-                    <div class="market-card animate-fade-in">
-                        <h3>${p.name}</h3>
-                        <p>$${p.value.toLocaleString()}</p>
-                    </div>
-                `).join('');
-            } catch (err) {
-                console.error('Error al cargar mercado:', err);
-                grid.innerHTML = '<p>Error al cargar el mercado.</p>';
-            }
         }
     </script>
 </body>
