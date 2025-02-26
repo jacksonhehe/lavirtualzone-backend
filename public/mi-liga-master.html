@@ -245,7 +245,7 @@
             gap: 1rem;
             padding: 1rem;
             border-radius: 8px;
-            max-height: 300px; /* Limitar altura para evitar desbordamiento */
+            max-height: 300px;
             overflow-y: auto;
         }
         .player-list li, .watchlist li, .transactions-list li {
@@ -402,6 +402,7 @@
             transition: var(--transition-base);
             box-shadow: var(--shadow-cyan);
             transform: translateY(20px);
+            z-index: 1000;
         }
         .back-to-top.show {
             opacity: 1;
@@ -471,7 +472,7 @@
         </nav>
     </header>
 
-    <main role="main" style="flex: 1 0 auto; overflow-y: auto; max-height: calc(100vh - 60px - 1px);">
+    <main role="main" style="padding-top: 92px; flex: 1 0 auto; overflow-y: auto;">
         <section class="dashboard-hero" aria-labelledby="dashboard-heading">
             <h1 class="section-title animate-fade-in" id="dashboard-heading">Mi Liga Master</h1>
         </section>
@@ -528,6 +529,10 @@
                     <div class="stat-item">
                         <div class="stat-number" id="seasonProgress">0/5</div>
                         <p>Progreso Temporada</p>
+                    </div>
+                    <div class="stat-item">
+                        <canvas id="winRateChart" width="100" height="100"></canvas>
+                        <p>Porcentaje de Victorias</p>
                     </div>
                 </div>
             </div>
@@ -601,6 +606,11 @@
                 setTimeout(() => window.location.href = 'login.html', 2000);
                 return;
             }
+
+            // Calcular padding-top dinámicamente para main basado en la altura del header
+            const header = document.querySelector('.main-header');
+            const headerHeight = header.offsetHeight;
+            document.querySelector('main').style.paddingTop = `${headerHeight}px`;
 
             await syncClubData();
 
