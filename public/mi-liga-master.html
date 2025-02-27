@@ -80,13 +80,15 @@
         .logo {
             width: 60px;
             height: 60px;
-            background: url('logo-la-virtual-zone.svg') no-repeat center center;
-            background-size: contain;
-            text-indent: -9999px;
-            transition: var(--transition-base);
-            border: 1px solid var(--border-light);
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            background: none;
+            text-indent: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo i {
+            font-size: 60px;
+            color: var(--primary-cyan);
         }
         .logo:hover {
             opacity: 0.9;
@@ -178,7 +180,7 @@
             max-width: 1280px;
             margin: 0 auto;
             background: var(--light-bg);
-            padding: 2rem;
+            padding: 2.5rem; /* Aumentado para más espacio */
             border-radius: 12px;
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-soft);
@@ -315,9 +317,12 @@
             border-color: var(--accent-green);
         }
         .achievement-card i {
-            font-size: 2rem;
+            font-size: 2.5rem; /* Aumentado para mayor visibilidad */
             color: var(--accent-green);
             margin-bottom: 1rem;
+        }
+        .achievement-card i[style*="color: gray"] {
+            color: #808080; /* Ajustar gris para mejor contraste */
         }
         .achievement-card h3 {
             font-family: 'Orbitron', sans-serif;
@@ -388,6 +393,11 @@
             z-index: 2000;
             opacity: 0;
             transition: opacity 0.3s ease;
+            background: var(--light-bg);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-cyan);
         }
         .loading.active {
             display: block;
@@ -501,7 +511,7 @@
 <body>
     <header class="main-header" role="banner">
         <nav class="nav-container" aria-label="Navegación principal">
-            <a href="index.html" class="logo" aria-label="Inicio de La Virtual Zone"></a>
+            <a href="index.html" class="logo" aria-label="Inicio de La Virtual Zone"><i class="fas fa-gamepad"></i></a>
             <div class="main-nav" id="main-nav" role="navigation" aria-label="Secciones principales">
                 <a href="index.html" class="nav-link transition-link" data-href="index.html">Inicio</a>
                 <a href="liga-master.html" class="nav-link transition-link" data-href="liga-master.html">Liga Master</a>
@@ -512,7 +522,7 @@
         </nav>
     </header>
 
-    <main role="main" style="padding-top: 92px; flex: 1 0 auto; overflow-y: auto; max-height: calc(100vh - 92px);">
+    <main role="main" style="padding-top: 80px; flex: 1 0 auto; overflow-y: auto; max-height: calc(100vh - 80px);">
         <nav class="section-nav" aria-label="Navegación interna">
             <a href="#club-heading" class="section-nav-link">Tu Club</a>
             <a href="#watchlist-heading" class="section-nav-link">Jugadores Seguidos</a>
@@ -665,7 +675,7 @@
             // Calcular padding-top dinámicamente para main basado en la altura del header
             const header = document.querySelector('.main-header');
             const headerHeight = header.offsetHeight;
-            document.querySelector('main').style.paddingTop = `${headerHeight}px`;
+            document.querySelector('main').style.paddingTop = `${headerHeight - 12}px`; // Ajuste para reducir espacio
 
             try {
                 await syncClubData();
@@ -812,6 +822,7 @@
 
         async function fetchWithRetry(url, options, retries = 3) {
             const spinner = document.getElementById('loadingSpinner');
+            spinner.textContent = `Cargando... ${url.split('/').pop()}`;
             spinner.classList.add('active');
             for (let i = 0; i < retries; i++) {
                 try {
@@ -962,12 +973,12 @@
                 } else if (response.status === 404) {
                     console.warn('Endpoint /api/leaderboard no encontrado, usando datos locales.');
                     const list = document.getElementById('leaderboardList');
-                    list.innerHTML = '<li role="listitem">No hay clasificación disponible.</li>';
+                    list.innerHTML = '<li role="listitem">No hay clasificación disponible. <button class="cta-button" onclick="updateLeaderboard()">Reintentar</button></li>';
                 }
             } catch (err) {
                 console.error('Error al cargar clasificación:', err);
                 const list = document.getElementById('leaderboardList');
-                list.innerHTML = '<li role="listitem">Error al cargar clasificación.</li>';
+                list.innerHTML = '<li role="listitem">Error al cargar clasificación. <button class="cta-button" onclick="updateLeaderboard()">Reintentar</button></li>';
             }
         }
 
