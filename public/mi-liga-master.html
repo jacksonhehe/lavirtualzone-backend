@@ -26,6 +26,12 @@
             --shadow-cyan: 0 6px 18px rgba(0, 255, 255, 0.15);
             --transition-base: 0.3s ease-in-out;
             --accent-green: #66ff66;
+            --theme-bg: var(--dark-bg);
+            --theme-text: var(--text-primary);
+        }
+        .light-theme {
+            --theme-bg: #ffffff;
+            --theme-text: #0a0a1a;
         }
         *, *::before, *::after {
             box-sizing: border-box;
@@ -33,8 +39,8 @@
             padding: 0;
         }
         body {
-            background: var(--dark-bg);
-            color: var(--text-primary);
+            background: var(--theme-bg);
+            color: var(--theme-text);
             font-family: 'Roboto', sans-serif;
             line-height: 1.7;
             min-height: 100vh;
@@ -42,7 +48,7 @@
             flex-direction: column;
             overflow-x: hidden;
             overflow-y: auto;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.5s ease, background 0.5s ease, color 0.5s ease;
         }
         body.fade-out {
             opacity: 0;
@@ -54,9 +60,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, rgba(10, 10, 26, 0.95), rgba(10, 10, 26, 1));
+            background: linear-gradient(to bottom, rgba(var(--theme-bg), 0.95), var(--theme-bg));
             z-index: -1;
             opacity: 0.9;
+            transition: background 0.5s ease;
         }
         .main-header {
             background: rgba(10, 10, 26, 0.98);
@@ -106,14 +113,30 @@
             transition: var(--transition-base);
             letter-spacing: 0.5px;
         }
-        .nav-link:hover {
+        .nav-link:hover, .nav-link:focus {
             color: var(--primary-cyan);
             background: rgba(0, 255, 255, 0.1);
             box-shadow: var(--shadow-cyan);
+            outline: none;
+        }
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: var(--transition-base);
+        }
+        .theme-toggle:hover, .theme-toggle:focus {
+            color: var(--primary-cyan);
+            transform: scale(1.1);
+            outline: 2px solid var(--primary-cyan);
+            outline-offset: 2px;
         }
         .dashboard-hero {
             padding: 160px 3rem 8rem;
-            background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
+            background: linear-gradient(to bottom, rgba(var(--theme-bg), 0.9), var(--theme-bg));
             min-height: 50vh;
             display: flex;
             align-items: center;
@@ -145,13 +168,35 @@
             transform: translateX(-50%);
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
         }
-        .club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section {
+        .section-nav {
+            position: sticky;
+            top: 92px;
+            background: var(--light-bg);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+            z-index: 900;
+        }
+        .section-nav-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin-right: 1rem;
+            border-radius: 4px;
+            transition: var(--transition-base);
+        }
+        .section-nav-link:hover, .section-nav-link:focus {
+            color: var(--primary-cyan);
+            background: rgba(0, 255, 255, 0.1);
+            outline: none;
+        }
+        .club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section, .leaderboard-section {
             padding: 5rem 3rem;
-            background: var(--dark-bg);
+            background: var(--theme-bg);
             min-height: auto;
             max-height: none;
         }
-        .club-container, .watchlist-container, .transactions-container, .stats-container, .achievements-container {
+        .club-container, .watchlist-container, .transactions-container, .stats-container, .achievements-container, .leaderboard-container {
             max-width: 1280px;
             margin: 0 auto;
             background: var(--light-bg);
@@ -164,7 +209,7 @@
             gap: 1.5rem;
             min-height: 0;
         }
-        .club-container h3, .watchlist-container h3, .transactions-container h3, .stats-container h3, .achievements-container h3 {
+        .club-container h3, .watchlist-container h3, .transactions-container h3, .stats-container h3, .achievements-container h3, .leaderboard-container h3 {
             font-family: 'Orbitron', sans-serif;
             color: var(--primary-cyan);
             font-size: 1.5rem;
@@ -195,8 +240,9 @@
         .form-input:focus, .form-select:focus {
             border-color: var(--primary-cyan);
             box-shadow: var(--shadow-cyan);
+            outline: none;
         }
-        .cta-button {
+        .cta-button, .train-button, .reset-button {
             padding: 1rem 2.5rem;
             background: var(--primary-cyan);
             color: var(--text-primary);
@@ -210,25 +256,14 @@
             letter-spacing: 1px;
             box-shadow: var(--shadow-cyan);
         }
-        .cta-button:hover {
+        .cta-button:hover, .train-button:hover, .reset-button:hover, .cta-button:focus, .train-button:focus, .reset-button:focus {
             background: var(--secondary-purple);
             border-color: var(--secondary-purple);
             box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
+            outline: none;
         }
-        .train-button, .reset-button {
-            padding: 0.8rem 1.5rem;
-            background: var(--primary-cyan);
-            color: var(--text-primary);
-            border: 1px solid var(--primary-cyan);
-            border-radius: 8px;
-            font-weight: 600;
-            transition: var(--transition-base);
-            cursor: pointer;
-        }
-        .train-button:hover, .reset-button:hover {
-            background: var(--secondary-purple);
-            border-color: var(--secondary-purple);
-            box-shadow: var(--shadow-cyan);
+        .cta-button:active, .train-button:active, .reset-button:active {
+            transform: scale(0.98);
         }
         .train-button:disabled, .reset-button:disabled {
             background: var(--text-secondary);
@@ -236,7 +271,7 @@
             cursor: not-allowed;
             opacity: 0.7;
         }
-        .player-list, .watchlist, .transactions-list {
+        .player-list, .watchlist, .transactions-list, .leaderboard-list {
             list-style: none;
             margin-top: 1rem;
             display: flex;
@@ -247,7 +282,7 @@
             max-height: 300px;
             overflow-y: auto;
         }
-        .player-list li, .watchlist li, .transactions-list li {
+        .player-list li, .watchlist li, .transactions-list li, .leaderboard-list li {
             padding: 0.5rem 0;
             border-bottom: 1px solid var(--border-light);
             display: flex;
@@ -267,7 +302,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 2rem;
-            max-height: 400px; /* Limitar altura máxima para evitar desbordamiento */
+            max-height: 400px;
             overflow-y: auto;
         }
         .stat-item {
@@ -276,11 +311,11 @@
             border-radius: 8px;
             border: 1px solid var(--border-light);
             text-align: center;
-            min-height: 150px; /* Altura mínima para consistencia */
+            min-height: 150px;
         }
         .stat-number {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem; /* Reducido para evitar expansión visual */
+            font-size: 1.5rem;
             color: var(--primary-cyan);
             margin-bottom: 0.5rem;
         }
@@ -314,7 +349,7 @@
         }
         .main-footer {
             margin-top: auto;
-            background: var(--dark-bg);
+            background: var(--theme-bg);
             padding: 6rem 3rem;
             border-top: 1px solid var(--border-light);
             box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
@@ -342,9 +377,10 @@
             text-decoration: none;
             transition: var(--transition-base);
         }
-        .social-link:hover {
+        .social-link:hover, .social-link:focus {
             color: var(--primary-cyan);
             transform: translateX(5px);
+            outline: none;
         }
         .notification {
             position: fixed;
@@ -361,6 +397,7 @@
             align-items: center;
             gap: 1rem;
             will-change: transform, opacity;
+            aria-live: "polite";
         }
         .loading {
             position: fixed;
@@ -371,9 +408,15 @@
             color: var(--primary-cyan);
             display: none;
             z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         .loading.active {
             display: block;
+            opacity: 1;
+        }
+        .cta-button.error-shake {
+            animation: shake 0.5s;
         }
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(100%); }
@@ -386,6 +429,13 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
         }
         .animate-fade-in {
             animation: fadeIn 0.6s ease-out forwards;
@@ -411,21 +461,26 @@
             opacity: 1;
             transform: translateY(0);
         }
-        .back-to-top:hover {
+        .back-to-top:hover, .back-to-top:focus {
             background: var(--secondary-purple);
+            outline: none;
         }
         @media (max-width: 768px) {
             .dashboard-hero {
                 padding: 100px 2rem 4rem;
             }
-            .club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section {
+            .club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section, .leaderboard-section {
                 padding: 3rem 2rem;
             }
-            .stats-grid, .achievements-grid {
+            .stats-grid, .achievements-grid, .leaderboard-list {
                 grid-template-columns: 1fr;
             }
-            .player-list, .watchlist, .transactions-list {
+            .player-list, .watchlist, .transactions-list, .leaderboard-list {
                 max-height: 200px;
+            }
+            .section-nav {
+                top: 60px; /* Ajustar para pantallas pequeñas */
+                padding: 0.5rem;
             }
         }
         @media (max-width: 480px) {
@@ -433,10 +488,10 @@
                 font-size: 1.2rem;
                 margin-bottom: 2rem;
             }
-            .club-container, .watchlist-container, .transactions-container, .stats-container, .achievements-container {
+            .club-container, .watchlist-container, .transactions-container, .stats-container, .achievements-container, .leaderboard-container {
                 padding: 1.5rem;
             }
-            .player-list, .watchlist, .transactions-list {
+            .player-list, .watchlist, .transactions-list, .leaderboard-list {
                 padding: 0.5rem;
                 max-height: 150px;
             }
@@ -444,13 +499,16 @@
                 padding: 0.7rem 1.2rem;
                 font-size: 0.9rem;
             }
+            .section-nav {
+                display: none; /* Ocultar en móviles para evitar desbordamiento */
+            }
         }
         @media (max-width: 320px) {
             .section-title {
                 font-size: 1rem;
                 margin-bottom: 1.5rem;
             }
-            .stats-grid, .achievements-grid {
+            .stats-grid, .achievements-grid, .leaderboard-list {
                 grid-template-columns: 1fr;
                 gap: 0.8rem;
             }
@@ -473,10 +531,20 @@
                 <a href="mercado-fichajes.html" class="nav-link transition-link" data-href="mercado-fichajes.html">Mercado de Fichajes</a>
                 <a href="login.html" class="nav-link transition-link" data-href="login.html">Cerrar Sesión</a>
             </div>
+            <button id="toggleTheme" class="theme-toggle" aria-label="Cambiar tema">🌙</button>
         </nav>
     </header>
 
     <main role="main" style="padding-top: 92px; flex: 1 0 auto; overflow-y: auto; max-height: calc(100vh - 92px);">
+        <nav class="section-nav" aria-label="Navegación interna">
+            <a href="#club-heading" class="section-nav-link">Tu Club</a>
+            <a href="#watchlist-heading" class="section-nav-link">Jugadores Seguidos</a>
+            <a href="#transactions-heading" class="section-nav-link">Transacciones</a>
+            <a href="#stats-heading" class="section-nav-link">Estadísticas</a>
+            <a href="#achievements-heading" class="section-nav-link">Logros</a>
+            <a href="#leaderboard-heading" class="section-nav-link">Clasificación</a>
+        </nav>
+
         <section class="dashboard-hero" aria-labelledby="dashboard-heading">
             <h1 class="section-title animate-fade-in" id="dashboard-heading">Mi Liga Master</h1>
         </section>
@@ -501,6 +569,7 @@
                 </form>
                 <button id="resetClub" class="reset-button" aria-label="Reiniciar club">Reiniciar Club</button>
                 <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html" aria-label="Ir al Mercado de Fichajes">Ir al Mercado</a>
+                <button id="viewSeasonHistory" class="cta-button" aria-label="Ver historial de temporadas">Ver Historial de Temporadas</button>
             </div>
         </section>
 
@@ -515,6 +584,7 @@
             <h2 class="section-title" id="transactions-heading">Historial de Transacciones</h2>
             <div class="transactions-container animate-fade-in">
                 <ul id="transactionList" class="transactions-list" role="list"></ul>
+                <button id="exportTransactions" class="cta-button" aria-label="Exportar transacciones">Exportar Transacciones</button>
             </div>
         </section>
 
@@ -546,6 +616,13 @@
                     <div class="achievement-card" id="top-10"></div>
                     <div class="achievement-card" id="million-spent"></div>
                 </div>
+            </div>
+        </section>
+
+        <section class="leaderboard-section" aria-labelledby="leaderboard-heading">
+            <h2 class="section-title" id="leaderboard-heading">Clasificación Liga Master</h2>
+            <div class="leaderboard-container animate-fade-in">
+                <ul id="leaderboardList" class="leaderboard-list" role="list"></ul>
             </div>
         </section>
     </main>
@@ -613,6 +690,12 @@
             const headerHeight = header.offsetHeight;
             document.querySelector('main').style.paddingTop = `${headerHeight}px`;
 
+            // Cargar tema guardado
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-theme');
+                document.getElementById('toggleTheme').textContent = '🌙';
+            }
+
             try {
                 await syncClubData();
                 updateClubPreview();
@@ -620,6 +703,10 @@
                 updateTransactions();
                 updateStats(); // Inicializar estadísticas simples
                 updateAchievements();
+                updateLeaderboard();
+                if (!isMarketOpen()) {
+                    showNotification('El mercado está cerrado. Reabrirá el ' + new Date(season.end).toLocaleString(), 'warning');
+                }
             } catch (err) {
                 showNotification('Error inicial al cargar datos: ' + err.message, 'error');
                 // Usar datos predeterminados si el backend falla
@@ -638,6 +725,7 @@
                 updateTransactions();
                 updateStats(); // Inicializar estadísticas simples
                 updateAchievements();
+                updateLeaderboard();
             }
 
             document.querySelectorAll('.transition-link').forEach(link => {
@@ -663,20 +751,54 @@
             window.addEventListener('scroll', () => {
                 backToTop.classList.toggle('show', window.scrollY > 500);
                 console.log('Scroll position:', window.scrollY, 'Document height:', document.body.scrollHeight, 'Viewport height:', window.innerHeight);
+                // Resaltar sección activa
+                const sections = document.querySelectorAll('.club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section, .leaderboard-section');
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    if (rect.top >= 0 && rect.top <= window.innerHeight / 2) {
+                        section.style.border = `2px solid var(--primary-cyan)`;
+                        section.style.boxShadow = `0 0 10px var(--primary-cyan)`;
+                    } else {
+                        section.style.border = `1px solid var(--border-light)`;
+                        section.style.boxShadow = `var(--shadow-soft)`;
+                    }
+                });
             });
             backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
             document.getElementById('clubForm').addEventListener('submit', saveClub);
             document.getElementById('resetClub').addEventListener('click', resetClub);
+            document.getElementById('exportTransactions').addEventListener('click', exportTransactions);
+            document.getElementById('viewSeasonHistory').addEventListener('click', viewSeasonHistory);
+            document.getElementById('toggleTheme').addEventListener('click', toggleTheme);
 
             setInterval(syncClubData, 300000); // Sincronización cada 5 minutos
+            setInterval(updateLeaderboard, 300000); // Actualizar clasificación cada 5 minutos
+
+            // Lazy loading para secciones
+            const lazySections = document.querySelectorAll('.club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section, .leaderboard-section');
+            const lazyObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('loaded');
+                        lazyObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            lazySections.forEach(section => lazyObserver.observe(section));
 
             // Verificar dimensiones de las secciones después de renderizar
-            const sections = document.querySelectorAll('.club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section');
+            const sections = document.querySelectorAll('.club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section, .leaderboard-section');
             sections.forEach(section => {
                 console.log(`Section ${section.id || section.className}: Height = ${section.offsetHeight}, ScrollHeight = ${section.scrollHeight}`);
             });
         });
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+            document.getElementById('toggleTheme').textContent = document.body.classList.contains('light-theme') ? '🌙' : '☀️';
+        }
 
         async function syncClubData() {
             const token = localStorage.getItem('token');
@@ -716,6 +838,7 @@
                         updateStats(); // Actualizar estadísticas solo si cambian
                     }
                     updateAchievements();
+                    saveSeasonHistory(); // Guardar historial de temporada
                 }
             } catch (err) {
                 console.error('Error en syncClubData:', err);
@@ -770,7 +893,7 @@
             playerList.innerHTML = club.players.length ? club.players.map(p => `
                 <li role="listitem">${p.name} (Rating: ${p.rating || 0}) 
                     <button class="train-button" ${isMarketOpen() ? '' : 'disabled'} onclick="trainPlayer('${p._id || p.id}', ${p.value || 0}, '${p.name}')">Entrenar ($${Math.floor((p.value || 0) * 0.1).toLocaleString()})</button>
-                    <img src="${p.image || 'https://api.dicebear.com/6.x/pixel-art/svg?seed=' + p.name}" alt="${p.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-left: 1rem;">
+                    <img src="${getPlayerImage(p.name)}" alt="${p.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-left: 1rem;">
                 </li>`).join('') : '<li role="listitem">No hay jugadores.</li>';
         }
 
@@ -779,7 +902,7 @@
             watchlist.innerHTML = club.watchlist.length ? club.watchlist.map(p => `
                 <li role="listitem">${p.name} ($${p.value.toLocaleString()}) 
                     <button class="cta-button" onclick="confirmBuy('${p._id || p.id}', '${p.name}')">Comprar</button>
-                    <img src="${p.image || 'https://api.dicebear.com/6.x/pixel-art/svg?seed=' + p.name}" alt="${p.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-left: 1rem;">
+                    <img src="${getPlayerImage(p.name)}" alt="${p.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-left: 1rem;">
                 </li>`).join('') : '<li role="listitem">No hay jugadores seguidos.</li>';
         }
 
@@ -862,6 +985,28 @@
             }
         }
 
+        async function updateLeaderboard() {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${BASE_URL}/api/leaderboard`, { headers: { 'x-auth-token': token } });
+                if (response.ok) {
+                    const leaderboard = await response.json();
+                    const list = document.getElementById('leaderboardList');
+                    list.innerHTML = leaderboard.slice(0, 10).map((entry, index) => `
+                        <li role="listitem">${index + 1}. ${entry.clubName} - Victorias: ${entry.wins || 0}, Rating: ${entry.avgRating || 0}</li>
+                    `).join('');
+                } else if (response.status === 404) {
+                    console.warn('Endpoint /api/leaderboard no encontrado, usando datos locales.');
+                    const list = document.getElementById('leaderboardList');
+                    list.innerHTML = '<li role="listitem">No hay clasificación disponible.</li>';
+                }
+            } catch (err) {
+                console.error('Error al cargar clasificación:', err);
+                const list = document.getElementById('leaderboardList');
+                list.innerHTML = '<li role="listitem">Error al cargar clasificación.</li>';
+            }
+        }
+
         async function trainPlayer(id, value, name) {
             if (isProcessing || !isMarketOpen()) {
                 if (!isMarketOpen()) showNotification('El mercado está cerrado.', 'error');
@@ -874,6 +1019,8 @@
             const cost = Math.floor(value * 0.1);
             if ((club.budget || 0) < cost) {
                 showNotification('No tienes suficiente presupuesto.', 'error');
+                button.classList.add('error-shake');
+                setTimeout(() => button.classList.remove('error-shake'), 500);
                 isProcessing = false;
                 button.disabled = false;
                 return;
@@ -883,6 +1030,8 @@
             const playerIndex = (club.players || []).findIndex(p => p._id === id || p.id === id);
             if (playerIndex === -1) {
                 showNotification('Jugador no encontrado.', 'error');
+                button.classList.add('error-shake');
+                setTimeout(() => button.classList.remove('error-shake'), 500);
                 isProcessing = false;
                 button.disabled = false;
                 return;
@@ -914,6 +1063,8 @@
                 }
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
+                button.classList.add('error-shake');
+                setTimeout(() => button.classList.remove('error-shake'), 500);
                 club.budget += cost;
                 club.players[playerIndex].rating = (club.players[playerIndex].rating || 0) - 1;
                 club.players[playerIndex].value = value;
@@ -997,6 +1148,7 @@
                     updateTransactions();
                     updateStats(); // Reiniciar estadísticas
                     updateAchievements();
+                    updateLeaderboard();
                     lastStatsData = {
                         wins: club.wins,
                         gamesPlayed: club.gamesPlayed,
@@ -1031,8 +1183,87 @@
         }
 
         function showAchievementNotification(achievement) {
-            showNotification(`¡Logro desbloqueado: ${achievement.name}!`, 'success');
+            let iconClass, borderColor;
+            switch (achievement.name) {
+                case 'Primera Compra':
+                    iconClass = 'fa-shopping-bag';
+                    borderColor = 'var(--primary-cyan)';
+                    break;
+                case 'Top 10':
+                    iconClass = 'fa-trophy';
+                    borderColor = 'var(--accent-green)';
+                    break;
+                case 'Millonario':
+                    iconClass = 'fa-money-bill-wave';
+                    borderColor = 'var(--secondary-purple)';
+                    break;
+                case 'Mejor Equipo del Mes':
+                    iconClass = 'fa-star';
+                    borderColor = 'var(--primary-cyan)';
+                    break;
+            }
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `<i class="fas ${iconClass}"></i> ¡Logro desbloqueado: ${achievement.name}!`;
+            notification.style.borderColor = borderColor;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.5s ease-out forwards';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
         }
+
+        function getPlayerImage(name) {
+            try {
+                return `https://api.dicebear.com/6.x/pixel-art/svg?seed=${encodeURIComponent(name)}`;
+            } catch (err) {
+                return 'default-player-image.png'; // Fallback local o placeholder
+            }
+        }
+
+        function exportTransactions() {
+            const csv = [
+                'Fecha,Tipo,Jugador,Valor',
+                ...transactions.map(t => `${new Date(t.date).toLocaleString()},${t.type},${t.playerName},${t.value}`)
+            ].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'transacciones.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function viewSeasonHistory() {
+            const seasons = JSON.parse(localStorage.getItem('seasonHistory')) || [];
+            alert('Historial de Temporadas:\n' + seasons.map(s => `Temporada ${s.year}: ${s.wins} victorias, ${s.gamesPlayed} partidos`).join('\n'));
+        }
+
+        function saveSeasonHistory() {
+            const seasons = JSON.parse(localStorage.getItem('seasonHistory')) || [];
+            seasons.push({
+                year: new Date().getFullYear(),
+                wins: club.wins,
+                gamesPlayed: club.gamesPlayed
+            });
+            localStorage.setItem('seasonHistory', JSON.stringify(seasons.slice(-10))); // Mantener últimos 10 años
+        }
+
+        // WebSocket para sincronización en tiempo real (comentar/descomentar si tienes backend)
+        /*
+        const ws = new WebSocket('wss://lavirtualzone-backend.onrender.com/club-updates');
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            club = { ...club, ...data };
+            updateClubPreview();
+            updateWatchlist();
+            updateTransactions();
+            updateStats();
+            updateAchievements();
+            updateLeaderboard();
+        };
+        */
     </script>
 </body>
 </html>
