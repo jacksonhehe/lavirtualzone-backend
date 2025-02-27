@@ -268,6 +268,8 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 2rem;
+            max-height: 600px; /* Limitar altura máxima para evitar desbordamiento */
+            overflow-y: auto;
         }
         .stat-item {
             background: var(--dark-bg);
@@ -275,6 +277,7 @@
             border-radius: 8px;
             border: 1px solid var(--border-light);
             text-align: center;
+            min-height: 200px; /* Altura mínima para consistencia */
         }
         .stat-number {
             font-family: 'Orbitron', sans-serif;
@@ -601,6 +604,7 @@
         };
         let isProcessing = false;
         let chartInstance = null; // Para controlar instancias de Chart.js
+        let lastStatsData = null; // Para comparar datos y evitar renderizados innecesarios
         let hasRenderedStats = false; // Bandera para evitar renderizados múltiples de estadísticas
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -638,6 +642,7 @@
                     watchlist: [],
                     gamesPlayed: 0
                 };
+                season = { ...season, wins: 0 };
                 updateClubPreview();
                 updateWatchlist();
                 updateTransactions();
@@ -693,13 +698,23 @@
                     headers: { 'x-auth-token': token }
                 });
                 if (data) {
-                    club = {
+                    const newClub = {
                         ...data,
                         players: Array.isArray(data.players) ? data.players : [],
                         wins: data.wins || 0,
                         watchlist: Array.isArray(data.watchlist) ? data.watchlist : [],
                         gamesPlayed: data.gamesPlayed || 0
                     };
+                    const statsChanged = JSON.stringify({
+                        wins: newClub.wins,
+                        gamesPlayed: newClub.gamesPlayed,
+                        seasonWins: season.wins
+                    }) !== JSON.stringify({
+                        wins: club.wins,
+                        gamesPlayed: club.gamesPlayed,
+                        seasonWins: season.wins
+                    });
+                    club = newClub;
                     localStorage.setItem('clubName', club.name);
                     localStorage.setItem('clubBudget', club.budget);
                     localStorage.setItem('clubPlayers', JSON.stringify(club.players));
@@ -710,10 +725,9 @@
                     updateClubPreview();
                     updateWatchlist();
                     updateTransactions();
-                    // Solo actualizar estadísticas si no se ha renderizado aún
-                    if (!hasRenderedStats) {
+                    if (!hasRenderedStats || statsChanged) {
                         updateStats();
-                        hasRenderedStats = true;
+                        hasRenderedStats = true; // Solo si hay cambios
                     }
                     updateAchievements();
                 }
@@ -796,54 +810,68 @@
                 chartInstance.destroy();
             }
 
-            document.getElementById('winsCount').textContent = club.wins || 0;
-            document.getElementById('gamesPlayed').textContent = club.gamesPlayed || 0;
-            document.getElementById('seasonProgress').textContent = `${season.wins || 0}/5`;
-            const winRate = (club.gamesPlayed || 0) > 0 ? ((club.wins / club.gamesPlayed) * 100).toFixed(1) : 0;
+            // Guardar datos actuales para comparación futura
+            const currentStats = {
+                wins: club.wins || 0,
+                gamesPlayed: club.gamesPlayed || 0,
+                seasonWins: season.wins || 0
+            };
+            console.log('Current stats data:', currentStats);
 
-            const statsContainer = document.getElementById('stats-container');
-            statsContainer.innerHTML = `
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number" id="winsCount">${club.wins || 0}</div>
-                        <p>Victorias</p>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="gamesPlayed">${club.gamesPlayed || 0}</div>
-                        <p>Partidos Jugados</p>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="seasonProgress">${season.wins || 0}/5</div>
-                        <p>Progreso Temporada</p>
-                    </div>
-                    <div class="stat-item" id="winRateContainer">
-                        <canvas id="winRateChart" width="100" height="100"></canvas>
-                        <p>Porcentaje de Victorias</p>
-                    </div>
-                </div>
-            `;
+            // Solo proceder si los datos han cambiado
+            if (JSON.stringify(currentStats) !== JSON.stringify(lastStatsData)) {
+                document.getElementById('winsCount').textContent = currentStats.wins;
+                document.getElementById('gamesPlayed').textContent = currentStats.gamesPlayed;
+                document.getElementById('seasonProgress').textContent = `${currentStats.seasonWins}/5`;
+                const winRate = (currentStats.gamesPlayed > 0) ? ((currentStats.wins / currentStats.gamesPlayed) * 100).toFixed(1) : 0;
 
-            const ctx = document.getElementById('winRateChart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Victorias', 'Derrotas'],
-                    datasets: [{
-                        data: [winRate, 100 - winRate],
-                        backgroundColor: ['var(--primary-cyan)', 'rgba(128, 0, 128, 0.5)'],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
+                const statsContainer = document.getElementById('stats-container');
+                statsContainer.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="winsCount">${currentStats.wins}</div>
+                            <p>Victorias</p>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="gamesPlayed">${currentStats.gamesPlayed}</div>
+                            <p>Partidos Jugados</p>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="seasonProgress">${currentStats.seasonWins}/5</div>
+                            <p>Progreso Temporada</p>
+                        </div>
+                        <div class="stat-item" id="winRateContainer">
+                            <canvas id="winRateChart" width="100" height="100"></canvas>
+                            <p>Porcentaje de Victorias</p>
+                        </div>
+                    </div>
+                `;
+
+                const ctx = document.getElementById('winRateChart').getContext('2d');
+                chartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Victorias', 'Derrotas'],
+                        datasets: [{
+                            data: [winRate, 100 - winRate],
+                            backgroundColor: ['var(--primary-cyan)', 'rgba(128, 0, 128, 0.5)'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        }
                     }
-                }
-            });
+                });
+                lastStatsData = { ...currentStats }; // Actualizar datos previos
+            } else {
+                console.log('No changes in stats data, skipping render.');
+            }
+
             console.log('Rendering stats - Document height before:', document.body.scrollHeight);
-            console.log('Club stats:', { wins: club.wins, gamesPlayed: club.gamesPlayed, seasonWins: season.wins });
             console.log('Rendering stats - Document height after:', document.body.scrollHeight);
         }
 
@@ -942,6 +970,15 @@
                     updateClubPreview();
                     updateTransactions();
                     updateAchievements();
+                    // Forzar actualización de estadísticas si cambian wins o gamesPlayed
+                    const statsChanged = JSON.stringify({
+                        wins: club.wins,
+                        gamesPlayed: club.gamesPlayed,
+                        seasonWins: season.wins
+                    }) !== JSON.stringify(lastStatsData);
+                    if (statsChanged) {
+                        updateStats();
+                    }
                 } else {
                     throw new Error(data.msg || 'Error al entrenar');
                 }
@@ -1013,6 +1050,7 @@
                 const data = await response.json();
                 if (response.ok) {
                     club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0, watchlist: [], gamesPlayed: 0 };
+                    season = { ...season, wins: 0 };
                     localStorage.setItem('clubName', club.name);
                     localStorage.setItem('clubBudget', club.budget);
                     localStorage.setItem('clubPlayers', JSON.stringify(club.players));
@@ -1027,11 +1065,14 @@
                     updateClubPreview();
                     updateWatchlist();
                     updateTransactions();
-                    if (!hasRenderedStats) {
-                        updateStats();
-                        hasRenderedStats = true;
-                    }
+                    updateStats(); // Forzar actualización de estadísticas al reiniciar
+                    hasRenderedStats = true; // Resetear bandera para permitir un nuevo renderizado
                     updateAchievements();
+                    lastStatsData = {
+                        wins: club.wins,
+                        gamesPlayed: club.gamesPlayed,
+                        seasonWins: season.wins
+                    }; // Reiniciar datos previos
                 } else {
                     throw new Error(data.msg || 'Error al reiniciar');
                 }
