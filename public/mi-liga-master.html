@@ -36,27 +36,12 @@
             background: var(--dark-bg);
             color: var(--text-primary);
             font-family: 'Roboto', sans-serif;
-            line-height: 1.7;
+            line-height: 1.6;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
             overflow-y: auto;
-            transition: opacity 0.5s ease;
-        }
-        body.fade-out {
-            opacity: 0;
-        }
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, rgba(10, 10, 26, 0.95), rgba(10, 10, 26, 1));
-            z-index: -1;
-            opacity: 0.9;
         }
         .main-header {
             background: rgba(10, 10, 26, 0.98);
@@ -73,21 +58,19 @@
             max-width: 1440px;
             margin: 0 auto;
             display: flex;
-            justify-content: center; /* Centrar todo el contenido del header */
+            justify-content: center;
             align-items: center;
             height: 60px;
         }
         .logo {
-            width: 64px; /* Aumentado para mayor visibilidad */
-            height: 64px; /* Aumentado para mayor visibilidad */
-            background: none;
-            text-indent: 0;
+            width: 64px;
+            height: 64px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .logo i {
-            font-size: 64px; /* Aumentado para mayor visibilidad */
+            font-size: 64px;
             color: var(--primary-cyan);
         }
         .logo:hover {
@@ -112,106 +95,90 @@
             color: var(--primary-cyan);
             background: rgba(0, 255, 255, 0.1);
             box-shadow: var(--shadow-cyan);
-            outline: none;
+            outline: 2px solid var(--primary-cyan);
+            outline-offset: 2px;
+        }
+        main {
+            padding-top: 70px; /* Ajustado para cerrar el espacio con el header */
+            flex: 1 0 auto;
+            overflow-y: auto;
         }
         .dashboard-hero {
-            padding: 120px 3rem 8rem;
+            padding: 120px 3rem 6rem;
             background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
-            min-height: 50vh;
+            min-height: 40vh;
             display: flex;
             align-items: center;
-            margin-top: 60px;
-            text-align: center;
             justify-content: center;
+            text-align: center;
         }
         .dashboard-hero h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: clamp(2rem, 5vw, 3rem);
             color: var(--primary-cyan);
-            margin-bottom: 2rem;
-            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .dashboard-hero .summary {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .section {
+            padding: 4rem 3rem;
+            background: var(--dark-bg);
+            max-height: none;
         }
         .section-title {
             font-family: 'Orbitron', sans-serif;
             text-align: center;
             font-size: clamp(1.5rem, 4vw, 2.5rem);
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             color: var(--primary-cyan);
             position: relative;
         }
         .section-title::after {
             content: '';
             position: absolute;
-            bottom: -10px;
+            bottom: -8px;
             left: 50%;
-            width: 100px;
+            width: 120px;
             height: 3px;
             background: var(--primary-cyan);
             transform: translateX(-50%);
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
         }
-        .section-nav {
-            position: sticky;
-            top: 50px; /* Reducido para cerrar el hueco con el header */
-            background: var(--light-bg);
-            padding: 0.3rem; /* Reducido para un diseño más compacto */
-            border-bottom: 1px solid var(--border-light);
-            box-shadow: var(--shadow-soft);
-            z-index: 900;
-            display: flex;
-            justify-content: center; /* Centrar el menú interno horizontalmente */
-        }
-        .section-nav-link {
-            color: var(--text-primary);
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            margin-right: 0.3rem; /* Reducido para un espaciado más apretado */
-            border-radius: 4px;
-            transition: var(--transition-base);
-        }
-        .section-nav-link:hover, .section-nav-link:focus {
-            color: var(--primary-cyan);
-            background: rgba(0, 255, 255, 0.1);
-            outline: none;
-        }
-        .club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section, .leaderboard-section {
-            padding: 5rem 3rem;
-            background: var(--dark-bg);
-            min-height: auto;
-            max-height: none;
-        }
-        .club-container, .watchlist-container, .transactions-container, .stats-container, .achievements-container, .leaderboard-container {
+        .container {
             max-width: 1280px;
             margin: 0 auto;
             background: var(--light-bg);
-            padding: 2.5rem;
+            padding: 2rem;
             border-radius: 12px;
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-soft);
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
-            min-height: 0;
         }
-        .club-container h3, .watchlist-container h3, .transactions-container h3, .stats-container h3, .achievements-container h3, .leaderboard-container h3 {
+        .container h3 {
             font-family: 'Orbitron', sans-serif;
             color: var(--primary-cyan);
             font-size: 1.5rem;
             margin-bottom: 1rem;
         }
-        .club-container p, .watchlist-container p, .transactions-container p, .stats-container p {
+        .container p {
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
         }
         .club-form {
-            margin-top: 2rem;
+            margin-top: 1.5rem;
             display: flex;
             flex-direction: column;
             gap: 1rem;
             align-items: center;
         }
         .form-input, .form-select {
-            padding: 1rem;
+            padding: 0.8rem;
             background: var(--dark-bg);
             border: 1px solid var(--border-light);
             border-radius: 8px;
@@ -227,13 +194,13 @@
             outline: none;
         }
         .cta-button, .train-button, .reset-button {
-            padding: 1rem 2.5rem;
+            padding: 0.9rem 2rem;
             background: var(--primary-cyan);
             color: var(--text-primary);
             border: 1px solid var(--primary-cyan);
             border-radius: 8px;
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             transition: var(--transition-base);
             cursor: pointer;
             text-transform: uppercase;
@@ -244,7 +211,8 @@
             background: var(--secondary-purple);
             border-color: var(--secondary-purple);
             box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
-            outline: none;
+            outline: 2px solid var(--primary-cyan);
+            outline-offset: 2px;
         }
         .cta-button:active, .train-button:active, .reset-button:active {
             transform: scale(0.98);
@@ -263,7 +231,7 @@
             gap: 1rem;
             padding: 1rem;
             border-radius: 8px;
-            max-height: 300px;
+            max-height: 280px;
             overflow-y: auto;
         }
         .player-list li, .watchlist li, .transactions-list li, .leaderboard-list li {
@@ -285,33 +253,33 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 2rem;
-            max-height: 400px;
+            gap: 1.5rem;
+            max-height: 350px;
             overflow-y: auto;
         }
         .stat-item {
             background: var(--dark-bg);
-            padding: 1.5rem;
+            padding: 1.2rem;
             border-radius: 8px;
             border: 1px solid var(--border-light);
             text-align: center;
-            min-height: 150px;
+            min-height: 140px;
         }
         .stat-number {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             color: var(--primary-cyan);
             margin-bottom: 0.5rem;
         }
         .achievements-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
         }
         .achievement-card {
             background: var(--dark-bg);
-            border-radius: 12px;
-            padding: 2rem;
+            border-radius: 10px;
+            padding: 1.5rem;
             border: 1px solid var(--border-light);
             transition: var(--transition-base);
             box-shadow: var(--shadow-soft);
@@ -331,13 +299,13 @@
         .achievement-card h3 {
             font-family: 'Orbitron', sans-serif;
             color: var(--primary-cyan);
-            font-size: 1.4rem;
-            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
         }
         .main-footer {
             margin-top: auto;
             background: var(--dark-bg);
-            padding: 6rem 3rem;
+            padding: 4rem 3rem;
             border-top: 1px solid var(--border-light);
             box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
             flex-shrink: 0;
@@ -346,18 +314,18 @@
             max-width: 1280px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 3.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
         }
         .footer-section {
             display: flex;
             flex-direction: column;
-            gap: 1.8rem;
+            gap: 1.2rem;
         }
         .footer-section h3 {
             color: var(--primary-cyan);
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
         }
         .social-link {
             color: var(--text-primary);
@@ -367,14 +335,15 @@
         .social-link:hover, .social-link:focus {
             color: var(--primary-cyan);
             transform: translateX(5px);
-            outline: none;
+            outline: 2px solid var(--primary-cyan);
+            outline-offset: 2px;
         }
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
             background: var(--light-bg);
-            padding: 1rem 2rem;
+            padding: 1rem 1.5rem;
             border-radius: 8px;
             border: 1px solid var(--primary-cyan);
             box-shadow: var(--shadow-cyan);
@@ -382,23 +351,21 @@
             animation: slideIn 0.5s ease-out forwards;
             display: flex;
             align-items: center;
-            gap: 1rem;
-            will-change: transform, opacity;
-            aria-live: "polite";
+            gap: 0.8rem;
         }
         .loading {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: var(--primary-cyan);
             display: none;
             z-index: 2000;
             opacity: 0;
             transition: opacity 0.3s ease;
             background: var(--light-bg);
-            padding: 1rem 2rem;
+            padding: 1rem 1.5rem;
             border-radius: 8px;
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-cyan);
@@ -431,15 +398,14 @@
         }
         .animate-fade-in {
             animation: fadeIn 0.6s ease-out forwards;
-            will-change: opacity, transform;
         }
         .back-to-top {
             position: fixed;
-            bottom: 2.5rem;
-            right: 2.5rem;
+            bottom: 2rem;
+            right: 2rem;
             background: var(--primary-cyan);
             color: var(--text-primary);
-            padding: 1.2rem;
+            padding: 1rem;
             border-radius: 50%;
             border: none;
             cursor: pointer;
@@ -455,14 +421,18 @@
         }
         .back-to-top:hover, .back-to-top:focus {
             background: var(--secondary-purple);
-            outline: none;
+            outline: 2px solid var(--primary-cyan);
+            outline-offset: 2px;
         }
         @media (max-width: 768px) {
             .dashboard-hero {
-                padding: 100px 2rem 4rem;
+                padding: 80px 2rem 4rem;
             }
-            .club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section, .leaderboard-section {
+            .section {
                 padding: 3rem 2rem;
+            }
+            .container {
+                padding: 1.5rem;
             }
             .stats-grid, .achievements-grid, .leaderboard-list {
                 grid-template-columns: 1fr;
@@ -470,51 +440,42 @@
             .player-list, .watchlist, .transactions-list, .leaderboard-list {
                 max-height: 200px;
             }
-            .section-nav {
-                top: 60px;
-                padding: 0.3rem;
-            }
             .nav-container {
-                justify-content: space-between; /* Ajustar para pantallas pequeñas */
+                justify-content: space-between;
             }
             .main-nav {
-                gap: 1rem; /* Reducir espacio en pantallas pequeñas */
+                gap: 1rem;
             }
         }
         @media (max-width: 480px) {
             .section-title {
                 font-size: 1.2rem;
-                margin-bottom: 2rem;
+                margin-bottom: 1.5rem;
             }
-            .club-container, .watchlist-container, .transactions-container, .stats-container, .achievements-container, .leaderboard-container {
-                padding: 1.5rem;
+            .container {
+                padding: 1rem;
             }
             .player-list, .watchlist, .transactions-list, .leaderboard-list {
-                padding: 0.5rem;
                 max-height: 150px;
+                padding: 0.5rem;
             }
             .cta-button, .reset-button, .train-button {
-                padding: 0.7rem 1.2rem;
+                padding: 0.7rem 1.5rem;
                 font-size: 0.9rem;
             }
-            .section-nav {
-                display: none;
-            }
             .logo {
-                width: 48px; /* Reducir tamaño en móviles */
+                width: 48px;
                 height: 48px;
             }
             .logo i {
-                font-size: 48px; /* Reducir tamaño en móviles */
+                font-size: 48px;
             }
         }
         @media (max-width: 320px) {
             .section-title {
                 font-size: 1rem;
-                margin-bottom: 1.5rem;
             }
-            .stats-grid, .achievements-grid, .leaderboard-list {
-                grid-template-columns: 1fr;
+            .stats-grid, .achievements-grid {
                 gap: 0.8rem;
             }
             .player-list li, .watchlist li {
@@ -539,29 +500,30 @@
         </nav>
     </header>
 
-    <main role="main" style="padding-top: 50px; flex: 1 0 auto; overflow-y: auto; max-height: calc(100vh - 50px);">
-        <nav class="section-nav" aria-label="Navegación interna">
-            <a href="#club-heading" class="section-nav-link">Tu Club</a>
-            <a href="#watchlist-heading" class="section-nav-link">Jugadores Seguidos</a>
-            <a href="#transactions-heading" class="section-nav-link">Transacciones</a>
-            <a href="#stats-heading" class="section-nav-link">Estadísticas</a>
-            <a href="#achievements-heading" class="section-nav-link">Logros</a>
-            <a href="#leaderboard-heading" class="section-nav-link">Clasificación</a>
-        </nav>
-
+    <main role="main">
         <section class="dashboard-hero" aria-labelledby="dashboard-heading">
             <h1 class="section-title animate-fade-in" id="dashboard-heading">Mi Liga Master</h1>
+            <p class="summary animate-fade-in">Gestiona tu club, sigue jugadores, y compite por los mejores logros en La Virtual Zone.</p>
         </section>
 
-        <section class="club-section" aria-labelledby="club-heading">
+        <nav class="section-nav" aria-label="Navegación interna">
+            <a href="#club-section" class="section-nav-link">Tu Club</a>
+            <a href="#watchlist-section" class="section-nav-link">Jugadores Seguidos</a>
+            <a href="#transactions-section" class="section-nav-link">Transacciones</a>
+            <a href="#stats-section" class="section-nav-link">Estadísticas</a>
+            <a href="#achievements-section" class="section-nav-link">Logros</a>
+            <a href="#leaderboard-section" class="section-nav-link">Clasificación</a>
+        </nav>
+
+        <section class="section" id="club-section" aria-labelledby="club-heading">
             <h2 class="section-title" id="club-heading">Tu Club</h2>
-            <div class="club-container animate-fade-in">
+            <div class="container animate-fade-in">
                 <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
                 <p>Presupuesto: $<span id="clubBudget">100,000,000</span></p>
                 <p>Jugadores: <span id="playerCount">0</span></p>
                 <p>Valor Total: $<span id="teamValue">0</span></p>
                 <p>Rating Promedio: <span id="avgRating">0</span></p>
-                <ul id="playerList" class="player-list" role="list"></ul>
+                <ul id="playerList" class="player-list" role="list" aria-label="Lista de jugadores del club"></ul>
                 <form class="club-form" id="clubForm" aria-label="Formulario de tu club">
                     <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club" aria-label="Nombre del club">
                     <select id="clubColor" class="form-select" aria-label="Color del club">
@@ -573,28 +535,27 @@
                 </form>
                 <button id="resetClub" class="reset-button" aria-label="Reiniciar club">Reiniciar Club</button>
                 <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html" aria-label="Ir al Mercado de Fichajes">Ir al Mercado</a>
-                <button id="viewSeasonHistory" class="cta-button" aria-label="Ver historial de temporadas">Ver Historial de Temporadas</button>
             </div>
         </section>
 
-        <section class="watchlist-section" aria-labelledby="watchlist-heading">
+        <section class="section" id="watchlist-section" aria-labelledby="watchlist-heading">
             <h2 class="section-title" id="watchlist-heading">Jugadores Seguidos</h2>
-            <div class="watchlist-container animate-fade-in">
-                <ul id="watchlist" class="watchlist" role="list"></ul>
+            <div class="container animate-fade-in">
+                <ul id="watchlist" class="watchlist" role="list" aria-label="Lista de jugadores seguidos"></ul>
             </div>
         </section>
 
-        <section class="transactions-section" aria-labelledby="transactions-heading">
+        <section class="section" id="transactions-section" aria-labelledby="transactions-heading">
             <h2 class="section-title" id="transactions-heading">Historial de Transacciones</h2>
-            <div class="transactions-container animate-fade-in">
-                <ul id="transactionList" class="transactions-list" role="list"></ul>
+            <div class="container animate-fade-in">
+                <ul id="transactionList" class="transactions-list" role="list" aria-label="Historial de transacciones"></ul>
                 <button id="exportTransactions" class="cta-button" aria-label="Exportar transacciones">Exportar Transacciones</button>
             </div>
         </section>
 
-        <section class="stats-section" aria-labelledby="stats-heading">
+        <section class="section" id="stats-section" aria-labelledby="stats-heading">
             <h2 class="section-title" id="stats-heading">Estadísticas del Club</h2>
-            <div class="stats-container animate-fade-in" id="stats-container">
+            <div class="container animate-fade-in">
                 <div class="stats-grid">
                     <div class="stat-item">
                         <div class="stat-number" id="winsCount">0</div>
@@ -612,21 +573,22 @@
             </div>
         </section>
 
-        <section class="achievements-section" aria-labelledby="achievements-heading">
+        <section class="section" id="achievements-section" aria-labelledby="achievements-heading">
             <h2 class="section-title" id="achievements-heading">Logros</h2>
-            <div class="achievements-container animate-fade-in">
+            <div class="container animate-fade-in">
                 <div class="achievements-grid">
                     <div class="achievement-card" id="first-buy"></div>
                     <div class="achievement-card" id="top-10"></div>
                     <div class="achievement-card" id="million-spent"></div>
+                    <div class="achievement-card" id="best-team"></div>
                 </div>
             </div>
         </section>
 
-        <section class="leaderboard-section" aria-labelledby="leaderboard-heading">
+        <section class="section" id="leaderboard-section" aria-labelledby="leaderboard-heading">
             <h2 class="section-title" id="leaderboard-heading">Clasificación Liga Master</h2>
-            <div class="leaderboard-container animate-fade-in">
-                <ul id="leaderboardList" class="leaderboard-list" role="list"></ul>
+            <div class="container animate-fade-in">
+                <ul id="leaderboardList" class="leaderboard-list" role="list" aria-label="Clasificación de la liga"></ul>
             </div>
         </section>
     </main>
@@ -641,8 +603,8 @@
         <div class="footer-content">
             <div class="footer-section">
                 <h3>Contacto</h3>
-                <p><a href="mailto:support@lavirtualzone.com">support@lavirtualzone.com</a></p>
-                <p><a href="tel:+34123456789">+34 123 456 789</a></p>
+                <p><a href="mailto:support@lavirtualzone.com" class="social-link">support@lavirtualzone.com</a></p>
+                <p><a href="tel:+34123456789" class="social-link">+34 123 456 789</a></p>
             </div>
             <div class="footer-section">
                 <h3>Redes Sociales</h3>
@@ -674,12 +636,11 @@
         };
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         let season = {
-            start: new Date().getTime() - 24 * 60 * 60 * 1000, // Temporada activa para pruebas
+            start: new Date().getTime() - 24 * 60 * 60 * 1000,
             end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000,
             wins: parseInt(localStorage.getItem('seasonWins')) || 0
         };
         let isProcessing = false;
-        let lastStatsData = null; // Para comparar datos y evitar renderizados innecesarios
 
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
@@ -689,17 +650,12 @@
                 return;
             }
 
-            // Calcular padding-top dinámicamente para main basado en la altura del header
-            const header = document.querySelector('.main-header');
-            const headerHeight = header.offsetHeight;
-            document.querySelector('main').style.paddingTop = `${headerHeight - 10}px`; // Ajuste mínimo para cerrar el hueco
-
             try {
                 await syncClubData();
                 updateClubPreview();
                 updateWatchlist();
                 updateTransactions();
-                updateStats(); // Inicializar estadísticas simples
+                updateStats();
                 updateAchievements();
                 updateLeaderboard();
                 if (!isMarketOpen()) {
@@ -707,21 +663,12 @@
                 }
             } catch (err) {
                 showNotification('Error inicial al cargar datos: ' + err.message, 'error');
-                // Usar datos predeterminados si el backend falla
-                club = {
-                    name: '[Sin registrar]',
-                    budget: 100000000,
-                    players: [],
-                    color: '#00ffff',
-                    wins: 0,
-                    watchlist: [],
-                    gamesPlayed: 0
-                };
-                season = { ...season, wins: 0 };
+                club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0, watchlist: [], gamesPlayed: 0 };
+                season.wins = 0;
                 updateClubPreview();
                 updateWatchlist();
                 updateTransactions();
-                updateStats(); // Inicializar estadísticas simples
+                updateStats();
                 updateAchievements();
                 updateLeaderboard();
             }
@@ -738,19 +685,17 @@
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('animate-fade-in');
-                        observer.unobserve(entry.target); // Evitar múltiples observaciones
+                        observer.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.1, rootMargin: '0px' });
+            }, { threshold: 0.1 });
 
             document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
 
             const backToTop = document.querySelector('.back-to-top');
             window.addEventListener('scroll', () => {
-                backToTop.classList.toggle('show', window.scrollY > 500);
-                console.log('Scroll position:', window.scrollY, 'Document height:', document.body.scrollHeight, 'Viewport height:', window.innerHeight);
-                // Resaltar sección activa
-                const sections = document.querySelectorAll('.club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section, .leaderboard-section');
+                backToTop.classList.toggle('show', window.scrollY > 300);
+                const sections = document.querySelectorAll('.section');
                 sections.forEach(section => {
                     const rect = section.getBoundingClientRect();
                     if (rect.top >= 0 && rect.top <= window.innerHeight / 2) {
@@ -767,101 +712,40 @@
             document.getElementById('clubForm').addEventListener('submit', saveClub);
             document.getElementById('resetClub').addEventListener('click', resetClub);
             document.getElementById('exportTransactions').addEventListener('click', exportTransactions);
-            document.getElementById('viewSeasonHistory').addEventListener('click', viewSeasonHistory);
 
             setInterval(syncClubData, 300000); // Sincronización cada 5 minutos
             setInterval(updateLeaderboard, 300000); // Actualizar clasificación cada 5 minutos
-
-            // Lazy loading para secciones
-            const lazySections = document.querySelectorAll('.club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section, .leaderboard-section');
-            const lazyObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('loaded');
-                        lazyObserver.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1 });
-            lazySections.forEach(section => lazyObserver.observe(section));
-
-            // Verificar dimensiones de las secciones después de renderizar
-            const sections = document.querySelectorAll('.club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section, .leaderboard-section');
-            sections.forEach(section => {
-                console.log(`Section ${section.id || section.className}: Height = ${section.offsetHeight}, ScrollHeight = ${section.scrollHeight}`);
-            });
         });
 
         async function syncClubData() {
             const token = localStorage.getItem('token');
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.classList.add('active');
             try {
-                const data = await fetchWithRetry(`${BASE_URL}/api/club/me`, {
-                    headers: { 'x-auth-token': token }
-                });
-                if (data) {
-                    const newClub = {
-                        ...data,
-                        players: Array.isArray(data.players) ? data.players : [],
-                        wins: data.wins || 0,
-                        watchlist: Array.isArray(data.watchlist) ? data.watchlist : [],
-                        gamesPlayed: data.gamesPlayed || 0
-                    };
-                    const statsChanged = JSON.stringify({
-                        wins: newClub.wins,
-                        gamesPlayed: newClub.gamesPlayed,
-                        seasonWins: season.wins
-                    }) !== JSON.stringify({
-                        wins: club.wins,
-                        gamesPlayed: club.gamesPlayed,
-                        seasonWins: season.wins
-                    });
-                    club = newClub;
-                    localStorage.setItem('clubName', club.name);
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    localStorage.setItem('clubColor', club.color || '#00ffff');
-                    localStorage.setItem('clubWins', club.wins);
-                    localStorage.setItem('clubWatchlist', JSON.stringify(club.watchlist));
-                    localStorage.setItem('gamesPlayed', club.gamesPlayed);
-                    updateClubPreview();
-                    updateWatchlist();
-                    updateTransactions();
-                    if (statsChanged) {
-                        updateStats(); // Actualizar estadísticas solo si cambian
-                    }
-                    updateAchievements();
-                    saveSeasonHistory(); // Guardar historial de temporada
+                const response = await fetch(`${BASE_URL}/api/club/me`, { headers: { 'x-auth-token': token } });
+                if (!response.ok) {
+                    if (response.status === 401) throw new Error('No autorizado');
+                    throw new Error('Error al sincronizar');
                 }
+                const data = await response.json();
+                club = { ...data, players: data.players || [], watchlist: data.watchlist || [], wins: data.wins || 0, gamesPlayed: data.gamesPlayed || 0 };
+                localStorage.setItem('clubName', club.name);
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                localStorage.setItem('clubColor', club.color || '#00ffff');
+                localStorage.setItem('clubWins', club.wins);
+                localStorage.setItem('clubWatchlist', JSON.stringify(club.watchlist));
+                localStorage.setItem('gamesPlayed', club.gamesPlayed);
+                updateClubPreview();
+                updateWatchlist();
+                updateTransactions();
+                updateStats();
+                updateAchievements();
             } catch (err) {
                 console.error('Error en syncClubData:', err);
-                showNotification('No se pudo sincronizar con el servidor. Usando datos locales.', 'warning');
-            }
-        }
-
-        async function fetchWithRetry(url, options, retries = 3) {
-            const spinner = document.getElementById('loadingSpinner');
-            spinner.textContent = `Cargando... ${url.split('/').pop()}`;
-            spinner.classList.add('active');
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (!response.ok) {
-                        if (response.status === 401) {
-                            showNotification('Sesión expirada o no autorizada. Por favor, inicia sesión de nuevo.', 'error');
-                            setTimeout(() => window.location.href = 'login.html', 2000);
-                            throw new Error('No autorizado');
-                        }
-                        throw new Error('Respuesta no OK');
-                    }
-                    const data = await response.json();
-                    spinner.classList.remove('active');
-                    return data;
-                } catch (err) {
-                    if (i === retries - 1) {
-                        spinner.classList.remove('active');
-                        throw err;
-                    }
-                    await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i))); // Exponential backoff
-                }
+                showNotification(`No se pudo sincronizar: ${err.message}. Usando datos locales.`, 'warning');
+            } finally {
+                spinner.classList.remove('active');
             }
         }
 
@@ -878,14 +762,14 @@
             document.getElementById('teamValue').textContent = teamValue.toLocaleString();
             const avgRating = club.players.length ? (club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length).toFixed(1) : 0;
             document.getElementById('avgRating').textContent = avgRating;
-            document.querySelector('.club-container').style.borderColor = club.color;
+            document.querySelector('.container').style.borderColor = club.color;
             document.getElementById('clubNameInput').value = club.name;
             document.getElementById('clubColor').value = club.color;
             const playerList = document.getElementById('playerList');
             playerList.innerHTML = club.players.length ? club.players.map(p => `
                 <li role="listitem">${p.name} (Rating: ${p.rating || 0}) 
                     <button class="train-button" ${isMarketOpen() ? '' : 'disabled'} onclick="trainPlayer('${p._id || p.id}', ${p.value || 0}, '${p.name}')">Entrenar ($${Math.floor((p.value || 0) * 0.1).toLocaleString()})</button>
-                    <img src="${getPlayerImage(p.name)}" alt="${p.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-left: 1rem;">
+                    <img src="${getPlayerImage(p.name)}" alt="${p.name}" loading="lazy">
                 </li>`).join('') : '<li role="listitem">No hay jugadores.</li>';
         }
 
@@ -894,38 +778,21 @@
             watchlist.innerHTML = club.watchlist.length ? club.watchlist.map(p => `
                 <li role="listitem">${p.name} ($${p.value.toLocaleString()}) 
                     <button class="cta-button" onclick="confirmBuy('${p._id || p.id}', '${p.name}')">Comprar</button>
-                    <img src="${getPlayerImage(p.name)}" alt="${p.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-left: 1rem;">
+                    <img src="${getPlayerImage(p.name)}" alt="${p.name}" loading="lazy">
                 </li>`).join('') : '<li role="listitem">No hay jugadores seguidos.</li>';
         }
 
         function updateTransactions() {
             const list = document.getElementById('transactionList');
             list.innerHTML = transactions.length ? transactions.map(t => `
-                <li role="listitem">${t.date ? new Date(t.date).toLocaleString() : ''} - ${t.type}: ${t.playerName} por $${t.value.toLocaleString()}</li>
+                <li role="listitem">${new Date(t.date).toLocaleString()} - ${t.type}: ${t.playerName} por $${t.value.toLocaleString()}</li>
             `).join('') : '<li role="listitem">No hay transacciones recientes.</li>';
         }
 
         function updateStats() {
-            // Guardar datos actuales para comparación futura
-            const currentStats = {
-                wins: club.wins || 0,
-                gamesPlayed: club.gamesPlayed || 0,
-                seasonWins: season.wins || 0
-            };
-            console.log('Current stats data:', currentStats);
-
-            // Solo proceder si los datos han cambiado
-            if (JSON.stringify(currentStats) !== JSON.stringify(lastStatsData)) {
-                document.getElementById('winsCount').textContent = currentStats.wins;
-                document.getElementById('gamesPlayed').textContent = currentStats.gamesPlayed;
-                document.getElementById('seasonProgress').textContent = `${currentStats.seasonWins}/5`;
-                lastStatsData = { ...currentStats }; // Actualizar datos previos
-            } else {
-                console.log('No changes in stats data, skipping render.');
-            }
-
-            console.log('Rendering stats - Document height before:', document.body.scrollHeight);
-            console.log('Rendering stats - Document height after:', document.body.scrollHeight);
+            document.getElementById('winsCount').textContent = club.wins || 0;
+            document.getElementById('gamesPlayed').textContent = club.gamesPlayed || 0;
+            document.getElementById('seasonProgress').textContent = `${season.wins || 0}/5`;
         }
 
         async function updateAchievements() {
@@ -941,13 +808,9 @@
                 if (response.ok) {
                     const leaderboard = await response.json();
                     isTop10 = leaderboard.slice(0, 10).some(entry => entry.clubName === club.name);
-                } else if (response.status === 404) {
-                    console.warn('Endpoint /api/leaderboard no encontrado, usando datos locales para Top 10.');
-                    isTop10 = false; // Asumir falso si no hay backend
                 }
             } catch (err) {
-                console.error('Error al verificar Top 10:', err);
-                isTop10 = false; // Usar datos locales si falla
+                console.warn('No se pudo verificar Top 10, usando datos locales.');
             }
             top10.innerHTML = `<i class="fas fa-trophy" ${isTop10 ? '' : 'style="color: gray;"'}></i><h3>Top 10</h3><p>${isTop10 ? 'Completado' : 'Clasifícate entre los 10 mejores'}</p>`;
             if (isTop10) top10.classList.add('completed');
@@ -957,24 +820,20 @@
             millionSpent.innerHTML = `<i class="fas fa-money-bill-wave" ${spent >= 1000000 ? '' : 'style="color: gray;"'}></i><h3>Millonario</h3><p>${spent >= 1000000 ? 'Completado' : 'Gasta $1M'}</p>`;
             if (spent >= 1000000) millionSpent.classList.add('completed');
 
-            // Nuevo logro
-            const newAchievement = document.createElement('div');
-            newAchievement.className = 'achievement-card';
-            newAchievement.innerHTML = `<i class="fas fa-star" style="color: gray;"></i><h3>Mejor Equipo del Mes</h3><p>Alcanza el mejor rating promedio en un mes</p>`;
-            document.querySelector('.achievements-grid').appendChild(newAchievement);
+            const bestTeam = document.getElementById('best-team');
+            let isBestTeam = false;
             try {
                 const token = localStorage.getItem('token');
                 const response = await fetch(`${BASE_URL}/api/achievements`, { headers: { 'x-auth-token': token } });
                 if (response.ok) {
                     const achievements = await response.json();
-                    if (achievements.bestTeamOfMonth) newAchievement.classList.add('completed');
-                    showAchievementNotification({ name: 'Mejor Equipo del Mes' });
-                } else if (response.status === 404) {
-                    console.warn('Endpoint /api/achievements no encontrado, usando datos locales.');
+                    isBestTeam = achievements.bestTeamOfMonth || false;
                 }
             } catch (err) {
-                console.error('Error al verificar logros:', err);
+                console.warn('No se pudo verificar Mejor Equipo del Mes, usando datos locales.');
             }
+            bestTeam.innerHTML = `<i class="fas fa-star" ${isBestTeam ? '' : 'style="color: gray;"'}></i><h3>Mejor Equipo del Mes</h3><p>${isBestTeam ? 'Completado' : 'Alcanza el mejor rating promedio en un mes'}</p>`;
+            if (isBestTeam) bestTeam.classList.add('completed');
         }
 
         async function updateLeaderboard() {
@@ -983,19 +842,15 @@
                 const response = await fetch(`${BASE_URL}/api/leaderboard`, { headers: { 'x-auth-token': token } });
                 if (response.ok) {
                     const leaderboard = await response.json();
-                    const list = document.getElementById('leaderboardList');
-                    list.innerHTML = leaderboard.slice(0, 10).map((entry, index) => `
+                    document.getElementById('leaderboardList').innerHTML = leaderboard.slice(0, 10).map((entry, index) => `
                         <li role="listitem">${index + 1}. ${entry.clubName} - Victorias: ${entry.wins || 0}, Rating: ${entry.avgRating || 0}</li>
                     `).join('');
                 } else if (response.status === 404) {
-                    console.warn('Endpoint /api/leaderboard no encontrado, usando datos locales.');
-                    const list = document.getElementById('leaderboardList');
-                    list.innerHTML = '<li role="listitem">No hay clasificación disponible. <button class="cta-button" onclick="updateLeaderboard()">Reintentar</button></li>';
+                    document.getElementById('leaderboardList').innerHTML = '<li role="listitem">No hay clasificación disponible. <button class="cta-button" onclick="updateLeaderboard()">Reintentar</button></li>';
                 }
             } catch (err) {
                 console.error('Error al cargar clasificación:', err);
-                const list = document.getElementById('leaderboardList');
-                list.innerHTML = '<li role="listitem">Error al cargar clasificación. <button class="cta-button" onclick="updateLeaderboard()">Reintentar</button></li>';
+                document.getElementById('leaderboardList').innerHTML = '<li role="listitem">Error al cargar clasificación. <button class="cta-button" onclick="updateLeaderboard()">Reintentar</button></li>';
             }
         }
 
@@ -1009,7 +864,7 @@
             button.disabled = true;
 
             const cost = Math.floor(value * 0.1);
-            if ((club.budget || 0) < cost) {
+            if (club.budget < cost) {
                 showNotification('No tienes suficiente presupuesto.', 'error');
                 button.classList.add('error-shake');
                 setTimeout(() => button.classList.remove('error-shake'), 500);
@@ -1019,7 +874,7 @@
             }
 
             const token = localStorage.getItem('token');
-            const playerIndex = (club.players || []).findIndex(p => p._id === id || p.id === id);
+            const playerIndex = club.players.findIndex(p => p._id === id || p.id === id);
             if (playerIndex === -1) {
                 showNotification('Jugador no encontrado.', 'error');
                 button.classList.add('error-shake');
@@ -1030,36 +885,31 @@
             }
 
             club.budget -= cost;
-            club.players[playerIndex].rating = Math.min((club.players[playerIndex].rating || 0) + 1, 99);
-            club.players[playerIndex].value = (value || 0) + cost;
+            club.players[playerIndex].rating = Math.min(club.players[playerIndex].rating + 1, 99);
+            club.players[playerIndex].value += cost;
 
             try {
-                const response = await fetchWithRetry(`${BASE_URL}/api/club/me`, {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                    body: JSON.stringify({ budget: club.budget, players: club.players, wins: club.wins, watchlist: club.watchlist, gamesPlayed: club.gamesPlayed })
+                    body: JSON.stringify(club)
                 });
+                if (!response.ok) throw new Error('Error al entrenar');
                 const data = await response.json();
-                if (response.ok) {
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    transactions.push({ type: 'Entrenamiento', playerName: name, value: cost, date: new Date() });
-                    localStorage.setItem('transactions', JSON.stringify(transactions));
-                    showNotification(`¡${name} entrenado! Rating: ${club.players[playerIndex].rating} (+$${cost.toLocaleString()})`);
-                    updateClubPreview();
-                    updateTransactions();
-                    updateAchievements();
-                    updateStats(); // Actualizar estadísticas si cambian wins o gamesPlayed
-                } else {
-                    throw new Error(data.msg || 'Error al entrenar');
-                }
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                transactions.push({ type: 'Entrenamiento', playerName: name, value: cost, date: new Date() });
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                showNotification(`¡${name} entrenado! Rating: ${club.players[playerIndex].rating} (+$${cost.toLocaleString()})`);
+                updateClubPreview();
+                updateTransactions();
+                updateAchievements();
+                updateStats();
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
-                button.classList.add('error-shake');
-                setTimeout(() => button.classList.remove('error-shake'), 500);
                 club.budget += cost;
-                club.players[playerIndex].rating = (club.players[playerIndex].rating || 0) - 1;
-                club.players[playerIndex].value = value;
+                club.players[playerIndex].rating -= 1;
+                club.players[playerIndex].value -= cost;
                 localStorage.setItem('clubBudget', club.budget);
                 localStorage.setItem('clubPlayers', JSON.stringify(club.players));
             } finally {
@@ -1084,20 +934,17 @@
             club.color = document.getElementById('clubColor').value;
 
             try {
-                const response = await fetchWithRetry(`${BASE_URL}/api/club/me`, {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                    body: JSON.stringify({ name: club.name, color: club.color, budget: club.budget, players: club.players, wins: club.wins, watchlist: club.watchlist, gamesPlayed: club.gamesPlayed })
+                    body: JSON.stringify(club)
                 });
+                if (!response.ok) throw new Error('Error al guardar');
                 const data = await response.json();
-                if (response.ok) {
-                    localStorage.setItem('clubName', club.name);
-                    localStorage.setItem('clubColor', club.color);
-                    showNotification(`¡Club ${club.name} actualizado!`);
-                    updateClubPreview();
-                } else {
-                    throw new Error(data.msg || 'Error al actualizar');
-                }
+                localStorage.setItem('clubName', club.name);
+                localStorage.setItem('clubColor', club.color);
+                showNotification(`¡Club ${club.name} actualizado!`);
+                updateClubPreview();
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
             } finally {
@@ -1115,40 +962,33 @@
 
             const token = localStorage.getItem('token');
             try {
-                const response = await fetchWithRetry(`${BASE_URL}/api/club/me`, {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0, watchlist: [], gamesPlayed: 0 })
                 });
+                if (!response.ok) throw new Error('Error al reiniciar');
                 const data = await response.json();
-                if (response.ok) {
-                    club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0, watchlist: [], gamesPlayed: 0 };
-                    season = { ...season, wins: 0 };
-                    localStorage.setItem('clubName', club.name);
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    localStorage.setItem('clubColor', club.color);
-                    localStorage.setItem('clubWins', club.wins);
-                    localStorage.setItem('clubWatchlist', JSON.stringify(club.watchlist));
-                    localStorage.setItem('gamesPlayed', club.gamesPlayed);
-                    localStorage.setItem('transactions', JSON.stringify([]));
-                    localStorage.setItem('seasonWins', 0);
-                    transactions = [];
-                    showNotification('¡Club reiniciado!');
-                    updateClubPreview();
-                    updateWatchlist();
-                    updateTransactions();
-                    updateStats(); // Reiniciar estadísticas
-                    updateAchievements();
-                    updateLeaderboard();
-                    lastStatsData = {
-                        wins: club.wins,
-                        gamesPlayed: club.gamesPlayed,
-                        seasonWins: season.wins
-                    }; // Reiniciar datos previos
-                } else {
-                    throw new Error(data.msg || 'Error al reiniciar');
-                }
+                club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0, watchlist: [], gamesPlayed: 0 };
+                season.wins = 0;
+                transactions = [];
+                localStorage.clear();
+                localStorage.setItem('clubName', club.name);
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                localStorage.setItem('clubColor', club.color);
+                localStorage.setItem('clubWins', club.wins);
+                localStorage.setItem('clubWatchlist', JSON.stringify(club.watchlist));
+                localStorage.setItem('gamesPlayed', club.gamesPlayed);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                localStorage.setItem('seasonWins', 0);
+                showNotification('¡Club reiniciado!');
+                updateClubPreview();
+                updateWatchlist();
+                updateTransactions();
+                updateStats();
+                updateAchievements();
+                updateLeaderboard();
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
             } finally {
@@ -1175,28 +1015,16 @@
         }
 
         function showAchievementNotification(achievement) {
-            let iconClass, borderColor;
+            let icon, borderColor;
             switch (achievement.name) {
-                case 'Primera Compra':
-                    iconClass = 'fa-shopping-bag';
-                    borderColor = 'var(--primary-cyan)';
-                    break;
-                case 'Top 10':
-                    iconClass = 'fa-trophy';
-                    borderColor = 'var(--accent-green)';
-                    break;
-                case 'Millonario':
-                    iconClass = 'fa-money-bill-wave';
-                    borderColor = 'var(--secondary-purple)';
-                    break;
-                case 'Mejor Equipo del Mes':
-                    iconClass = 'fa-star';
-                    borderColor = 'var(--primary-cyan)';
-                    break;
+                case 'Primera Compra': icon = 'fa-shopping-bag'; borderColor = 'var(--primary-cyan)'; break;
+                case 'Top 10': icon = 'fa-trophy'; borderColor = 'var(--accent-green)'; break;
+                case 'Millonario': icon = 'fa-money-bill-wave'; borderColor = 'var(--secondary-purple)'; break;
+                case 'Mejor Equipo del Mes': icon = 'fa-star'; borderColor = 'var(--primary-cyan)'; break;
             }
             const notification = document.createElement('div');
             notification.className = 'notification';
-            notification.innerHTML = `<i class="fas ${iconClass}"></i> ¡Logro desbloqueado: ${achievement.name}!`;
+            notification.innerHTML = `<i class="fas ${icon}"></i> ¡Logro desbloqueado: ${achievement.name}!`;
             notification.style.borderColor = borderColor;
             document.body.appendChild(notification);
             setTimeout(() => {
@@ -1209,15 +1037,12 @@
             try {
                 return `https://api.dicebear.com/6.x/pixel-art/svg?seed=${encodeURIComponent(name)}`;
             } catch (err) {
-                return 'default-player-image.png'; // Fallback local o placeholder
+                return 'default-player-image.png';
             }
         }
 
         function exportTransactions() {
-            const csv = [
-                'Fecha,Tipo,Jugador,Valor',
-                ...transactions.map(t => `${new Date(t.date).toLocaleString()},${t.type},${t.playerName},${t.value}`)
-            ].join('\n');
+            const csv = ['Fecha,Tipo,Jugador,Valor', ...transactions.map(t => `${new Date(t.date).toLocaleString()},${t.type},${t.playerName},${t.value}`).join('\n')];
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1226,36 +1051,6 @@
             a.click();
             window.URL.revokeObjectURL(url);
         }
-
-        function viewSeasonHistory() {
-            const seasons = JSON.parse(localStorage.getItem('seasonHistory')) || [];
-            alert('Historial de Temporadas:\n' + seasons.map(s => `Temporada ${s.year}: ${s.wins} victorias, ${s.gamesPlayed} partidos`).join('\n'));
-        }
-
-        function saveSeasonHistory() {
-            const seasons = JSON.parse(localStorage.getItem('seasonHistory')) || [];
-            seasons.push({
-                year: new Date().getFullYear(),
-                wins: club.wins,
-                gamesPlayed: club.gamesPlayed
-            });
-            localStorage.setItem('seasonHistory', JSON.stringify(seasons.slice(-10))); // Mantener últimos 10 años
-        }
-
-        // WebSocket para sincronización en tiempo real (comentar/descomentar si tienes backend)
-        /*
-        const ws = new WebSocket('wss://lavirtualzone-backend.onrender.com/club-updates');
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            club = { ...club, ...data };
-            updateClubPreview();
-            updateWatchlist();
-            updateTransactions();
-            updateStats();
-            updateAchievements();
-            updateLeaderboard();
-        };
-        */
     </script>
 </body>
 </html>
