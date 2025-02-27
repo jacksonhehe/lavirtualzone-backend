@@ -115,19 +115,21 @@
             outline: none;
         }
         .dashboard-hero {
-            padding: 160px 3rem 8rem;
+            padding: 120px 3rem 8rem; /* Reducido de 160px a 120px para cerrar el espacio */
             background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
             min-height: 50vh;
             display: flex;
             align-items: center;
             margin-top: 60px;
             text-align: center;
+            justify-content: center; /* Centrar horizontalmente el título */
         }
         .dashboard-hero h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: clamp(2rem, 5vw, 3rem);
             color: var(--primary-cyan);
             margin-bottom: 2rem;
+            text-align: center; /* Asegura que el texto esté centrado */
         }
         .section-title {
             font-family: 'Orbitron', sans-serif;
@@ -150,9 +152,9 @@
         }
         .section-nav {
             position: sticky;
-            top: 92px;
+            top: 60px; /* Reducido de 92px a 60px para cerrar el hueco con el header */
             background: var(--light-bg);
-            padding: 1rem;
+            padding: 0.5rem; /* Reducido de 1rem a 0.5rem para menos espacio */
             border-bottom: 1px solid var(--border-light);
             box-shadow: var(--shadow-soft);
             z-index: 900;
@@ -161,7 +163,7 @@
             color: var(--text-primary);
             text-decoration: none;
             padding: 0.5rem 1rem;
-            margin-right: 1rem;
+            margin-right: 0.5rem; /* Reducido para menos espacio entre enlaces */
             border-radius: 4px;
             transition: var(--transition-base);
         }
@@ -180,7 +182,7 @@
             max-width: 1280px;
             margin: 0 auto;
             background: var(--light-bg);
-            padding: 2.5rem; /* Aumentado para más espacio */
+            padding: 2.5rem;
             border-radius: 12px;
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-soft);
@@ -317,12 +319,12 @@
             border-color: var(--accent-green);
         }
         .achievement-card i {
-            font-size: 2.5rem; /* Aumentado para mayor visibilidad */
+            font-size: 2.5rem;
             color: var(--accent-green);
             margin-bottom: 1rem;
         }
         .achievement-card i[style*="color: gray"] {
-            color: #808080; /* Ajustar gris para mejor contraste */
+            color: #808080;
         }
         .achievement-card h3 {
             font-family: 'Orbitron', sans-serif;
@@ -467,7 +469,7 @@
                 max-height: 200px;
             }
             .section-nav {
-                top: 60px; /* Ajustar para pantallas pequeñas */
+                top: 60px;
                 padding: 0.5rem;
             }
         }
@@ -488,7 +490,7 @@
                 font-size: 0.9rem;
             }
             .section-nav {
-                display: none; /* Ocultar en móviles para evitar desbordamiento */
+                display: none;
             }
         }
         @media (max-width: 320px) {
@@ -675,7 +677,7 @@
             // Calcular padding-top dinámicamente para main basado en la altura del header
             const header = document.querySelector('.main-header');
             const headerHeight = header.offsetHeight;
-            document.querySelector('main').style.paddingTop = `${headerHeight - 12}px`; // Ajuste para reducir espacio
+            document.querySelector('main').style.paddingTop = `${headerHeight - 20}px`; // Ajuste para cerrar el hueco
 
             try {
                 await syncClubData();
