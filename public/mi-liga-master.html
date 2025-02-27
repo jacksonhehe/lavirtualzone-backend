@@ -474,7 +474,7 @@
         </nav>
     </header>
 
-    <main role="main" style="padding-top: 92px; flex: 1 0 auto; overflow-y: auto;">
+    <main role="main" style="padding-top: 92px; flex: 1 0 auto; overflow-y: auto; max-height: calc(100vh - 92px);">
         <section class="dashboard-hero" aria-labelledby="dashboard-heading">
             <h1 class="section-title animate-fade-in" id="dashboard-heading">Mi Liga Master</h1>
         </section>
@@ -601,6 +601,7 @@
         };
         let isProcessing = false;
         let chartInstance = null; // Para controlar instancias de Chart.js
+        let hasRenderedStats = false; // Bandera para evitar renderizados múltiples de estadísticas
 
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
@@ -610,12 +611,20 @@
                 return;
             }
 
+            // Calcular padding-top dinámicamente para main basado en la altura del header
+            const header = document.querySelector('.main-header');
+            const headerHeight = header.offsetHeight;
+            document.querySelector('main').style.paddingTop = `${headerHeight}px`;
+
             try {
                 await syncClubData();
                 updateClubPreview();
                 updateWatchlist();
                 updateTransactions();
-                updateStats();
+                if (!hasRenderedStats) {
+                    updateStats();
+                    hasRenderedStats = true; // Evitar renderizados adicionales
+                }
                 updateAchievements();
             } catch (err) {
                 showNotification('Error inicial al cargar datos: ' + err.message, 'error');
@@ -632,7 +641,10 @@
                 updateClubPreview();
                 updateWatchlist();
                 updateTransactions();
-                updateStats();
+                if (!hasRenderedStats) {
+                    updateStats();
+                    hasRenderedStats = true;
+                }
                 updateAchievements();
             }
 
@@ -698,7 +710,11 @@
                     updateClubPreview();
                     updateWatchlist();
                     updateTransactions();
-                    updateStats();
+                    // Solo actualizar estadísticas si no se ha renderizado aún
+                    if (!hasRenderedStats) {
+                        updateStats();
+                        hasRenderedStats = true;
+                    }
                     updateAchievements();
                 }
             } catch (err) {
@@ -1011,7 +1027,10 @@
                     updateClubPreview();
                     updateWatchlist();
                     updateTransactions();
-                    updateStats();
+                    if (!hasRenderedStats) {
+                        updateStats();
+                        hasRenderedStats = true;
+                    }
                     updateAchievements();
                 } else {
                     throw new Error(data.msg || 'Error al reiniciar');
