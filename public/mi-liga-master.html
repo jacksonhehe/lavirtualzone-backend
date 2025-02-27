@@ -145,13 +145,13 @@
             transform: translateX(-50%);
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
         }
-        .club-section, .watchlist-section, .transactions-section, .achievements-section {
+        .club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section {
             padding: 5rem 3rem;
             background: var(--dark-bg);
             min-height: auto;
             max-height: none;
         }
-        .club-container, .watchlist-container, .transactions-container, .achievements-container {
+        .club-container, .watchlist-container, .transactions-container, .stats-container, .achievements-container {
             max-width: 1280px;
             margin: 0 auto;
             background: var(--light-bg);
@@ -164,13 +164,13 @@
             gap: 1.5rem;
             min-height: 0;
         }
-        .club-container h3, .watchlist-container h3, .transactions-container h3, .achievements-container h3 {
+        .club-container h3, .watchlist-container h3, .transactions-container h3, .stats-container h3, .achievements-container h3 {
             font-family: 'Orbitron', sans-serif;
             color: var(--primary-cyan);
             font-size: 1.5rem;
             margin-bottom: 1rem;
         }
-        .club-container p, .watchlist-container p, .transactions-container p {
+        .club-container p, .watchlist-container p, .transactions-container p, .stats-container p {
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
         }
@@ -262,6 +262,27 @@
             border-radius: 50%;
             object-fit: cover;
             margin-left: 1rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+            max-height: 400px; /* Limitar altura máxima para evitar desbordamiento */
+            overflow-y: auto;
+        }
+        .stat-item {
+            background: var(--dark-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            text-align: center;
+            min-height: 150px; /* Altura mínima para consistencia */
+        }
+        .stat-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem; /* Reducido para evitar expansión visual */
+            color: var(--primary-cyan);
+            margin-bottom: 0.5rem;
         }
         .achievements-grid {
             display: grid;
@@ -397,10 +418,10 @@
             .dashboard-hero {
                 padding: 100px 2rem 4rem;
             }
-            .club-section, .watchlist-section, .transactions-section, .achievements-section {
+            .club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section {
                 padding: 3rem 2rem;
             }
-            .achievements-grid {
+            .stats-grid, .achievements-grid {
                 grid-template-columns: 1fr;
             }
             .player-list, .watchlist, .transactions-list {
@@ -412,7 +433,7 @@
                 font-size: 1.2rem;
                 margin-bottom: 2rem;
             }
-            .club-container, .watchlist-container, .transactions-container, .achievements-container {
+            .club-container, .watchlist-container, .transactions-container, .stats-container, .achievements-container {
                 padding: 1.5rem;
             }
             .player-list, .watchlist, .transactions-list {
@@ -429,7 +450,7 @@
                 font-size: 1rem;
                 margin-bottom: 1.5rem;
             }
-            .achievements-grid {
+            .stats-grid, .achievements-grid {
                 grid-template-columns: 1fr;
                 gap: 0.8rem;
             }
@@ -497,6 +518,26 @@
             </div>
         </section>
 
+        <section class="stats-section" aria-labelledby="stats-heading">
+            <h2 class="section-title" id="stats-heading">Estadísticas del Club</h2>
+            <div class="stats-container animate-fade-in" id="stats-container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="winsCount">0</div>
+                        <p>Victorias</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="gamesPlayed">0</div>
+                        <p>Partidos Jugados</p>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="seasonProgress">0/5</div>
+                        <p>Progreso Temporada</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="achievements-section" aria-labelledby="achievements-heading">
             <h2 class="section-title" id="achievements-heading">Logros</h2>
             <div class="achievements-container animate-fade-in">
@@ -557,6 +598,7 @@
             wins: parseInt(localStorage.getItem('seasonWins')) || 0
         };
         let isProcessing = false;
+        let lastStatsData = null; // Para comparar datos y evitar renderizados innecesarios
 
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
@@ -576,6 +618,7 @@
                 updateClubPreview();
                 updateWatchlist();
                 updateTransactions();
+                updateStats(); // Inicializar estadísticas simples
                 updateAchievements();
             } catch (err) {
                 showNotification('Error inicial al cargar datos: ' + err.message, 'error');
@@ -593,6 +636,7 @@
                 updateClubPreview();
                 updateWatchlist();
                 updateTransactions();
+                updateStats(); // Inicializar estadísticas simples
                 updateAchievements();
             }
 
@@ -628,7 +672,7 @@
             setInterval(syncClubData, 300000); // Sincronización cada 5 minutos
 
             // Verificar dimensiones de las secciones después de renderizar
-            const sections = document.querySelectorAll('.club-section, .watchlist-section, .transactions-section, .achievements-section');
+            const sections = document.querySelectorAll('.club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section');
             sections.forEach(section => {
                 console.log(`Section ${section.id || section.className}: Height = ${section.offsetHeight}, ScrollHeight = ${section.scrollHeight}`);
             });
@@ -641,13 +685,23 @@
                     headers: { 'x-auth-token': token }
                 });
                 if (data) {
-                    club = {
+                    const newClub = {
                         ...data,
                         players: Array.isArray(data.players) ? data.players : [],
                         wins: data.wins || 0,
                         watchlist: Array.isArray(data.watchlist) ? data.watchlist : [],
                         gamesPlayed: data.gamesPlayed || 0
                     };
+                    const statsChanged = JSON.stringify({
+                        wins: newClub.wins,
+                        gamesPlayed: newClub.gamesPlayed,
+                        seasonWins: season.wins
+                    }) !== JSON.stringify({
+                        wins: club.wins,
+                        gamesPlayed: club.gamesPlayed,
+                        seasonWins: season.wins
+                    });
+                    club = newClub;
                     localStorage.setItem('clubName', club.name);
                     localStorage.setItem('clubBudget', club.budget);
                     localStorage.setItem('clubPlayers', JSON.stringify(club.players));
@@ -658,6 +712,9 @@
                     updateClubPreview();
                     updateWatchlist();
                     updateTransactions();
+                    if (statsChanged) {
+                        updateStats(); // Actualizar estadísticas solo si cambian
+                    }
                     updateAchievements();
                 }
             } catch (err) {
@@ -731,6 +788,29 @@
             list.innerHTML = transactions.length ? transactions.map(t => `
                 <li role="listitem">${t.date ? new Date(t.date).toLocaleString() : ''} - ${t.type}: ${t.playerName} por $${t.value.toLocaleString()}</li>
             `).join('') : '<li role="listitem">No hay transacciones recientes.</li>';
+        }
+
+        function updateStats() {
+            // Guardar datos actuales para comparación futura
+            const currentStats = {
+                wins: club.wins || 0,
+                gamesPlayed: club.gamesPlayed || 0,
+                seasonWins: season.wins || 0
+            };
+            console.log('Current stats data:', currentStats);
+
+            // Solo proceder si los datos han cambiado
+            if (JSON.stringify(currentStats) !== JSON.stringify(lastStatsData)) {
+                document.getElementById('winsCount').textContent = currentStats.wins;
+                document.getElementById('gamesPlayed').textContent = currentStats.gamesPlayed;
+                document.getElementById('seasonProgress').textContent = `${currentStats.seasonWins}/5`;
+                lastStatsData = { ...currentStats }; // Actualizar datos previos
+            } else {
+                console.log('No changes in stats data, skipping render.');
+            }
+
+            console.log('Rendering stats - Document height before:', document.body.scrollHeight);
+            console.log('Rendering stats - Document height after:', document.body.scrollHeight);
         }
 
         async function updateAchievements() {
@@ -828,6 +908,7 @@
                     updateClubPreview();
                     updateTransactions();
                     updateAchievements();
+                    updateStats(); // Actualizar estadísticas si cambian wins o gamesPlayed
                 } else {
                     throw new Error(data.msg || 'Error al entrenar');
                 }
@@ -914,7 +995,13 @@
                     updateClubPreview();
                     updateWatchlist();
                     updateTransactions();
+                    updateStats(); // Reiniciar estadísticas
                     updateAchievements();
+                    lastStatsData = {
+                        wins: club.wins,
+                        gamesPlayed: club.gamesPlayed,
+                        seasonWins: season.wins
+                    }; // Reiniciar datos previos
                 } else {
                     throw new Error(data.msg || 'Error al reiniciar');
                 }
