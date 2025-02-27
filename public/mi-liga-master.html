@@ -26,12 +26,6 @@
             --shadow-cyan: 0 6px 18px rgba(0, 255, 255, 0.15);
             --transition-base: 0.3s ease-in-out;
             --accent-green: #66ff66;
-            --theme-bg: var(--dark-bg);
-            --theme-text: var(--text-primary);
-        }
-        .light-theme {
-            --theme-bg: #ffffff;
-            --theme-text: #0a0a1a;
         }
         *, *::before, *::after {
             box-sizing: border-box;
@@ -39,8 +33,8 @@
             padding: 0;
         }
         body {
-            background: var(--theme-bg);
-            color: var(--theme-text);
+            background: var(--dark-bg);
+            color: var(--text-primary);
             font-family: 'Roboto', sans-serif;
             line-height: 1.7;
             min-height: 100vh;
@@ -48,7 +42,7 @@
             flex-direction: column;
             overflow-x: hidden;
             overflow-y: auto;
-            transition: opacity 0.5s ease, background 0.5s ease, color 0.5s ease;
+            transition: opacity 0.5s ease;
         }
         body.fade-out {
             opacity: 0;
@@ -60,10 +54,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, rgba(var(--theme-bg), 0.95), var(--theme-bg));
+            background: linear-gradient(to bottom, rgba(10, 10, 26, 0.95), rgba(10, 10, 26, 1));
             z-index: -1;
             opacity: 0.9;
-            transition: background 0.5s ease;
         }
         .main-header {
             background: rgba(10, 10, 26, 0.98);
@@ -119,24 +112,9 @@
             box-shadow: var(--shadow-cyan);
             outline: none;
         }
-        .theme-toggle {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            transition: var(--transition-base);
-        }
-        .theme-toggle:hover, .theme-toggle:focus {
-            color: var(--primary-cyan);
-            transform: scale(1.1);
-            outline: 2px solid var(--primary-cyan);
-            outline-offset: 2px;
-        }
         .dashboard-hero {
             padding: 160px 3rem 8rem;
-            background: linear-gradient(to bottom, rgba(var(--theme-bg), 0.9), var(--theme-bg));
+            background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
             min-height: 50vh;
             display: flex;
             align-items: center;
@@ -192,7 +170,7 @@
         }
         .club-section, .watchlist-section, .transactions-section, .stats-section, .achievements-section, .leaderboard-section {
             padding: 5rem 3rem;
-            background: var(--theme-bg);
+            background: var(--dark-bg);
             min-height: auto;
             max-height: none;
         }
@@ -349,7 +327,7 @@
         }
         .main-footer {
             margin-top: auto;
-            background: var(--theme-bg);
+            background: var(--dark-bg);
             padding: 6rem 3rem;
             border-top: 1px solid var(--border-light);
             box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
@@ -531,7 +509,6 @@
                 <a href="mercado-fichajes.html" class="nav-link transition-link" data-href="mercado-fichajes.html">Mercado de Fichajes</a>
                 <a href="login.html" class="nav-link transition-link" data-href="login.html">Cerrar Sesión</a>
             </div>
-            <button id="toggleTheme" class="theme-toggle" aria-label="Cambiar tema">🌙</button>
         </nav>
     </header>
 
@@ -690,12 +667,6 @@
             const headerHeight = header.offsetHeight;
             document.querySelector('main').style.paddingTop = `${headerHeight}px`;
 
-            // Cargar tema guardado
-            if (localStorage.getItem('theme') === 'light') {
-                document.body.classList.add('light-theme');
-                document.getElementById('toggleTheme').textContent = '🌙';
-            }
-
             try {
                 await syncClubData();
                 updateClubPreview();
@@ -770,7 +741,6 @@
             document.getElementById('resetClub').addEventListener('click', resetClub);
             document.getElementById('exportTransactions').addEventListener('click', exportTransactions);
             document.getElementById('viewSeasonHistory').addEventListener('click', viewSeasonHistory);
-            document.getElementById('toggleTheme').addEventListener('click', toggleTheme);
 
             setInterval(syncClubData, 300000); // Sincronización cada 5 minutos
             setInterval(updateLeaderboard, 300000); // Actualizar clasificación cada 5 minutos
@@ -793,12 +763,6 @@
                 console.log(`Section ${section.id || section.className}: Height = ${section.offsetHeight}, ScrollHeight = ${section.scrollHeight}`);
             });
         });
-
-        function toggleTheme() {
-            document.body.classList.toggle('light-theme');
-            localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-            document.getElementById('toggleTheme').textContent = document.body.classList.contains('light-theme') ? '🌙' : '☀️';
-        }
 
         async function syncClubData() {
             const token = localStorage.getItem('token');
