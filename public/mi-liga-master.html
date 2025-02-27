@@ -826,6 +826,9 @@
                     }
                 }
             });
+            console.log('Rendering stats - Document height before:', document.body.scrollHeight);
+            console.log('Club stats:', { wins: club.wins, gamesPlayed: club.gamesPlayed, seasonWins: season.wins });
+            console.log('Rendering stats - Document height after:', document.body.scrollHeight);
         }
 
         async function updateAchievements() {
