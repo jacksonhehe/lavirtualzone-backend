@@ -73,13 +73,13 @@
             max-width: 1440px;
             margin: 0 auto;
             display: flex;
-            justify-content: space-between;
+            justify-content: center; /* Centrar todo el contenido del header */
             align-items: center;
             height: 60px;
         }
         .logo {
-            width: 60px;
-            height: 60px;
+            width: 64px; /* Aumentado para mayor visibilidad */
+            height: 64px; /* Aumentado para mayor visibilidad */
             background: none;
             text-indent: 0;
             display: flex;
@@ -87,7 +87,7 @@
             justify-content: center;
         }
         .logo i {
-            font-size: 60px;
+            font-size: 64px; /* Aumentado para mayor visibilidad */
             color: var(--primary-cyan);
         }
         .logo:hover {
@@ -115,21 +115,21 @@
             outline: none;
         }
         .dashboard-hero {
-            padding: 120px 3rem 8rem; /* Reducido de 160px a 120px para cerrar el espacio */
+            padding: 120px 3rem 8rem;
             background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
             min-height: 50vh;
             display: flex;
             align-items: center;
             margin-top: 60px;
             text-align: center;
-            justify-content: center; /* Centrar horizontalmente el título */
+            justify-content: center;
         }
         .dashboard-hero h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: clamp(2rem, 5vw, 3rem);
             color: var(--primary-cyan);
             margin-bottom: 2rem;
-            text-align: center; /* Asegura que el texto esté centrado */
+            text-align: center;
         }
         .section-title {
             font-family: 'Orbitron', sans-serif;
@@ -152,18 +152,20 @@
         }
         .section-nav {
             position: sticky;
-            top: 60px; /* Reducido de 92px a 60px para cerrar el hueco con el header */
+            top: 50px; /* Reducido para cerrar el hueco con el header */
             background: var(--light-bg);
-            padding: 0.5rem; /* Reducido de 1rem a 0.5rem para menos espacio */
+            padding: 0.3rem; /* Reducido para un diseño más compacto */
             border-bottom: 1px solid var(--border-light);
             box-shadow: var(--shadow-soft);
             z-index: 900;
+            display: flex;
+            justify-content: center; /* Centrar el menú interno horizontalmente */
         }
         .section-nav-link {
             color: var(--text-primary);
             text-decoration: none;
             padding: 0.5rem 1rem;
-            margin-right: 0.5rem; /* Reducido para menos espacio entre enlaces */
+            margin-right: 0.3rem; /* Reducido para un espaciado más apretado */
             border-radius: 4px;
             transition: var(--transition-base);
         }
@@ -470,7 +472,13 @@
             }
             .section-nav {
                 top: 60px;
-                padding: 0.5rem;
+                padding: 0.3rem;
+            }
+            .nav-container {
+                justify-content: space-between; /* Ajustar para pantallas pequeñas */
+            }
+            .main-nav {
+                gap: 1rem; /* Reducir espacio en pantallas pequeñas */
             }
         }
         @media (max-width: 480px) {
@@ -491,6 +499,13 @@
             }
             .section-nav {
                 display: none;
+            }
+            .logo {
+                width: 48px; /* Reducir tamaño en móviles */
+                height: 48px;
+            }
+            .logo i {
+                font-size: 48px; /* Reducir tamaño en móviles */
             }
         }
         @media (max-width: 320px) {
@@ -524,7 +539,7 @@
         </nav>
     </header>
 
-    <main role="main" style="padding-top: 80px; flex: 1 0 auto; overflow-y: auto; max-height: calc(100vh - 80px);">
+    <main role="main" style="padding-top: 50px; flex: 1 0 auto; overflow-y: auto; max-height: calc(100vh - 50px);">
         <nav class="section-nav" aria-label="Navegación interna">
             <a href="#club-heading" class="section-nav-link">Tu Club</a>
             <a href="#watchlist-heading" class="section-nav-link">Jugadores Seguidos</a>
@@ -677,7 +692,7 @@
             // Calcular padding-top dinámicamente para main basado en la altura del header
             const header = document.querySelector('.main-header');
             const headerHeight = header.offsetHeight;
-            document.querySelector('main').style.paddingTop = `${headerHeight - 20}px`; // Ajuste para cerrar el hueco
+            document.querySelector('main').style.paddingTop = `${headerHeight - 10}px`; // Ajuste mínimo para cerrar el hueco
 
             try {
                 await syncClubData();
