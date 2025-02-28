@@ -1054,7 +1054,7 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('Página cargada, inicializando...');
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token'); // Solo para autenticación, no para datos
             if (!token) {
                 showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
                 setTimeout(() => window.location.href = 'login.html', 2000);
@@ -1145,6 +1145,14 @@
             } catch (err) {
                 console.error('Error en initializePage:', err);
                 showNotification('Error al cargar datos: ' + err.message, 'error');
+                // Sin fallback a localStorage, mostramos un mensaje crítico
+                club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0, watchlist: [], gamesPlayed: 0 };
+                transactions = [];
+                season.wins = 0;
+                updateClubPreview();
+                updateWatchlist();
+                updateTransactions();
+                updateStats();
             } finally {
                 spinner.classList.remove('active');
             }
@@ -1152,7 +1160,7 @@
 
         async function syncClubData() {
             console.log('Sincronizando datos del club con MongoDB...');
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token'); // Solo para autenticación
             try {
                 const response = await fetch(`${BASE_URL}/club/me`, {
                     headers: { 'x-auth-token': token }
@@ -1176,23 +1184,7 @@
                 updateStats();
             } catch (err) {
                 console.error('Sync Error:', err);
-                showNotification(`No se pudo sincronizar con el backend: ${err.message}. Usando datos locales temporales.`, 'warning');
-                // Usar datos locales como fallback
-                club = {
-                    name: localStorage.getItem('clubName') || '[Sin registrar]',
-                    budget: parseInt(localStorage.getItem('clubBudget')) || 100000000,
-                    players: JSON.parse(localStorage.getItem('clubPlayers')) || [],
-                    color: localStorage.getItem('clubColor') || '#00ffff',
-                    wins: parseInt(localStorage.getItem('clubWins')) || 0,
-                    watchlist: JSON.parse(localStorage.getItem('clubWatchlist')) || [],
-                    gamesPlayed: parseInt(localStorage.getItem('gamesPlayed')) || 0
-                };
-                transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-                season.wins = parseInt(localStorage.getItem('seasonWins')) || 0;
-                updateClubPreview();
-                updateWatchlist();
-                updateTransactions();
-                updateStats();
+                throw err; // Lanzamos el error para que initializePage lo maneje
             }
         }
 
@@ -1271,7 +1263,7 @@
                     isTop10 = leaderboard.slice(0, 10).some(entry => entry.clubName === club.name);
                 }
             } catch (err) {
-                console.warn('No se pudo verificar Top 10, usando datos locales.');
+                console.warn('No se pudo verificar Top 10, usando datos predeterminados.');
             }
             top10.innerHTML = `<i class="fas fa-trophy" ${isTop10 ? '' : 'style="color: gray;"'}></i><h3>Top 10</h3><p>${isTop10 ? 'Completado' : 'Clasifícate entre los 10 mejores'}</p>`;
             if (isTop10) top10.classList.add('completed');
@@ -1282,7 +1274,7 @@
             if (spent >= 1000000) millionSpent.classList.add('completed');
 
             const bestTeam = document.getElementById('best-team');
-            let isBestTeam = false; // Simulación, requiere backend real
+            let isBestTeam = false;
             try {
                 const response = await fetch(`${BASE_URL}/best-team`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
                 if (response.ok) {
@@ -1290,7 +1282,7 @@
                     isBestTeam = bestTeamData.isBestTeam || false;
                 }
             } catch (err) {
-                console.warn('No se pudo verificar Mejor Equipo, usando datos locales.');
+                console.warn('No se pudo verificar Mejor Equipo, usando datos predeterminados.');
             }
             bestTeam.innerHTML = `<i class="fas fa-star" ${isBestTeam ? '' : 'style="color: gray;"'}></i><h3>Mejor Equipo del Mes</h3><p>${isBestTeam ? 'Completado' : 'Alcanza el mejor rating promedio'}</p>`;
             if (isBestTeam) bestTeam.classList.add('completed');
@@ -1342,20 +1334,18 @@
             }
 
             try {
+                const token = localStorage.getItem('token'); // Solo para autenticación
                 const response = await fetch(`${BASE_URL}/club/me/train`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('token') },
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ playerId: id, cost })
                 });
                 if (!response.ok) throw new Error('Error al entrenar: ' + await response.text());
-                const updatedClub = await response.json();
-                club = updatedClub;
-                transactions.push({ type: 'Entrenamiento', playerName: name, value: cost, date: new Date() });
-                await syncClubData(); // Actualizar todos los datos del club
+                await syncClubData(); // Actualizar todos los datos del club desde MongoDB
                 showNotification(`¡${name} entrenado! Rating: ${club.players[playerIndex].rating}`, 'success');
             } catch (err) {
                 showNotification('Error al entrenar: ' + err.message, 'error');
-                club.budget += cost; // Revertir localmente si falla
+                // No revertimos localmente, ya que no usamos localStorage
             } finally {
                 isProcessing = false;
                 button.disabled = false;
@@ -1368,18 +1358,19 @@
             if (isProcessing) return;
             isProcessing = true;
 
-            club.name = document.getElementById('clubNameInput').value.trim() || '[Sin registrar]';
-            club.color = document.getElementById('clubColor').value;
+            const name = document.getElementById('clubNameInput').value.trim() || '[Sin registrar]';
+            const color = document.getElementById('clubColor').value;
 
             try {
+                const token = localStorage.getItem('token'); // Solo para autenticación
                 const response = await fetch(`${BASE_URL}/club/me`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('token') },
-                    body: JSON.stringify({ name: club.name, color: club.color })
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({ name, color })
                 });
                 if (!response.ok) throw new Error('Error al guardar: ' + await response.text());
-                await syncClubData(); // Actualizar todos los datos del club
-                showNotification(`¡Club ${club.name} actualizado!`, 'success');
+                await syncClubData(); // Actualizar todos los datos del club desde MongoDB
+                showNotification(`¡Club ${name} actualizado!`, 'success');
             } catch (err) {
                 showNotification('Error al guardar: ' + err.message, 'error');
             } finally {
@@ -1393,12 +1384,13 @@
             isProcessing = true;
 
             try {
+                const token = localStorage.getItem('token'); // Solo para autenticación
                 const response = await fetch(`${BASE_URL}/club/me/reset`, {
                     method: 'POST',
-                    headers: { 'x-auth-token': localStorage.getItem('token') }
+                    headers: { 'x-auth-token': token }
                 });
                 if (!response.ok) throw new Error('Error al reiniciar: ' + await response.text());
-                await syncClubData(); // Actualizar todos los datos del club
+                await syncClubData(); // Actualizar todos los datos del club desde MongoDB
                 showNotification('¡Club reiniciado!', 'success');
             } catch (err) {
                 showNotification('Error al reiniciar: ' + err.message, 'error');
@@ -1433,13 +1425,14 @@
 
             const winChance = Math.random() < 0.7;
             try {
+                const token = localStorage.getItem('token'); // Solo para autenticación
                 const response = await fetch(`${BASE_URL}/club/me/simulate`, {
                     method: 'POST',
-                    headers: { 'x-auth-token': localStorage.getItem('token') },
+                    headers: { 'x-auth-token': token },
                     body: JSON.stringify({ win: winChance })
                 });
                 if (!response.ok) throw new Error('Error al simular partido: ' + await response.text());
-                await syncClubData(); // Actualizar todos los datos del club
+                await syncClubData(); // Actualizar todos los datos del club desde MongoDB
                 const message = winChance ? `¡Victoria! Tu club tiene ${club.wins} victorias.` : 'Derrota. ¡Sigue mejorando tu equipo!';
                 showNotification(message, winChance ? 'success' : 'error');
             } catch (err) {
