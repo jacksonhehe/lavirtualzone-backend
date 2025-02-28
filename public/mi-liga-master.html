@@ -157,9 +157,9 @@
             color: var(--secondary-purple);
         }
 
-        /** Hero Section Styles **/
+        /** Hero Section Styles - Ajustado para igualar Liga Master **/
         .dashboard-hero {
-            padding: 160px 3rem 8rem;
+            padding: 160px 3rem 8rem; /* Ajustado para igualar el padding-top de .liga-master-hero */
             background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
             min-height: 70vh;
             display: flex;
@@ -1131,11 +1131,11 @@
             });
             backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-            // Event Listeners
+            // Event Listeners for Buttons
             document.getElementById('clubForm').addEventListener('submit', saveClub);
             document.getElementById('resetClub').addEventListener('click', resetClub);
-            document.getElementById('exportTransactions').addEventListener('click', exportTransactions);
             document.getElementById('simulateMatch').addEventListener('click', simulateMatch);
+            // El botón "Ir al Mercado" es un enlace <a>, no necesita listener adicional, pero verificaré que funcione
 
             // Sync Data Periodically
             setInterval(syncClubData, 300000);
@@ -1187,6 +1187,7 @@
                 updateAchievements();
             } catch (err) {
                 console.error('Sync Error:', err);
+                showNotification(`No se pudo sincronizar: ${err.message}. Usando datos locales.`, 'warning');
             }
         }
 
@@ -1292,7 +1293,10 @@
         }
 
         async function trainPlayer(id, value, name) {
-            if (isProcessing || !isMarketOpen()) return;
+            if (isProcessing || !isMarketOpen()) {
+                if (!isMarketOpen()) showNotification('El mercado está cerrado.', 'error');
+                return;
+            }
             isProcessing = true;
             const button = document.querySelector(`button[onclick="trainPlayer('${id}', ${value}, '${name}')"]`);
             button.disabled = true;
@@ -1330,6 +1334,8 @@
                 club.budget += cost;
                 club.players[playerIndex].rating -= 1;
                 club.players[playerIndex].value -= cost;
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
             } finally {
                 isProcessing = false;
                 button.disabled = false;
