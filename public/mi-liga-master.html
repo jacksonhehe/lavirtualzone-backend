@@ -278,6 +278,11 @@
             width: 100%;
             max-width: 300px;
         }
+        .form-input:hover:not(:focus),
+        .form-select:hover:not(:focus) {
+            border-color: rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        }
         .form-input:focus, .form-select:focus {
             border-color: var(--primary-cyan);
             box-shadow: var(--shadow-cyan);
@@ -325,32 +330,52 @@
             cursor: not-allowed;
             opacity: 0.7;
         }
-        .player-list, .watchlist, .transactions-list, .leaderboard-list {
-            list-style: none;
+        .player-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
             margin-top: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            padding: 1rem;
-            border-radius: 8px;
-            max-height: 280px;
-            overflow-y: auto;
         }
-        .player-list li, .watchlist li, .transactions-list li, .leaderboard-list li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            max-height: 60px;
-            overflow-y: hidden;
+        .player-card {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            transition: var(--transition-base);
+            box-shadow: var(--shadow-soft);
+            text-align: center;
+            margin-bottom: 1rem;
         }
-        .player-list img, .watchlist img {
-            width: 40px;
-            height: 40px;
+        .player-card:hover,
+        .player-card:focus-within {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-cyan);
+            border-color: var(--primary-cyan);
+        }
+        .player-card img {
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             object-fit: cover;
-            margin-left: 1rem;
+            margin-bottom: 1rem;
+        }
+        .player-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-cyan);
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+        .player-stats {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+        .player-stats li {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .player-card p:empty {
+            display: none;
         }
         .stats-grid {
             display: grid;
@@ -410,6 +435,33 @@
             color: var(--primary-cyan);
             font-size: 1.4rem;
             margin-bottom: 1rem;
+        }
+        .watchlist, .transactions-list, .leaderboard-list {
+            list-style: none;
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        .watchlist li, .transactions-list li, .leaderboard-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            max-height: 60px;
+            overflow-y: hidden;
+        }
+        .watchlist img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-left: 1rem;
         }
         .main-footer {
             margin-top: auto;
@@ -506,8 +558,16 @@
             75% { transform: translateX(-5px); }
             100% { transform: translateX(0); }
         }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
+        }
         .animate-fade-in {
             animation: fadeIn 0.6s ease-out forwards;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
         }
         .back-to-top {
             position: fixed;
@@ -577,10 +637,16 @@
             .container {
                 padding: 1.5rem;
             }
+            .player-grid {
+                grid-template-columns: 1fr;
+            }
+            .player-card {
+                padding: 1rem;
+            }
             .stats-grid, .achievements-grid {
                 grid-template-columns: 1fr;
             }
-            .player-list, .watchlist, .transactions-list, .leaderboard-list {
+            .watchlist, .transactions-list, .leaderboard-list {
                 max-height: 200px;
             }
         }
@@ -592,7 +658,17 @@
             .container {
                 padding: 1rem;
             }
-            .player-list, .watchlist, .transactions-list, .leaderboard-list {
+            .player-card img {
+                width: 50px;
+                height: 50px;
+            }
+            .player-card h3 {
+                font-size: 1rem;
+            }
+            .player-stats li {
+                font-size: 0.9rem;
+            }
+            .watchlist, .transactions-list, .leaderboard-list {
                 max-height: 150px;
                 padding: 0.5rem;
             }
@@ -604,6 +680,10 @@
                 width: 48px;
                 height: 48px;
             }
+            .club-emblem {
+                width: 60px;
+                height: 60px;
+            }
         }
         @media (max-width: 320px) {
             .section-title {
@@ -612,7 +692,7 @@
             .stats-grid, .achievements-grid {
                 gap: 0.8rem;
             }
-            .player-list li, .watchlist li {
+            .watchlist li {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.5rem;
@@ -654,16 +734,28 @@
         </nav>
 
         <section class="section" id="club-section" aria-labelledby="club-heading">
-            <h2 class="section-title" id="club-heading">Tu Club</h2>
+            <h2 class="section-title" id="club-heading">Tu Club <i class="fas fa-info-circle info-icon" aria-label="Información sobre tu club" tabindex="0"></i></h2>
             <div class="container animate-fade-in">
+                <div class="club-emblem" id="clubEmblem" role="img" aria-label="Emblema del club"></div>
                 <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
-                <p>Presupuesto: $<span id="clubBudget">100,000,000</span></p>
+                <div class="progress-bar" role="progressbar" aria-label="Presupuesto del club">
+                    <div class="progress-fill" id="budgetProgress" style="width: 100%;"></div>
+                    <span>Presupuesto: $<span id="clubBudget">100,000,000</span></span>
+                </div>
                 <p>Jugadores: <span id="playerCount">0</span></p>
-                <p>Valor Total: $<span id="teamValue">0</span></p>
-                <p>Rating Promedio: <span id="avgRating">0</span></p>
-                <ul id="playerList" class="player-list" role="list" aria-label="Lista de jugadores del club"></ul>
+                <div class="progress-bar" role="progressbar" aria-label="Valor total del club">
+                    <div class="progress-fill" id="valueProgress" style="width: 0%;"></div>
+                    <span>Valor Total: $<span id="teamValue">0</span></span>
+                </div>
+                <div class="progress-bar" role="progressbar" aria-label="Rating promedio del club">
+                    <div class="progress-fill" id="ratingProgress" style="width: 0%;"></div>
+                    <span>Rating Promedio: <span id="avgRating">0</span></span>
+                </div>
+                <div id="playerList" class="player-grid" role="list" aria-label="Lista de jugadores del club"></div>
                 <form class="club-form" id="clubForm" aria-label="Formulario de tu club">
+                    <label for="clubNameInput">Nombre del Club</label>
                     <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club" aria-label="Nombre del club">
+                    <label for="clubColor">Color del Club</label>
                     <select id="clubColor" class="form-select" aria-label="Color del club">
                         <option value="#00ffff">Cian</option>
                         <option value="#800080">Púrpura</option>
@@ -672,6 +764,7 @@
                     <button type="submit" class="cta-button">Guardar</button>
                 </form>
                 <button id="resetClub" class="reset-button" aria-label="Reiniciar club">Reiniciar Club</button>
+                <button id="simulateMatch" class="cta-button" ${isMarketOpen() ? '' : 'disabled'} aria-label="Simular un partido">Simular Partido</button>
                 <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html" aria-label="Ir al Mercado de Fichajes">Ir al Mercado</a>
             </div>
         </section>
@@ -863,6 +956,29 @@
             document.getElementById('clubForm').addEventListener('submit', saveClub);
             document.getElementById('resetClub').addEventListener('click', resetClub);
             document.getElementById('exportTransactions').addEventListener('click', exportTransactions);
+            document.getElementById('simulateMatch').addEventListener('click', simulateMatch);
+
+            // Tooltip de información
+            document.querySelector('.info-icon').addEventListener('mouseover', (e) => {
+                const tooltip = document.createElement('span');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = 'Gestiona tu club, entrena jugadores, y usa el mercado para mejorar tu equipo. ¡Compite por logros y gloria!';
+                e.target.appendChild(tooltip);
+            });
+            document.querySelector('.info-icon').addEventListener('mouseout', (e) => {
+                const tooltip = e.target.querySelector('.tooltip');
+                if (tooltip) tooltip.remove();
+            });
+            document.querySelector('.info-icon').addEventListener('focus', (e) => {
+                const tooltip = document.createElement('span');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = 'Gestiona tu club, entrena jugadores, y usa el mercado para mejorar tu equipo. ¡Compite por logros y gloria!';
+                e.target.appendChild(tooltip);
+            });
+            document.querySelector('.info-icon').addEventListener('blur', (e) => {
+                const tooltip = e.target.querySelector('.tooltip');
+                if (tooltip) tooltip.remove();
+            });
 
             setInterval(syncClubData, 300000); // Sincronización cada 5 minutos
             setInterval(updateLeaderboard, 300000); // Actualizar clasificación cada 5 minutos
@@ -918,12 +1034,39 @@
             document.querySelector('.container').style.borderColor = club.color;
             document.getElementById('clubNameInput').value = club.name;
             document.getElementById('clubColor').value = club.color;
+            const clubEmblem = document.getElementById('clubEmblem');
+            clubEmblem.style.backgroundColor = club.color;
             const playerList = document.getElementById('playerList');
             playerList.innerHTML = club.players.length ? club.players.map(p => `
-                <li role="listitem">${p.name} (Rating: ${p.rating || 0}) 
-                    <button class="train-button" ${isMarketOpen() ? '' : 'disabled'} onclick="trainPlayer('${p._id || p.id}', ${p.value || 0}, '${p.name}')">Entrenar ($${Math.floor((p.value || 0) * 0.1).toLocaleString()})</button>
+                <article class="player-card animate-fade-in" role="listitem" aria-label="${p.name}">
                     <img src="${getPlayerImage(p.name)}" alt="${p.name}" loading="lazy">
-                </li>`).join('') : '<li role="listitem">No hay jugadores.</li>';
+                    <h3>${p.name}</h3>
+                    <ul class="player-stats">
+                        <li><strong>Rating:</strong> ${p.rating || 0}</li>
+                        <li><strong>Valor:</strong> $${(p.value || 0).toLocaleString()}</li>
+                    </ul>
+                    <button class="train-button" ${isMarketOpen() ? '' : 'disabled'} onclick="trainPlayer('${p._id || p.id}', ${p.value || 0}, '${p.name}')">Entrenar ($${Math.floor((p.value || 0) * 0.1).toLocaleString()})</button>
+                </article>`).join('') : '<p role="listitem">No hay jugadores.</p>';
+
+            // Actualizar barras de progreso con animación
+            const budgetProgress = document.getElementById('budgetProgress');
+            const valueProgress = document.getElementById('valueProgress');
+            const ratingProgress = document.getElementById('ratingProgress');
+            budgetProgress.style.width = `${(club.budget / 100000000) * 100}%`;
+            valueProgress.style.width = `${(teamValue / 100000000) * 100}%`; // Asume un máximo de $100M para valor total
+            ratingProgress.style.width = `${avgRating}%`;
+
+            // Efecto visual en las estadísticas
+            const stats = [
+                document.getElementById('clubBudget'),
+                document.getElementById('playerCount'),
+                document.getElementById('teamValue'),
+                document.getElementById('avgRating')
+            ];
+            stats.forEach(stat => {
+                stat.classList.add('pulse');
+                setTimeout(() => stat.classList.remove('pulse'), 2000);
+            });
         }
 
         function updateWatchlist() {
@@ -1205,6 +1348,32 @@
             a.download = 'transacciones.csv';
             a.click();
             window.URL.revokeObjectURL(url);
+        }
+
+        function simulateMatch() {
+            if (!isMarketOpen()) {
+                showNotification('El mercado está cerrado. No se pueden simular partidos.', 'error');
+                return;
+            }
+            if (club.players.length === 0) {
+                showNotification('No tienes jugadores en tu club. Compra jugadores en el Mercado de Fichajes.', 'error');
+                return;
+            }
+            const winChance = Math.random() < 0.7; // 70% de ganar (ajustable)
+            if (winChance) {
+                club.wins++;
+                season.wins++;
+                club.gamesPlayed++;
+                showNotification(`¡Victoria en el partido! Tu club ahora tiene ${club.wins} victorias.`, 'success');
+            } else {
+                club.gamesPlayed++;
+                showNotification('Derrota en el partido. ¡Sigue mejorando tu equipo!', 'error');
+            }
+            localStorage.setItem('clubWins', club.wins);
+            localStorage.setItem('gamesPlayed', club.gamesPlayed);
+            localStorage.setItem('seasonWins', season.wins);
+            updateStats();
+            updateAchievements();
         }
     </script>
 </body>
