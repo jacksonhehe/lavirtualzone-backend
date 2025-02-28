@@ -238,144 +238,245 @@
             transform: translateX(-50%);
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
         }
-        .container {
+        .club-container {
             max-width: 1280px;
             margin: 0 auto;
-            background: var(--light-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-light);
-            box-shadow: var(--shadow-soft);
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+            background: linear-gradient(135deg, rgba(42, 42, 58, 0.9), rgba(10, 10, 26, 0.9));
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 2px solid var(--primary-cyan);
+            box-shadow: var(--shadow-cyan);
+            position: relative;
+            overflow: hidden;
         }
-        .container h3 {
+        .club-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 200%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0, 255, 255, 0.05) 10px,
+                rgba(0, 255, 255, 0.05) 20px
+            );
+            opacity: 0.1;
+            z-index: 1;
+        }
+        .club-container > * {
+            position: relative;
+            z-index: 2;
+        }
+        .club-header {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+        .club-emblem {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--primary-cyan);
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 10 L90 40 L90 60 L50 90 L10 60 L10 40 Z" fill="white"/></svg>');
+            background-size: 85%;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: var(--transition-base);
+            box-shadow: var(--shadow-soft);
+            flex-shrink: 0;
+        }
+        .club-emblem:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: var(--shadow-cyan);
+        }
+        .club-info {
+            flex: 1;
+        }
+        .club-name {
             font-family: 'Orbitron', sans-serif;
             color: var(--primary-cyan);
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
         }
-        .container p {
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
+        .player-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+            max-height: 400px;
+            overflow-y: auto;
         }
-        .club-form {
-            margin-top: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            align-items: center;
-        }
-        .form-input, .form-select {
-            padding: 1rem;
-            background: var(--dark-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 1rem;
+        .player-card {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 1.8rem;
+            border: 2px solid transparent;
             transition: var(--transition-base);
-            width: 100%;
-            max-width: 300px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        .form-input:hover:not(:focus),
-        .form-select:hover:not(:focus) {
-            border-color: rgba(0, 255, 255, 0.5);
-            box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        .player-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            opacity: 0.3;
+            z-index: 1;
         }
-        .form-input:focus, .form-select:focus {
+        .player-card > * {
+            position: relative;
+            z-index: 2;
+        }
+        .player-card:hover,
+        .player-card:focus-within {
             border-color: var(--primary-cyan);
-            box-shadow: var(--shadow-cyan);
-            outline: none;
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 255, 255, 0.3);
         }
-        .cta-button, .train-button, .reset-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 1rem 2.5rem;
+        .player-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1.2rem;
+            border: 2px solid var(--primary-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+        .player-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-cyan);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 6px rgba(0, 255, 255, 0.1);
+        }
+        .player-stats {
+            list-style: none;
+            margin-bottom: 1.2rem;
+        }
+        .player-stats li {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.7rem;
+            font-weight: 500;
+        }
+        .train-button {
+            padding: 0.8rem 1.8rem;
             background: var(--primary-cyan);
             color: var(--text-primary);
-            text-decoration: none;
+            border: 1px solid var(--primary-cyan);
             border-radius: 8px;
             font-weight: 700;
-            font-size: 1.2rem;
-            transition: var(--transition-base);
-            border: 1px solid var(--primary-cyan);
-            box-shadow: var(--shadow-cyan);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 1rem;
             cursor: pointer;
+            transition: var(--transition-base);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .cta-button:hover,
         .train-button:hover,
-        .reset-button:hover,
-        .cta-button:focus,
-        .train-button:focus,
-        .reset-button:focus {
+        .train-button:focus {
             background: var(--secondary-purple);
             border-color: var(--secondary-purple);
-            box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
+            box-shadow: 0 4px 12px rgba(128, 0, 128, 0.25);
             outline: 2px solid var(--primary-cyan);
             outline-offset: 2px;
         }
-        .cta-button:active,
-        .train-button:active,
-        .reset-button:active {
-            transform: scale(0.98);
-        }
-        .train-button:disabled,
-        .reset-button:disabled {
+        .train-button:disabled {
             background: var(--text-secondary);
             border-color: var(--text-secondary);
             cursor: not-allowed;
             opacity: 0.7;
         }
-        .player-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        .club-actions {
+            display: flex;
+            flex-direction: column;
             gap: 1.5rem;
-            margin-top: 1rem;
+            align-items: center;
         }
-        .player-card {
-            background: var(--light-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid var(--border-light);
-            transition: var(--transition-base);
-            box-shadow: var(--shadow-soft);
-            text-align: center;
-            margin-bottom: 1rem;
+        .club-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            max-width: 400px;
         }
-        .player-card:hover,
-        .player-card:focus-within {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-cyan);
-            border-color: var(--primary-cyan);
-        }
-        .player-card img {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 1rem;
-        }
-        .player-card h3 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--primary-cyan);
-            font-size: 1.2rem;
-            margin-bottom: 0.8rem;
-        }
-        .player-stats {
-            list-style: none;
-            margin-bottom: 1rem;
-        }
-        .player-stats li {
+        .club-form label {
+            color: var(--text-secondary);
             font-size: 1rem;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
         }
-        .player-card p:empty {
-            display: none;
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .progress-bar {
+            margin-top: 1rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 0.6rem;
+            transition: var(--transition-base);
+        }
+        .progress-fill {
+            height: 12px;
+            background: var(--primary-cyan);
+            border-radius: 8px;
+            transition: width 0.5s ease-in-out;
+        }
+        .progress-bar span {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-top: 0.5rem;
+            display: block;
+            font-weight: 500;
+        }
+        .info-icon {
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-base);
+            font-size: 1.2rem;
+            margin-left: 0.8rem;
+        }
+        .info-icon:hover,
+        .info-icon:focus {
+            color: var(--primary-cyan);
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        }
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: var(--text-primary);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            z-index: 1001;
+            box-shadow: var(--shadow-cyan);
+        }
+        .info-icon:hover .tooltip,
+        .info-icon:focus .tooltip {
+            opacity: 1;
         }
         .stats-grid {
             display: grid;
@@ -634,14 +735,39 @@
             .section-nav {
                 display: none;
             }
-            .container {
+            .club-container {
                 padding: 1.5rem;
+            }
+            .club-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .club-emblem {
+                width: 100px;
+                height: 100px;
+            }
+            .club-name {
+                font-size: 1.5rem;
             }
             .player-grid {
                 grid-template-columns: 1fr;
+                gap: 1rem;
             }
             .player-card {
-                padding: 1rem;
+                padding: 1.2rem;
+            }
+            .player-card img {
+                width: 60px;
+                height: 60px;
+            }
+            .player-card h3 {
+                font-size: 1.2rem;
+            }
+            .player-stats li {
+                font-size: 1rem;
+            }
+            .club-form {
+                max-width: 100%;
             }
             .stats-grid, .achievements-grid {
                 grid-template-columns: 1fr;
@@ -655,8 +781,12 @@
                 font-size: 1.2rem;
                 margin-bottom: 2rem;
             }
-            .container {
-                padding: 1rem;
+            .club-emblem {
+                width: 80px;
+                height: 80px;
+            }
+            .club-name {
+                font-size: 1.2rem;
             }
             .player-card img {
                 width: 50px;
@@ -680,14 +810,29 @@
                 width: 48px;
                 height: 48px;
             }
-            .club-emblem {
-                width: 60px;
-                height: 60px;
+            .progress-bar {
+                padding: 0.4rem;
+            }
+            .progress-fill {
+                height: 10px;
             }
         }
         @media (max-width: 320px) {
             .section-title {
                 font-size: 1rem;
+            }
+            .club-emblem {
+                width: 60px;
+                height: 60px;
+            }
+            .club-name {
+                font-size: 1rem;
+            }
+            .player-card {
+                padding: 1rem;
+            }
+            .player-stats li {
+                font-size: 0.8rem;
             }
             .stats-grid, .achievements-grid {
                 gap: 0.8rem;
@@ -735,37 +880,45 @@
 
         <section class="section" id="club-section" aria-labelledby="club-heading">
             <h2 class="section-title" id="club-heading">Tu Club <i class="fas fa-info-circle info-icon" aria-label="Información sobre tu club" tabindex="0"></i></h2>
-            <div class="container animate-fade-in">
-                <div class="club-emblem" id="clubEmblem" role="img" aria-label="Emblema del club"></div>
-                <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
-                <div class="progress-bar" role="progressbar" aria-label="Presupuesto del club">
-                    <div class="progress-fill" id="budgetProgress" style="width: 100%;"></div>
-                    <span>Presupuesto: $<span id="clubBudget">100,000,000</span></span>
+            <div class="club-container animate-fade-in">
+                <div class="club-header">
+                    <div class="club-emblem" id="clubEmblem" role="img" aria-label="Emblema del club"></div>
+                    <div class="club-info">
+                        <h3 class="club-name" id="clubName">[Sin registrar]</h3>
+                        <div class="progress-bar" role="progressbar" aria-label="Presupuesto del club">
+                            <div class="progress-fill" id="budgetProgress" style="width: 100%;"></div>
+                            <span>Presupuesto: $<span id="clubBudget">100,000,000</span></span>
+                        </div>
+                        <p>Jugadores: <span id="playerCount">0</span></p>
+                        <div class="progress-bar" role="progressbar" aria-label="Valor total del club">
+                            <div class="progress-fill" id="valueProgress" style="width: 0%;"></div>
+                            <span>Valor Total: $<span id="teamValue">0</span></span>
+                        </div>
+                        <div class="progress-bar" role="progressbar" aria-label="Rating promedio del club">
+                            <div class="progress-fill" id="ratingProgress" style="width: 0%;"></div>
+                            <span>Rating Promedio: <span id="avgRating">0</span></span>
+                        </div>
+                    </div>
                 </div>
-                <p>Jugadores: <span id="playerCount">0</span></p>
-                <div class="progress-bar" role="progressbar" aria-label="Valor total del club">
-                    <div class="progress-fill" id="valueProgress" style="width: 0%;"></div>
-                    <span>Valor Total: $<span id="teamValue">0</span></span>
+                <div class="player-grid" id="playerList" role="list" aria-label="Lista de jugadores del club"></div>
+                <div class="club-actions">
+                    <form class="club-form" id="clubForm" aria-label="Formulario de tu club">
+                        <label for="clubNameInput">Nombre del Club</label>
+                        <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club" aria-label="Nombre del club">
+                        <label for="clubColor">Color del Club</label>
+                        <select id="clubColor" class="form-select" aria-label="Color del club">
+                            <option value="#00ffff">Cian</option>
+                            <option value="#800080">Púrpura</option>
+                            <option value="#66ff66">Verde</option>
+                        </select>
+                        <button type="submit" class="cta-button">Guardar</button>
+                    </form>
+                    <div class="action-buttons">
+                        <button id="resetClub" class="reset-button" aria-label="Reiniciar club">Reiniciar Club</button>
+                        <button id="simulateMatch" class="cta-button" ${isMarketOpen() ? '' : 'disabled'} aria-label="Simular un partido">Simular Partido</button>
+                        <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html" aria-label="Ir al Mercado de Fichajes">Ir al Mercado</a>
+                    </div>
                 </div>
-                <div class="progress-bar" role="progressbar" aria-label="Rating promedio del club">
-                    <div class="progress-fill" id="ratingProgress" style="width: 0%;"></div>
-                    <span>Rating Promedio: <span id="avgRating">0</span></span>
-                </div>
-                <div id="playerList" class="player-grid" role="list" aria-label="Lista de jugadores del club"></div>
-                <form class="club-form" id="clubForm" aria-label="Formulario de tu club">
-                    <label for="clubNameInput">Nombre del Club</label>
-                    <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club" aria-label="Nombre del club">
-                    <label for="clubColor">Color del Club</label>
-                    <select id="clubColor" class="form-select" aria-label="Color del club">
-                        <option value="#00ffff">Cian</option>
-                        <option value="#800080">Púrpura</option>
-                        <option value="#66ff66">Verde</option>
-                    </select>
-                    <button type="submit" class="cta-button">Guardar</button>
-                </form>
-                <button id="resetClub" class="reset-button" aria-label="Reiniciar club">Reiniciar Club</button>
-                <button id="simulateMatch" class="cta-button" ${isMarketOpen() ? '' : 'disabled'} aria-label="Simular un partido">Simular Partido</button>
-                <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html" aria-label="Ir al Mercado de Fichajes">Ir al Mercado</a>
             </div>
         </section>
 
@@ -1031,7 +1184,7 @@
             document.getElementById('teamValue').textContent = teamValue.toLocaleString();
             const avgRating = club.players.length ? (club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length).toFixed(1) : 0;
             document.getElementById('avgRating').textContent = avgRating;
-            document.querySelector('.container').style.borderColor = club.color;
+            document.querySelector('.club-container').style.borderColor = club.color;
             document.getElementById('clubNameInput').value = club.name;
             document.getElementById('clubColor').value = club.color;
             const clubEmblem = document.getElementById('clubEmblem');
