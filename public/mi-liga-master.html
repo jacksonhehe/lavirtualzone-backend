@@ -270,7 +270,7 @@
             border: 2px solid var(--primary-cyan);
             box-shadow: var(--shadow-cyan);
             position: relative;
-            overflow: hidden;
+            z-index: 1; /* Asegurarnos de que esté sobre otros elementos */
         }
         .club-container::before {
             content: '';
@@ -281,7 +281,7 @@
             height: 100%;
             background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 255, 255, 0.05) 10px, rgba(0, 255, 255, 0.05) 20px);
             opacity: 0.1;
-            z-index: 1;
+            z-index: 0; /* Por debajo del contenido */
         }
         .club-header {
             display: flex;
@@ -450,6 +450,7 @@
             width: 100%;
             max-width: 400px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            z-index: 2; /* Asegurar que estén sobre otros elementos */
         }
         .form-input:focus, .form-select:focus {
             border-color: var(--primary-cyan);
@@ -479,6 +480,8 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             cursor: pointer;
+            position: relative;
+            z-index: 2; /* Asegurar que estén sobre otros elementos */
         }
         .enhanced-button:hover {
             background: linear-gradient(45deg, var(--secondary-purple), rgba(128, 0, 128, 0.8));
@@ -910,7 +913,7 @@
     <script>
         console.log('Script cargado');
         const BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://lavirtualzone-backend.onrender.com/api';
-        let club = {};
+        let club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0, watchlist: [], gamesPlayed: 0 };
         let transactions = [];
         let season = {
             start: new Date().getTime() - 24 * 60 * 60 * 1000,
@@ -922,7 +925,6 @@
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('Página cargada, inicializando...');
             if (!(await validateToken())) return;
-            await initializePage();
 
             const menuButton = document.querySelector('.mobile-menu');
             const closeButton = document.querySelector('.close-menu');
@@ -972,6 +974,8 @@
                 showNotification('Sesión cerrada', 'success');
                 window.location.href = 'login.html';
             });
+
+            await initializePage();
         });
 
         async function validateToken() {
@@ -1018,8 +1022,13 @@
             } catch (err) {
                 console.error('Error en initializePage:', err);
                 showNotification('Error al cargar datos: ' + err.message, 'error');
+                updateClubPreview(); // Usar valores predeterminados si falla
+                updateWatchlist();
+                updateTransactions();
+                updateStats();
             } finally {
                 if (spinner) spinner.classList.remove('active');
+                isProcessing = false; // Asegurar que se restablezca
             }
         }
 
