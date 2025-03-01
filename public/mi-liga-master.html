@@ -1171,7 +1171,7 @@
 
             let isTop10 = false;
             try {
-                const response = await fetch(`${BASE_URL}/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
+                const response = await fetch(`${BASE_URL}/club/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
                 if (!response.ok) {
                     const errorData = await response.json();
                     if (response.status === 401) {
@@ -1196,7 +1196,7 @@
 
             let isBestTeam = false;
             try {
-                const response = await fetch(`${BASE_URL}/best-team`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
+                const response = await fetch(`${BASE_URL}/club/best-team`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
                 if (!response.ok) {
                     const errorData = await response.json();
                     if (response.status === 401) {
@@ -1221,7 +1221,7 @@
             const list = document.getElementById('leaderboardList');
             if (!list) return;
             try {
-                const response = await fetch(`${BASE_URL}/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
+                const response = await fetch(`${BASE_URL}/club/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
                 if (!response.ok) {
                     const errorData = await response.json();
                     if (response.status === 401) {
