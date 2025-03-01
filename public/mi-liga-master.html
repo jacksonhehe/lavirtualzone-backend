@@ -975,6 +975,7 @@
         });
 
         async function validateToken() {
+            console.log('Validando token...');
             const token = localStorage.getItem('token');
             if (!token) {
                 showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
@@ -1001,7 +1002,7 @@
         async function initializePage() {
             console.log('Inicializando página...');
             const spinner = document.getElementById('loadingSpinner');
-            spinner.classList.add('active');
+            if (spinner) spinner.classList.add('active');
             try {
                 await syncClubData();
                 updateClubPreview();
@@ -1018,7 +1019,7 @@
                 console.error('Error en initializePage:', err);
                 showNotification('Error al cargar datos: ' + err.message, 'error');
             } finally {
-                spinner.classList.remove('active');
+                if (spinner) spinner.classList.remove('active');
             }
         }
 
@@ -1032,6 +1033,12 @@
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                        return;
+                    }
                     throw new Error(errorData.msg || 'Error al sincronizar con el backend');
                 }
                 const data = await response.json();
@@ -1044,8 +1051,8 @@
                     watchlist: Array.isArray(data.watchlist) ? data.watchlist : [],
                     gamesPlayed: data.gamesPlayed || 0
                 };
-                transactions = []; // No hay endpoint para transacciones en GET /club/me, se manejará por separado si existe
-                season.wins = club.wins; // Ajustar según backend si hay un campo específico
+                transactions = []; // No hay endpoint para transacciones aquí
+                season.wins = club.wins;
                 updateClubPreview();
                 updateWatchlist();
                 updateTransactions();
@@ -1156,10 +1163,18 @@
             let isTop10 = false;
             try {
                 const response = await fetch(`${BASE_URL}/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
-                if (response.ok) {
-                    const leaderboard = await response.json();
-                    isTop10 = leaderboard.slice(0, 10).some(entry => entry.clubName === club.name);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                        return;
+                    }
+                    throw new Error(errorData.msg || 'Error al cargar leaderboard');
                 }
+                const leaderboard = await response.json();
+                isTop10 = leaderboard.slice(0, 10).some(entry => entry.clubName === club.name);
             } catch (err) {
                 console.warn('No se pudo verificar Top 10:', err);
             }
@@ -1173,10 +1188,18 @@
             let isBestTeam = false;
             try {
                 const response = await fetch(`${BASE_URL}/best-team`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
-                if (response.ok) {
-                    const bestTeamData = await response.json();
-                    isBestTeam = bestTeamData.isBestTeam || false;
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                        return;
+                    }
+                    throw new Error(errorData.msg || 'Error al verificar mejor equipo');
                 }
+                const bestTeamData = await response.json();
+                isBestTeam = bestTeamData.isBestTeam || false;
             } catch (err) {
                 console.warn('No se pudo verificar Mejor Equipo:', err);
             }
@@ -1190,7 +1213,16 @@
             if (!list) return;
             try {
                 const response = await fetch(`${BASE_URL}/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
-                if (!response.ok) throw new Error('Error al cargar clasificación');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                        return;
+                    }
+                    throw new Error(errorData.msg || 'Error al cargar clasificación');
+                }
                 const leaderboard = await response.json();
                 list.innerHTML = leaderboard.slice(0, 10).map((entry, index) => `
                     <li role="listitem">${index + 1}. ${entry.clubName} - Victorias: ${entry.wins || 0}, Rating: ${entry.avgRating || 0}</li>
@@ -1209,12 +1241,12 @@
             }
             isProcessing = true;
             const button = document.querySelector(`button[onclick="trainPlayer('${id}', ${value}, '${name}')"]`);
-            button.disabled = true;
+            if (button) button.disabled = true;
 
             const cost = Math.floor(value * 0.1);
             if (club.budget < cost) {
                 showNotification('No tienes suficiente presupuesto.', 'error');
-                button.disabled = false;
+                if (button) button.disabled = false;
                 isProcessing = false;
                 return;
             }
@@ -1228,6 +1260,12 @@
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                        return;
+                    }
                     throw new Error(errorData.msg || 'Error al entrenar');
                 }
                 const data = await response.json();
@@ -1239,7 +1277,7 @@
                 showNotification('Error al entrenar: ' + err.message, 'error');
             } finally {
                 isProcessing = false;
-                button.disabled = false;
+                if (button) button.disabled = false;
             }
         }
 
@@ -1261,6 +1299,12 @@
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                        return;
+                    }
                     throw new Error(errorData.msg || 'Error al guardar');
                 }
                 const data = await response.json();
@@ -1287,6 +1331,12 @@
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                        return;
+                    }
                     throw new Error(errorData.msg || 'Error al reiniciar');
                 }
                 const data = await response.json();
@@ -1340,6 +1390,12 @@
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                        return;
+                    }
                     throw new Error(errorData.msg || 'Error al simular partido');
                 }
                 const data = await response.json();
