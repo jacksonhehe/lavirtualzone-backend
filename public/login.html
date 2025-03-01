@@ -967,44 +967,45 @@
 
             // Formulario de Inicio de Sesión
             document.getElementById('loginForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const submitBtn = e.target.querySelector('button[type="submit"]');
-                const loginEmail = document.getElementById('loginEmail').value.trim();
-                const loginPassword = document.getElementById('loginPassword').value.trim();
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const loginEmail = document.getElementById('loginEmail').value.trim();
+    const loginPassword = document.getElementById('loginPassword').value.trim();
 
-                if (!loginEmail || !loginPassword || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail) || loginPassword.length < 6) {
-                    showNotification('Por favor, corrija los campos inválidos.', 'error');
-                    return;
-                }
+    if (!loginEmail || !loginPassword || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail) || loginPassword.length < 6) {
+        showNotification('Por favor, corrija los campos inválidos.', 'error');
+        return;
+    }
 
-                submitBtn.classList.add('loading');
-                submitBtn.disabled = true;
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
 
-                try {
-                    const response = await fetch(`${BASE_URL}/auth/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
-                    });
-                    const data = await response.json();
+    try {
+        const response = await fetch(`${BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+        });
+        const data = await response.json();
 
-                    if (response.ok) {
-                        localStorage.setItem('token', data.token);
-                        showNotification(`¡Bienvenido de nuevo, ${data.user.name}! Redirigiendo...`, 'success');
-                        setTimeout(() => {
-                            document.body.classList.add('fade-out');
-                            setTimeout(() => window.location.href = 'mi-liga-master.html', 500);
-                        }, 2000);
-                    } else {
-                        showNotification(data.message || 'Error al iniciar sesión', 'error');
-                    }
-                } catch (err) {
-                    showNotification('Error de conexión: ' + err.message, 'error');
-                } finally {
-                    submitBtn.classList.remove('loading');
-                    submitBtn.disabled = false;
-                }
-            });
+        if (response.ok) {
+            console.log('Token recibido:', data.token); // Para depuración
+            localStorage.setItem('token', data.token);
+            showNotification(`¡Bienvenido de nuevo, ${data.user.name}! Redirigiendo...`, 'success');
+            setTimeout(() => {
+                document.body.classList.add('fade-out');
+                setTimeout(() => window.location.href = 'mi-liga-master.html', 500);
+            }, 2000);
+        } else {
+            showNotification(data.message || 'Error al iniciar sesión', 'error');
+        }
+    } catch (err) {
+        showNotification('Error de conexión: ' + err.message, 'error');
+    } finally {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+    }
+});
 
             // Formulario de Registro
             document.getElementById('registerForm').addEventListener('submit', async (e) => {
