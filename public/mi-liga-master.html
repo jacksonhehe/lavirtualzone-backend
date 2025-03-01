@@ -987,13 +987,13 @@
                 return false;
             }
             try {
-                const response = await fetch(`${BASE_URL}/club/me`, {
+                const response = await fetch(`${BASE_URL}/auth/me`, {
                     method: 'GET',
                     headers: { 'x-auth-token': token }
                 });
-                if (!response.ok) {
-                    throw new Error('Token inválido o sesión expirada');
-                }
+                if (!response.ok) throw new Error('Token inválido o sesión expirada');
+                const userData = await response.json();
+                console.log('Usuario autenticado:', userData);
                 return true;
             } catch (err) {
                 showNotification(err.message, 'error');
@@ -1009,6 +1009,7 @@
             if (spinner) spinner.classList.add('active');
             try {
                 await syncClubData();
+                await syncTransactions();
                 updateClubPreview();
                 updateWatchlist();
                 updateTransactions();
@@ -1048,27 +1049,43 @@
                         setTimeout(() => window.location.href = 'login.html', 2000);
                         return;
                     }
-                    throw new Error(errorData.msg || 'Error al sincronizar con el backend');
+                    throw new Error(errorData.message || 'Error al sincronizar con el backend');
                 }
-                const data = await response.json();
-                club = {
-                    name: data.name || '[Sin registrar]',
-                    budget: data.budget || 100000000,
-                    players: Array.isArray(data.players) ? data.players : [],
-                    color: data.color || '#00ffff',
-                    wins: data.wins || 0,
-                    watchlist: Array.isArray(data.watchlist) ? data.watchlist : [],
-                    gamesPlayed: data.gamesPlayed || 0
-                };
-                transactions = [];
-                season.wins = club.wins;
+                club = await response.json();
+                season.wins = club.wins || 0;
                 updateClubPreview();
                 updateWatchlist();
-                updateTransactions();
                 updateStats();
             } catch (err) {
                 console.error('Sync Error:', err);
                 throw err;
+            }
+        }
+
+        async function syncTransactions() {
+            console.log('Sincronizando transacciones...');
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${BASE_URL}/transaction`, {
+                    method: 'GET',
+                    headers: { 'x-auth-token': token }
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                        return;
+                    }
+                    throw new Error(errorData.message || 'Error al sincronizar transacciones');
+                }
+                transactions = await response.json();
+                updateTransactions();
+            } catch (err) {
+                console.error('Error al sincronizar transacciones:', err);
+                transactions = [];
+                updateTransactions();
             }
         }
 
@@ -1132,6 +1149,7 @@
             watchlist.innerHTML = club.watchlist.length ? club.watchlist.map(p => `
                 <li role="listitem">${p.name} ($${p.value.toLocaleString()}) 
                     <button class="cta-button enhanced-button" onclick="confirmBuy('${p._id}', '${p.name}')">Comprar</button>
+                    <button class="cta-button enhanced-button" onclick="removeFromWatchlist('${p._id}')">Eliminar</button>
                     <img src="${getPlayerImage(p.name)}" alt="${p.name}" loading="lazy">
                 </li>
             `).join('') : '<li role="listitem">No hay jugadores seguidos.</li>';
@@ -1180,7 +1198,7 @@
                         setTimeout(() => window.location.href = 'login.html', 2000);
                         return;
                     }
-                    throw new Error(errorData.msg || 'Error al cargar leaderboard');
+                    throw new Error(errorData.message || 'Error al cargar leaderboard');
                 }
                 const leaderboard = await response.json();
                 isTop10 = leaderboard.slice(0, 10).some(entry => entry.clubName === club.name);
@@ -1205,7 +1223,7 @@
                         setTimeout(() => window.location.href = 'login.html', 2000);
                         return;
                     }
-                    throw new Error(errorData.msg || 'Error al verificar mejor equipo');
+                    throw new Error(errorData.message || 'Error al verificar mejor equipo');
                 }
                 const bestTeamData = await response.json();
                 isBestTeam = bestTeamData.isBestTeam || false;
@@ -1230,7 +1248,7 @@
                         setTimeout(() => window.location.href = 'login.html', 2000);
                         return;
                     }
-                    throw new Error(errorData.msg || 'Error al cargar clasificación');
+                    throw new Error(errorData.message || 'Error al cargar clasificación');
                 }
                 const leaderboard = await response.json();
                 list.innerHTML = leaderboard.slice(0, 10).map((entry, index) => `
@@ -1275,7 +1293,7 @@
                         setTimeout(() => window.location.href = 'login.html', 2000);
                         return;
                     }
-                    throw new Error(errorData.msg || 'Error al entrenar');
+                    throw new Error(errorData.message || 'Error al entrenar');
                 }
                 const data = await response.json();
                 club = data.club;
@@ -1314,10 +1332,9 @@
                         setTimeout(() => window.location.href = 'login.html', 2000);
                         return;
                     }
-                    throw new Error(errorData.msg || 'Error al guardar');
+                    throw new Error(errorData.message || 'Error al guardar');
                 }
-                const data = await response.json();
-                club = data;
+                club = await response.json();
                 showNotification(`¡Club ${name} actualizado!`, 'success');
                 updateClubPreview();
             } catch (err) {
@@ -1346,7 +1363,7 @@
                         setTimeout(() => window.location.href = 'login.html', 2000);
                         return;
                     }
-                    throw new Error(errorData.msg || 'Error al reiniciar');
+                    throw new Error(errorData.message || 'Error al reiniciar');
                 }
                 const data = await response.json();
                 club = data.club;
@@ -1369,6 +1386,38 @@
             console.log(`Confirmando compra de ${playerName}...`);
             if (confirm(`¿Quieres ir al Mercado de Fichajes para comprar a ${playerName}?`)) {
                 window.location.href = `mercado-fichajes.html?playerId=${playerId}`;
+            }
+        }
+
+        async function removeFromWatchlist(playerId) {
+            console.log(`Eliminando ${playerId} de la watchlist...`);
+            if (isProcessing) return;
+            isProcessing = true;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${BASE_URL}/players/watchlist/${playerId}`, {
+                    method: 'DELETE',
+                    headers: { 'x-auth-token': token }
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                        return;
+                    }
+                    throw new Error(errorData.message || 'Error al eliminar de la watchlist');
+                }
+                const data = await response.json();
+                club = data.club;
+                showNotification('Jugador eliminado de la watchlist', 'success');
+                updateWatchlist();
+            } catch (err) {
+                showNotification('Error: ' + err.message, 'error');
+            } finally {
+                isProcessing = false;
             }
         }
 
@@ -1405,7 +1454,7 @@
                         setTimeout(() => window.location.href = 'login.html', 2000);
                         return;
                     }
-                    throw new Error(errorData.msg || 'Error al simular partido');
+                    throw new Error(errorData.message || 'Error al simular partido');
                 }
                 const data = await response.json();
                 club = data.club;
