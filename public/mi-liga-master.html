@@ -9,13 +9,10 @@
     <meta name="robots" content="index, follow">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <title>Mi Liga Master | La Virtual Zone</title>
-
-    <!-- Fuentes y Estilos Externos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
           integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
           crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-
     <style>
         :root {
             --primary-cyan: #00ffff;
@@ -30,13 +27,11 @@
             --transition-base: 0.3s ease-in-out;
             --accent-green: #66ff66;
         }
-
         *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-
         body {
             background: var(--dark-bg);
             color: var(--text-primary);
@@ -50,11 +45,9 @@
             position: relative;
             transition: opacity 0.5s ease;
         }
-
         body.fade-out {
             opacity: 0;
         }
-
         body::before {
             content: '';
             position: absolute;
@@ -66,7 +59,6 @@
             z-index: -1;
             opacity: 0.9;
         }
-
         .sr-only {
             position: absolute;
             width: 1px;
@@ -78,8 +70,6 @@
             white-space: nowrap;
             border: 0;
         }
-
-        /** Header Styles (Coherente con otras páginas) **/
         .main-header {
             background: rgba(10, 10, 26, 0.98);
             backdrop-filter: blur(8px);
@@ -91,7 +81,6 @@
             border-bottom: 1px solid var(--border-light);
             box-shadow: var(--shadow-soft);
         }
-
         .nav-container {
             max-width: 1440px;
             margin: 0 auto;
@@ -100,7 +89,6 @@
             align-items: center;
             height: 60px;
         }
-
         .logo {
             width: 60px;
             height: 60px;
@@ -112,17 +100,14 @@
             border-radius: 50%;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
-
         .logo:hover {
             opacity: 0.9;
         }
-
         .main-nav {
             display: flex;
             gap: 1.5rem;
             align-items: center;
         }
-
         .nav-link {
             color: var(--text-primary);
             text-decoration: none;
@@ -133,15 +118,12 @@
             transition: var(--transition-base);
             letter-spacing: 0.5px;
         }
-
         .nav-link:hover {
             color: var(--primary-cyan);
             background: rgba(0, 255, 255, 0.1);
             box-shadow: var(--shadow-cyan);
         }
-
-        .mobile-menu,
-        .close-menu {
+        .mobile-menu, .close-menu {
             display: none;
             background: none;
             border: none;
@@ -151,13 +133,9 @@
             cursor: pointer;
             transition: var(--transition-base);
         }
-
-        .mobile-menu:hover,
-        .close-menu:hover {
+        .mobile-menu:hover, .close-menu:hover {
             color: var(--secondary-purple);
         }
-
-        /** Hero Section Styles (Coherente con Liga Master) **/
         .dashboard-hero {
             padding: 160px 3rem 8rem;
             background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
@@ -169,7 +147,6 @@
             text-align: center;
             position: relative;
         }
-
         .dashboard-hero::before {
             content: '';
             position: absolute;
@@ -180,7 +157,6 @@
             background: linear-gradient(to top, var(--dark-bg), transparent);
             z-index: 1;
         }
-
         .hero-title {
             font-family: 'Orbitron', sans-serif;
             font-size: clamp(2.5rem, 6vw, 4.5rem);
@@ -193,7 +169,6 @@
             position: relative;
             z-index: 2;
         }
-
         .hero-subtitle {
             color: var(--text-secondary);
             font-size: clamp(1.2rem, 2.5vw, 1.6rem);
@@ -203,8 +178,6 @@
             position: relative;
             z-index: 2;
         }
-
-        /** Internal Navigation Styles (Coherente con Liga Master y Mercado) **/
         .section-nav {
             position: sticky;
             top: 60px;
@@ -218,7 +191,6 @@
             flex-wrap: wrap;
             gap: 0.5rem;
         }
-
         .section-nav-link {
             color: var(--text-primary);
             text-decoration: none;
@@ -226,20 +198,16 @@
             border-radius: 4px;
             transition: var(--transition-base);
         }
-
         .section-nav-link:hover {
             color: var(--primary-cyan);
             background: rgba(0, 255, 255, 0.1);
             outline: 2px solid var(--primary-cyan);
             outline-offset: 2px;
         }
-
-        /** General Section Styles (Coherente con otras páginas) **/
         .section {
             padding: 7rem 3rem;
             background: var(--dark-bg);
         }
-
         .section-title {
             font-family: 'Orbitron', sans-serif;
             text-align: center;
@@ -251,7 +219,6 @@
             position: relative;
             text-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
         }
-
         .section-title::after {
             content: '';
             position: absolute;
@@ -263,7 +230,6 @@
             transform: translateX(-50%);
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
         }
-
         .info-icon {
             color: var(--text-secondary);
             cursor: pointer;
@@ -271,12 +237,10 @@
             font-size: 1.2rem;
             margin-left: 0.8rem;
         }
-
         .info-icon:hover {
             color: var(--primary-cyan);
             text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
         }
-
         .tooltip {
             position: absolute;
             background: rgba(0, 0, 0, 0.9);
@@ -294,12 +258,9 @@
             z-index: 1001;
             box-shadow: var(--shadow-cyan);
         }
-
         .info-icon:hover .tooltip {
             opacity: 1;
         }
-
-        /** Club Section Styles (Coherente con Liga Master y Mercado) **/
         .club-container {
             max-width: 1280px;
             margin: 0 auto;
@@ -311,7 +272,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .club-container::before {
             content: '';
             position: absolute;
@@ -323,14 +283,12 @@
             opacity: 0.1;
             z-index: 1;
         }
-
         .club-header {
             display: flex;
             gap: 2rem;
             margin-bottom: 2rem;
             align-items: center;
         }
-
         .club-emblem {
             width: 120px;
             height: 120px;
@@ -344,16 +302,13 @@
             box-shadow: var(--shadow-soft);
             flex-shrink: 0;
         }
-
         .club-emblem:hover {
             transform: scale(1.1) rotate(5deg);
             box-shadow: var(--shadow-cyan);
         }
-
         .club-info {
             flex: 1;
         }
-
         .club-name {
             font-family: 'Orbitron', sans-serif;
             color: var(--primary-cyan);
@@ -362,7 +317,6 @@
             letter-spacing: 1px;
             text-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
         }
-
         .progress-bar {
             margin-top: 1rem;
             background: var(--dark-bg);
@@ -371,14 +325,12 @@
             padding: 0.6rem;
             transition: var(--transition-base);
         }
-
         .progress-fill {
             height: 12px;
             background: var(--primary-cyan);
             border-radius: 8px;
             transition: width 0.5s ease-in-out;
         }
-
         .progress-bar span {
             font-size: 1.1rem;
             color: var(--text-primary);
@@ -386,7 +338,6 @@
             display: block;
             font-weight: 500;
         }
-
         .player-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -395,7 +346,6 @@
             max-height: 400px;
             overflow-y: auto;
         }
-
         .player-card {
             background: var(--light-bg);
             border-radius: 12px;
@@ -407,13 +357,11 @@
             position: relative;
             overflow: hidden;
         }
-
         .player-card:hover {
             border-color: var(--primary-cyan);
             transform: translateY(-8px);
             box-shadow: 0 12px 24px rgba(0, 255, 255, 0.3);
         }
-
         .player-card img {
             width: 80px;
             height: 80px;
@@ -423,7 +371,6 @@
             border: 2px solid var(--primary-cyan);
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
         }
-
         .player-card h3 {
             font-family: 'Orbitron', sans-serif;
             color: var(--primary-cyan);
@@ -432,19 +379,16 @@
             letter-spacing: 0.5px;
             text-shadow: 0 0 6px rgba(0, 255, 255, 0.1);
         }
-
         .player-stats {
             list-style: none;
             margin-bottom: 1.2rem;
         }
-
         .player-stats li {
             font-size: 1.1rem;
             color: var(--text-primary);
             margin-bottom: 0.7rem;
             font-weight: 500;
         }
-
         .train-button {
             padding: 0.8rem 1.8rem;
             background: linear-gradient(45deg, var(--primary-cyan), rgba(0, 255, 255, 0.8));
@@ -462,14 +406,12 @@
             position: relative;
             overflow: hidden;
         }
-
         .train-button:hover {
             background: linear-gradient(45deg, var(--secondary-purple), rgba(128, 0, 128, 0.8));
             border-color: var(--secondary-purple);
             box-shadow: 0 8px 20px rgba(128, 0, 128, 0.3);
             transform: translateY(-2px) rotate(2deg);
         }
-
         .train-button:disabled {
             background: var(--text-secondary);
             border-color: var(--text-secondary);
@@ -478,14 +420,12 @@
             box-shadow: none;
             transform: none;
         }
-
         .club-actions {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
             align-items: center;
         }
-
         .club-form {
             display: flex;
             flex-direction: column;
@@ -493,14 +433,12 @@
             width: 100%;
             max-width: 400px;
         }
-
         .form-label {
             color: var(--text-secondary);
             font-size: 1rem;
             margin-bottom: 0.3rem;
             font-weight: 500;
         }
-
         .form-input, .form-select {
             padding: 1rem;
             background: var(--dark-bg);
@@ -513,20 +451,17 @@
             max-width: 400px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
-
         .form-input:focus, .form-select:focus {
             border-color: var(--primary-cyan);
             box-shadow: 0 6px 16px rgba(0, 255, 255, 0.3);
             outline: none;
         }
-
         .action-buttons {
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
             justify-content: center;
         }
-
         .enhanced-button {
             display: inline-flex;
             align-items: center;
@@ -545,14 +480,12 @@
             letter-spacing: 0.5px;
             cursor: pointer;
         }
-
         .enhanced-button:hover {
             background: linear-gradient(45deg, var(--secondary-purple), rgba(128, 0, 128, 0.8));
             border-color: var(--secondary-purple);
             box-shadow: 0 8px 20px rgba(128, 0, 128, 0.3);
             transform: translateY(-2px) rotate(2deg);
         }
-
         .enhanced-button:disabled {
             background: var(--text-secondary);
             border-color: var(--text-secondary);
@@ -561,13 +494,10 @@
             box-shadow: none;
             transform: none;
         }
-
-        /** Watchlist, Transactions, and Leaderboard Styles (Coherente con Mercado y Liga Master) **/
         .container {
             max-width: 1280px;
             margin: 0 auto;
         }
-
         .watchlist, .transactions-list, .leaderboard-list {
             list-style: none;
             display: grid;
@@ -581,7 +511,6 @@
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-soft);
         }
-
         .watchlist li, .transactions-list li, .leaderboard-list li {
             padding: 0.5rem 1rem;
             border-bottom: 1px solid var(--border-light);
@@ -591,7 +520,6 @@
             max-height: 60px;
             overflow-y: hidden;
         }
-
         .watchlist img {
             width: 40px;
             height: 40px;
@@ -599,8 +527,6 @@
             object-fit: cover;
             margin-left: 1rem;
         }
-
-        /** Stats and Achievements Styles (Coherente con otras páginas) **/
         .stats-grid, .achievements-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -608,7 +534,6 @@
             max-width: 1280px;
             margin: 0 auto;
         }
-
         .stat-item, .achievement-card {
             background: var(--light-bg);
             border-radius: 12px;
@@ -618,42 +543,34 @@
             box-shadow: var(--shadow-soft);
             text-align: center;
         }
-
         .stat-item:hover, .achievement-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-cyan);
             border-color: var(--primary-cyan);
         }
-
         .stat-number {
             font-family: 'Orbitron', sans-serif;
             font-size: 2.5rem;
             color: var(--primary-cyan);
             margin-bottom: 1rem;
         }
-
         .achievement-card.completed {
             border-color: var(--accent-green);
         }
-
         .achievement-card i {
             font-size: 2rem;
             color: var(--accent-green);
             margin-bottom: 1rem;
         }
-
         .achievement-card i[style*="color: gray"] {
             color: #808080;
         }
-
         .achievement-card h3 {
             font-family: 'Orbitron', sans-serif;
             color: var(--primary-cyan);
             font-size: 1.4rem;
             margin-bottom: 1rem;
         }
-
-        /** Footer Styles (Coherente con otras páginas) **/
         .main-footer {
             margin-top: auto;
             background: var(--dark-bg);
@@ -661,7 +578,6 @@
             border-top: 1px solid var(--border-light);
             box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
         }
-
         .footer-content {
             max-width: 1280px;
             margin: 0 auto;
@@ -669,32 +585,26 @@
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 3.5rem;
         }
-
         .footer-section {
             display: flex;
             flex-direction: column;
             gap: 1.8rem;
         }
-
         .footer-section h3 {
             color: var(--primary-cyan);
             font-family: 'Orbitron', sans-serif;
             font-size: 1.5rem;
             margin-bottom: 1rem;
         }
-
         .social-link {
             color: var(--text-primary);
             text-decoration: none;
             transition: var(--transition-base);
         }
-
         .social-link:hover {
             color: var(--primary-cyan);
             transform: translateX(5px);
         }
-
-        /** Notification and Loading Styles (Coherente con Mercado y Liga Master) **/
         .notification {
             position: fixed;
             top: 20px;
@@ -710,7 +620,6 @@
             align-items: center;
             gap: 1rem;
         }
-
         .loading {
             position: fixed;
             top: 50%;
@@ -728,13 +637,10 @@
             border: 1px solid var(--border-light);
             box-shadow: var(--shadow-cyan);
         }
-
         .loading.active {
             display: block;
             opacity: 1;
         }
-
-        /** Back to Top Button Styles (Coherente con otras páginas) **/
         .back-to-top {
             position: fixed;
             bottom: 2.5rem;
@@ -751,47 +657,36 @@
             transform: translateY(20px);
             z-index: 1000;
         }
-
         .back-to-top.show {
             opacity: 1;
             transform: translateY(0);
         }
-
         .back-to-top:hover {
             background: var(--secondary-purple);
         }
-
-        /** Animations (Coherente con otras páginas) **/
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(100%); }
             to { opacity: 1; transform: translateX(0); }
         }
-
         @keyframes fadeOut {
             from { opacity: 1; transform: translateY(0); }
             to { opacity: 0; transform: translateY(-20px); }
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.4); }
             70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
             100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
         }
-
         .animate-fade-in {
             animation: fadeIn 0.6s ease-out forwards;
         }
-
         .pulse {
             animation: pulse 2s infinite;
         }
-
-        /** Responsive Design (Coherente con otras páginas) **/
         @media (max-width: 768px) {
             .main-nav {
                 display: none;
@@ -804,60 +699,46 @@
                 padding: 2rem;
                 z-index: 999;
             }
-
             .main-nav.show {
                 display: flex;
             }
-
-            .mobile-menu,
-            .close-menu {
+            .mobile-menu, .close-menu {
                 display: block;
             }
-
             .close-menu {
                 position: absolute;
                 top: 1rem;
                 right: 1rem;
             }
-
             .dashboard-hero {
                 padding: 100px 2rem 4rem;
             }
-
             .hero-title {
                 font-size: 2rem;
             }
-
             .hero-subtitle {
                 font-size: 1rem;
             }
-
             .section-nav {
                 display: none;
             }
-
             .section {
                 padding: 3rem 2rem;
             }
-
             .club-header {
                 flex-direction: column;
                 text-align: center;
             }
-
             .club-emblem {
                 width: 100px;
                 height: 100px;
             }
-
             .player-grid {
                 grid-template-columns: 1fr;
             }
-
             .stats-grid, .achievements-grid, .watchlist, .transactions-list, .leaderboard-list {
                 grid-template-columns: 1fr;
             }
-
             .watchlist, .transactions-list, .leaderboard-list {
                 max-height: 200px;
             }
@@ -865,7 +746,6 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="main-header" role="banner">
         <nav class="nav-container" aria-label="Navegación principal">
             <a href="index.html" class="logo" aria-label="Inicio de La Virtual Zone"></a>
@@ -878,20 +758,17 @@
                 <a href="liga-master.html" class="nav-link transition-link" data-href="liga-master.html">Liga Master</a>
                 <a href="mi-liga-master.html" class="nav-link">Mi Club</a>
                 <a href="mercado-fichajes.html" class="nav-link transition-link" data-href="mercado-fichajes.html">Mercado de Fichajes</a>
-                <a href="login.html" class="nav-link transition-link" data-href="login.html">Cerrar Sesión</a>
+                <a href="login.html" id="logoutLink" class="nav-link transition-link" data-href="login.html">Cerrar Sesión</a>
             </div>
         </nav>
     </header>
 
-    <!-- Main Content -->
     <main role="main">
-        <!-- Hero Section -->
         <section class="dashboard-hero" aria-labelledby="dashboard-heading">
             <h1 class="hero-title" id="dashboard-heading">Mi Liga Master</h1>
             <p class="hero-subtitle">Gestiona tu club, sigue jugadores, y compite por los mejores logros en La Virtual Zone.</p>
         </section>
 
-        <!-- Internal Navigation -->
         <nav class="section-nav" aria-label="Navegación interna">
             <a href="#club-section" class="section-nav-link">Tu Club</a>
             <a href="#watchlist-section" class="section-nav-link">Jugadores Seguidos</a>
@@ -901,7 +778,6 @@
             <a href="#leaderboard-section" class="section-nav-link">Clasificación</a>
         </nav>
 
-        <!-- Tu Club Section -->
         <section class="section" id="club-section" aria-labelledby="club-heading">
             <h2 class="section-title" id="club-heading">Tu Club <i class="fas fa-info-circle info-icon" aria-label="Información sobre tu club" tabindex="0"><span class="tooltip">Gestiona tu club, entrena jugadores, y usa el mercado para mejorar tu equipo.</span></i></h2>
             <div class="club-container animate-fade-in">
@@ -946,7 +822,6 @@
             </div>
         </section>
 
-        <!-- Jugadores Seguidos Section -->
         <section class="section" id="watchlist-section" aria-labelledby="watchlist-heading">
             <h2 class="section-title" id="watchlist-heading">Jugadores Seguidos</h2>
             <div class="container animate-fade-in">
@@ -954,7 +829,6 @@
             </div>
         </section>
 
-        <!-- Historial de Transacciones Section -->
         <section class="section" id="transactions-section" aria-labelledby="transactions-heading">
             <h2 class="section-title" id="transactions-heading">Historial de Transacciones</h2>
             <div class="container animate-fade-in">
@@ -963,7 +837,6 @@
             </div>
         </section>
 
-        <!-- Estadísticas del Club Section -->
         <section class="section" id="stats-section" aria-labelledby="stats-heading">
             <h2 class="section-title" id="stats-heading">Estadísticas del Club</h2>
             <div class="container animate-fade-in">
@@ -984,7 +857,6 @@
             </div>
         </section>
 
-        <!-- Logros Section -->
         <section class="section" id="achievements-section" aria-labelledby="achievements-heading">
             <h2 class="section-title" id="achievements-heading">Logros</h2>
             <div class="container animate-fade-in">
@@ -997,7 +869,6 @@
             </div>
         </section>
 
-        <!-- Clasificación Liga Master Section -->
         <section class="section" id="leaderboard-section" aria-labelledby="leaderboard-heading">
             <h2 class="section-title" id="leaderboard-heading">Clasificación Liga Master</h2>
             <div class="container animate-fade-in">
@@ -1006,15 +877,12 @@
         </section>
     </main>
 
-    <!-- Loading Spinner -->
     <div class="loading" id="loadingSpinner"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
 
-    <!-- Back to Top Button -->
     <button class="back-to-top" aria-label="Volver al inicio">
         <i class="fas fa-arrow-up" aria-hidden="true"></i>
     </button>
 
-    <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
         <div class="footer-content">
             <div class="footer-section">
@@ -1039,10 +907,9 @@
         </div>
     </footer>
 
-    <!-- JavaScript -->
     <script>
         console.log('Script cargado');
-        const BASE_URL = 'https://lavirtualzone-backend.onrender.com/api'; // Ajusta a tu URL local si es necesario, e.g., 'http://localhost:3000/api'
+        const BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://lavirtualzone-backend.onrender.com/api';
         let club = {};
         let transactions = [];
         let season = {
@@ -1054,16 +921,9 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('Página cargada, inicializando...');
-            const token = localStorage.getItem('token'); // Solo para autenticación, no para datos
-            if (!token) {
-                showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
-                setTimeout(() => window.location.href = 'login.html', 2000);
-                return;
-            }
-
+            if (!(await validateToken())) return;
             await initializePage();
 
-            // Mobile Menu Toggle
             const menuButton = document.querySelector('.mobile-menu');
             const closeButton = document.querySelector('.close-menu');
             const mainNav = document.querySelector('.main-nav');
@@ -1078,7 +938,6 @@
             menuButton.addEventListener('click', toggleMenu);
             closeButton.addEventListener('click', toggleMenu);
 
-            // Smooth Transitions
             document.querySelectorAll('.transition-link').forEach(link => {
                 link.addEventListener('click', (e) => {
                     console.log(`Navigating to ${link.getAttribute('data-href')}...`);
@@ -1088,7 +947,6 @@
                 });
             });
 
-            // Intersection Observer for Animations
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -1100,31 +958,45 @@
 
             document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
 
-            // Back to Top Button
             const backToTop = document.querySelector('.back-to-top');
-            window.addEventListener('scroll', () => {
-                backToTop.classList.toggle('show', window.scrollY > 500);
-            });
+            window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
             backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-            // Event Listeners for Buttons
-            document.getElementById('clubForm').addEventListener('submit', (e) => {
-                console.log('Botón Guardar clickeado');
-                saveClub(e);
-            });
-            document.getElementById('resetClub').addEventListener('click', () => {
-                console.log('Botón Reiniciar Club clickeado');
-                resetClub();
-            });
-            document.getElementById('simulateMatch').addEventListener('click', () => {
-                console.log('Botón Simular Partido clickeado');
-                simulateMatch();
-            });
-            document.getElementById('exportTransactions').addEventListener('click', () => {
-                console.log('Botón Exportar Transacciones clickeado');
-                exportTransactions();
+            document.getElementById('clubForm').addEventListener('submit', saveClub);
+            document.getElementById('resetClub').addEventListener('click', resetClub);
+            document.getElementById('simulateMatch').addEventListener('click', simulateMatch);
+            document.getElementById('exportTransactions').addEventListener('click', exportTransactions);
+            document.getElementById('logoutLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                showNotification('Sesión cerrada', 'success');
+                window.location.href = 'login.html';
             });
         });
+
+        async function validateToken() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return false;
+            }
+            try {
+                const response = await fetch(`${BASE_URL}/club/me`, {
+                    method: 'GET',
+                    headers: { 'x-auth-token': token }
+                });
+                if (!response.ok) {
+                    throw new Error('Token inválido o sesión expirada');
+                }
+                return true;
+            } catch (err) {
+                showNotification(err.message, 'error');
+                localStorage.removeItem('token');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return false;
+            }
+        }
 
         async function initializePage() {
             console.log('Inicializando página...');
@@ -1145,14 +1017,6 @@
             } catch (err) {
                 console.error('Error en initializePage:', err);
                 showNotification('Error al cargar datos: ' + err.message, 'error');
-                // Sin fallback a localStorage, mostramos un mensaje crítico
-                club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0, watchlist: [], gamesPlayed: 0 };
-                transactions = [];
-                season.wins = 0;
-                updateClubPreview();
-                updateWatchlist();
-                updateTransactions();
-                updateStats();
             } finally {
                 spinner.classList.remove('active');
             }
@@ -1160,31 +1024,35 @@
 
         async function syncClubData() {
             console.log('Sincronizando datos del club con MongoDB...');
-            const token = localStorage.getItem('token'); // Solo para autenticación
+            const token = localStorage.getItem('token');
             try {
                 const response = await fetch(`${BASE_URL}/club/me`, {
+                    method: 'GET',
                     headers: { 'x-auth-token': token }
                 });
-                if (!response.ok) throw new Error('Error al sincronizar con el backend: ' + response.statusText);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.msg || 'Error al sincronizar con el backend');
+                }
                 const data = await response.json();
                 club = {
                     name: data.name || '[Sin registrar]',
                     budget: data.budget || 100000000,
-                    players: data.players || [],
+                    players: Array.isArray(data.players) ? data.players : [],
                     color: data.color || '#00ffff',
                     wins: data.wins || 0,
-                    watchlist: data.watchlist || [],
+                    watchlist: Array.isArray(data.watchlist) ? data.watchlist : [],
                     gamesPlayed: data.gamesPlayed || 0
                 };
-                transactions = data.transactions || [];
-                season.wins = data.seasonWins || 0;
+                transactions = []; // No hay endpoint para transacciones en GET /club/me, se manejará por separado si existe
+                season.wins = club.wins; // Ajustar según backend si hay un campo específico
                 updateClubPreview();
                 updateWatchlist();
                 updateTransactions();
                 updateStats();
             } catch (err) {
                 console.error('Sync Error:', err);
-                throw err; // Lanzamos el error para que initializePage lo maneje
+                throw err;
             }
         }
 
@@ -1195,18 +1063,35 @@
 
         function updateClubPreview() {
             console.log('Actualizando vista previa del club...');
-            document.getElementById('clubName').textContent = club.name;
-            document.getElementById('clubBudget').textContent = club.budget.toLocaleString();
-            document.getElementById('playerCount').textContent = club.players.length;
-            const teamValue = club.players.reduce((sum, p) => sum + (p.value || 0), 0);
-            document.getElementById('teamValue').textContent = teamValue.toLocaleString();
-            const avgRating = club.players.length ? (club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length).toFixed(1) : 0;
-            document.getElementById('avgRating').textContent = avgRating;
-            document.getElementById('clubEmblem').style.backgroundColor = club.color;
-            document.getElementById('clubNameInput').value = club.name;
-            document.getElementById('clubColor').value = club.color;
-
+            const clubName = document.getElementById('clubName');
+            const clubBudget = document.getElementById('clubBudget');
+            const playerCount = document.getElementById('playerCount');
+            const teamValue = document.getElementById('teamValue');
+            const avgRating = document.getElementById('avgRating');
+            const clubEmblem = document.getElementById('clubEmblem');
             const playerList = document.getElementById('playerList');
+            const clubNameInput = document.getElementById('clubNameInput');
+            const clubColor = document.getElementById('clubColor');
+            const budgetProgress = document.getElementById('budgetProgress');
+            const valueProgress = document.getElementById('valueProgress');
+            const ratingProgress = document.getElementById('ratingProgress');
+
+            if (!clubName || !clubBudget || !playerCount || !teamValue || !avgRating || !clubEmblem || !playerList || !clubNameInput || !clubColor || !budgetProgress || !valueProgress || !ratingProgress) {
+                console.error('Elementos del DOM no encontrados en updateClubPreview');
+                return;
+            }
+
+            clubName.textContent = club.name;
+            clubBudget.textContent = club.budget.toLocaleString();
+            playerCount.textContent = club.players.length;
+            const teamValueCalc = club.players.reduce((sum, p) => sum + (p.value || 0), 0);
+            teamValue.textContent = teamValueCalc.toLocaleString();
+            const avgRatingCalc = club.players.length ? (club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length).toFixed(1) : 0;
+            avgRating.textContent = avgRatingCalc;
+            clubEmblem.style.backgroundColor = club.color;
+            clubNameInput.value = club.name;
+            clubColor.value = club.color;
+
             playerList.innerHTML = club.players.length ? club.players.map(p => `
                 <article class="player-card animate-fade-in" role="listitem" aria-label="${p.name}">
                     <img src="${getPlayerImage(p.name)}" alt="${p.name}" loading="lazy">
@@ -1216,26 +1101,30 @@
                         <li><strong>Valor:</strong> $${(p.value || 0).toLocaleString()}</li>
                     </ul>
                     <button class="train-button" ${isMarketOpen() ? '' : 'disabled'} onclick="trainPlayer('${p._id}', ${p.value || 0}, '${p.name}')">Entrenar ($${Math.floor((p.value || 0) * 0.1).toLocaleString()})</button>
-                </article>`).join('') : '<p role="listitem">No hay jugadores.</p>';
+                </article>
+            `).join('') : '<p role="listitem">No hay jugadores.</p>';
 
-            document.getElementById('budgetProgress').style.width = `${(club.budget / 100000000) * 100}%`;
-            document.getElementById('valueProgress').style.width = `${(teamValue / 100000000) * 100}%`;
-            document.getElementById('ratingProgress').style.width = `${avgRating}%`;
+            budgetProgress.style.width = `${(club.budget / 100000000) * 100}%`;
+            valueProgress.style.width = `${Math.min((teamValueCalc / 100000000) * 100, 100)}%`;
+            ratingProgress.style.width = `${Math.min(avgRatingCalc, 100)}%`;
         }
 
         function updateWatchlist() {
             console.log('Actualizando lista de seguimiento...');
             const watchlist = document.getElementById('watchlist');
+            if (!watchlist) return;
             watchlist.innerHTML = club.watchlist.length ? club.watchlist.map(p => `
                 <li role="listitem">${p.name} ($${p.value.toLocaleString()}) 
                     <button class="cta-button enhanced-button" onclick="confirmBuy('${p._id}', '${p.name}')">Comprar</button>
                     <img src="${getPlayerImage(p.name)}" alt="${p.name}" loading="lazy">
-                </li>`).join('') : '<li role="listitem">No hay jugadores seguidos.</li>';
+                </li>
+            `).join('') : '<li role="listitem">No hay jugadores seguidos.</li>';
         }
 
         function updateTransactions() {
             console.log('Actualizando transacciones...');
             const list = document.getElementById('transactionList');
+            if (!list) return;
             list.innerHTML = transactions.length ? transactions.map(t => `
                 <li role="listitem">${new Date(t.date).toLocaleDateString()} - ${t.type.charAt(0).toUpperCase() + t.type.slice(1)}: ${t.playerName} por $${t.value.toLocaleString()}</li>
             `).join('') : '<li role="listitem">No hay transacciones recientes.</li>';
@@ -1243,18 +1132,27 @@
 
         function updateStats() {
             console.log('Actualizando estadísticas...');
-            document.getElementById('winsCount').textContent = club.wins || 0;
-            document.getElementById('gamesPlayed').textContent = club.gamesPlayed || 0;
-            document.getElementById('seasonProgress').textContent = `${season.wins || 0}/5`;
+            const winsCount = document.getElementById('winsCount');
+            const gamesPlayed = document.getElementById('gamesPlayed');
+            const seasonProgress = document.getElementById('seasonProgress');
+            if (!winsCount || !gamesPlayed || !seasonProgress) return;
+            winsCount.textContent = club.wins || 0;
+            gamesPlayed.textContent = club.gamesPlayed || 0;
+            seasonProgress.textContent = `${club.wins || 0}/5`;
         }
 
         async function updateAchievements() {
             console.log('Actualizando logros...');
             const firstBuy = document.getElementById('first-buy');
+            const top10 = document.getElementById('top-10');
+            const millionSpent = document.getElementById('million-spent');
+            const bestTeam = document.getElementById('best-team');
+
+            if (!firstBuy || !top10 || !millionSpent || !bestTeam) return;
+
             firstBuy.innerHTML = `<i class="fas fa-shopping-bag" ${club.players.length > 0 ? '' : 'style="color: gray;"'}></i><h3>Primera Compra</h3><p>${club.players.length > 0 ? 'Completado' : 'Compra tu primer jugador'}</p>`;
             if (club.players.length > 0) firstBuy.classList.add('completed');
 
-            const top10 = document.getElementById('top-10');
             let isTop10 = false;
             try {
                 const response = await fetch(`${BASE_URL}/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
@@ -1263,17 +1161,15 @@
                     isTop10 = leaderboard.slice(0, 10).some(entry => entry.clubName === club.name);
                 }
             } catch (err) {
-                console.warn('No se pudo verificar Top 10, usando datos predeterminados.');
+                console.warn('No se pudo verificar Top 10:', err);
             }
             top10.innerHTML = `<i class="fas fa-trophy" ${isTop10 ? '' : 'style="color: gray;"'}></i><h3>Top 10</h3><p>${isTop10 ? 'Completado' : 'Clasifícate entre los 10 mejores'}</p>`;
             if (isTop10) top10.classList.add('completed');
 
-            const millionSpent = document.getElementById('million-spent');
             const spent = 100000000 - club.budget;
             millionSpent.innerHTML = `<i class="fas fa-money-bill-wave" ${spent >= 1000000 ? '' : 'style="color: gray;"'}></i><h3>Millonario</h3><p>${spent >= 1000000 ? 'Completado' : 'Gasta $1M'}</p>`;
             if (spent >= 1000000) millionSpent.classList.add('completed');
 
-            const bestTeam = document.getElementById('best-team');
             let isBestTeam = false;
             try {
                 const response = await fetch(`${BASE_URL}/best-team`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
@@ -1282,7 +1178,7 @@
                     isBestTeam = bestTeamData.isBestTeam || false;
                 }
             } catch (err) {
-                console.warn('No se pudo verificar Mejor Equipo, usando datos predeterminados.');
+                console.warn('No se pudo verificar Mejor Equipo:', err);
             }
             bestTeam.innerHTML = `<i class="fas fa-star" ${isBestTeam ? '' : 'style="color: gray;"'}></i><h3>Mejor Equipo del Mes</h3><p>${isBestTeam ? 'Completado' : 'Alcanza el mejor rating promedio'}</p>`;
             if (isBestTeam) bestTeam.classList.add('completed');
@@ -1291,16 +1187,14 @@
         async function updateLeaderboard() {
             console.log('Actualizando clasificación...');
             const list = document.getElementById('leaderboardList');
+            if (!list) return;
             try {
                 const response = await fetch(`${BASE_URL}/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
-                if (response.ok) {
-                    const leaderboard = await response.json();
-                    list.innerHTML = leaderboard.slice(0, 10).map((entry, index) => `
-                        <li role="listitem">${index + 1}. ${entry.clubName} - Victorias: ${entry.wins || 0}, Rating: ${entry.avgRating || 0}</li>
-                    `).join('');
-                } else {
-                    list.innerHTML = '<li role="listitem">Error al cargar clasificación. <button class="cta-button enhanced-button" onclick="updateLeaderboard()">Reintentar</button></li>';
-                }
+                if (!response.ok) throw new Error('Error al cargar clasificación');
+                const leaderboard = await response.json();
+                list.innerHTML = leaderboard.slice(0, 10).map((entry, index) => `
+                    <li role="listitem">${index + 1}. ${entry.clubName} - Victorias: ${entry.wins || 0}, Rating: ${entry.avgRating || 0}</li>
+                `).join('');
             } catch (err) {
                 console.error('Error al cargar clasificación:', err);
                 list.innerHTML = '<li role="listitem">Error al cargar clasificación. <button class="cta-button enhanced-button" onclick="updateLeaderboard()">Reintentar</button></li>';
@@ -1325,27 +1219,24 @@
                 return;
             }
 
-            const playerIndex = club.players.findIndex(p => p._id === id);
-            if (playerIndex === -1) {
-                showNotification('Jugador no encontrado.', 'error');
-                button.disabled = false;
-                isProcessing = false;
-                return;
-            }
-
             try {
-                const token = localStorage.getItem('token'); // Solo para autenticación
+                const token = localStorage.getItem('token');
                 const response = await fetch(`${BASE_URL}/club/me/train`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ playerId: id, cost })
                 });
-                if (!response.ok) throw new Error('Error al entrenar: ' + await response.text());
-                await syncClubData(); // Actualizar todos los datos del club desde MongoDB
-                showNotification(`¡${name} entrenado! Rating: ${club.players[playerIndex].rating}`, 'success');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.msg || 'Error al entrenar');
+                }
+                const data = await response.json();
+                club = data.club;
+                showNotification(`¡${name} entrenado! Rating: ${club.players.find(p => p._id === id).rating}`, 'success');
+                updateClubPreview();
+                updateAchievements();
             } catch (err) {
                 showNotification('Error al entrenar: ' + err.message, 'error');
-                // No revertimos localmente, ya que no usamos localStorage
             } finally {
                 isProcessing = false;
                 button.disabled = false;
@@ -1362,15 +1253,20 @@
             const color = document.getElementById('clubColor').value;
 
             try {
-                const token = localStorage.getItem('token'); // Solo para autenticación
+                const token = localStorage.getItem('token');
                 const response = await fetch(`${BASE_URL}/club/me`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ name, color })
                 });
-                if (!response.ok) throw new Error('Error al guardar: ' + await response.text());
-                await syncClubData(); // Actualizar todos los datos del club desde MongoDB
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.msg || 'Error al guardar');
+                }
+                const data = await response.json();
+                club = data;
                 showNotification(`¡Club ${name} actualizado!`, 'success');
+                updateClubPreview();
             } catch (err) {
                 showNotification('Error al guardar: ' + err.message, 'error');
             } finally {
@@ -1384,14 +1280,25 @@
             isProcessing = true;
 
             try {
-                const token = localStorage.getItem('token'); // Solo para autenticación
+                const token = localStorage.getItem('token');
                 const response = await fetch(`${BASE_URL}/club/me/reset`, {
                     method: 'POST',
                     headers: { 'x-auth-token': token }
                 });
-                if (!response.ok) throw new Error('Error al reiniciar: ' + await response.text());
-                await syncClubData(); // Actualizar todos los datos del club desde MongoDB
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.msg || 'Error al reiniciar');
+                }
+                const data = await response.json();
+                club = data.club;
+                transactions = [];
+                season.wins = 0;
                 showNotification('¡Club reiniciado!', 'success');
+                updateClubPreview();
+                updateWatchlist();
+                updateTransactions();
+                updateStats();
+                updateAchievements();
             } catch (err) {
                 showNotification('Error al reiniciar: ' + err.message, 'error');
             } finally {
@@ -1423,18 +1330,26 @@
             if (!isMarketOpen()) return showNotification('El mercado está cerrado.', 'error');
             if (club.players.length === 0) return showNotification('No tienes jugadores en tu club.', 'error');
 
-            const winChance = Math.random() < 0.7;
             try {
-                const token = localStorage.getItem('token'); // Solo para autenticación
+                const token = localStorage.getItem('token');
+                const winChance = Math.random() < 0.7;
                 const response = await fetch(`${BASE_URL}/club/me/simulate`, {
                     method: 'POST',
-                    headers: { 'x-auth-token': token },
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ win: winChance })
                 });
-                if (!response.ok) throw new Error('Error al simular partido: ' + await response.text());
-                await syncClubData(); // Actualizar todos los datos del club desde MongoDB
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.msg || 'Error al simular partido');
+                }
+                const data = await response.json();
+                club = data.club;
+                season.wins = club.wins;
                 const message = winChance ? `¡Victoria! Tu club tiene ${club.wins} victorias.` : 'Derrota. ¡Sigue mejorando tu equipo!';
                 showNotification(message, winChance ? 'success' : 'error');
+                updateClubPreview();
+                updateStats();
+                updateAchievements();
             } catch (err) {
                 showNotification('Error al simular partido: ' + err.message, 'error');
             }
