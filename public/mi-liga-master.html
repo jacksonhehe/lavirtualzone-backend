@@ -92,7 +92,7 @@
         .logo {
             width: 60px;
             height: 60px;
-            background: url('logo-la-virtual-zone.svg') no-repeat center center;
+            background: url('logo-la-virtual-zone.svg') no-repeat center center, #00ffff;
             background-size: contain;
             text-indent: -9999px;
             transition: var(--transition-base);
@@ -270,7 +270,7 @@
             border: 2px solid var(--primary-cyan);
             box-shadow: var(--shadow-cyan);
             position: relative;
-            z-index: 1; /* Asegurarnos de que esté sobre otros elementos */
+            z-index: 1;
         }
         .club-container::before {
             content: '';
@@ -281,7 +281,7 @@
             height: 100%;
             background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 255, 255, 0.05) 10px, rgba(0, 255, 255, 0.05) 20px);
             opacity: 0.1;
-            z-index: 0; /* Por debajo del contenido */
+            z-index: 0;
         }
         .club-header {
             display: flex;
@@ -450,7 +450,7 @@
             width: 100%;
             max-width: 400px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            z-index: 2; /* Asegurar que estén sobre otros elementos */
+            z-index: 2;
         }
         .form-input:focus, .form-select:focus {
             border-color: var(--primary-cyan);
@@ -481,7 +481,7 @@
             letter-spacing: 0.5px;
             cursor: pointer;
             position: relative;
-            z-index: 2; /* Asegurar que estén sobre otros elementos */
+            z-index: 2;
         }
         .enhanced-button:hover {
             background: linear-gradient(45deg, var(--secondary-purple), rgba(128, 0, 128, 0.8));
@@ -1022,13 +1022,13 @@
             } catch (err) {
                 console.error('Error en initializePage:', err);
                 showNotification('Error al cargar datos: ' + err.message, 'error');
-                updateClubPreview(); // Usar valores predeterminados si falla
+                updateClubPreview();
                 updateWatchlist();
                 updateTransactions();
                 updateStats();
             } finally {
                 if (spinner) spinner.classList.remove('active');
-                isProcessing = false; // Asegurar que se restablezca
+                isProcessing = false;
             }
         }
 
@@ -1060,7 +1060,7 @@
                     watchlist: Array.isArray(data.watchlist) ? data.watchlist : [],
                     gamesPlayed: data.gamesPlayed || 0
                 };
-                transactions = []; // No hay endpoint para transacciones aquí
+                transactions = [];
                 season.wins = club.wins;
                 updateClubPreview();
                 updateWatchlist();
