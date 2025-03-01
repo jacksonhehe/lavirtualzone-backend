@@ -7,7 +7,7 @@ const path = require('path');
 
 const app = express();
 
-// Habilitar CORS (restringido al frontend en producción si defines FRONTEND_URL)
+// Habilitar CORS
 app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
 
 // Middleware para parsear JSON
@@ -16,7 +16,7 @@ app.use(express.json());
 // Configuración de variables de entorno
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://jackson:lolitopro123@cluster0.6gaqc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-const JWT_SECRET = process.env.JWT_SECRET || 'tu_secreto_muy_largo_y_seguro'; // Cambia esto en producción
+const JWT_SECRET = process.env.JWT_SECRET || 'tu_secreto_muy_largo_y_seguro';
 
 // Middleware para registrar solicitudes
 app.use((req, res, next) => {
@@ -57,7 +57,7 @@ const clubRoutes = require('./routes/club');
 const playerRoutes = require('./routes/players');
 
 app.use('/api/auth', authRoutes);
-app.use('/api/club', clubRoutes);
+app.use('/api/club', clubRoutes); // Simplificado, ya que clubRoutes ya es require('./routes/club')
 app.use('/api/players', playerRoutes);
 
 // Ruta de transacción
@@ -103,7 +103,7 @@ app.get('/api/club/count', auth, async (req, res) => {
   }
 });
 
-// Ruta raíz para depuración
+// Ruta de depuración
 app.get('/ping', (req, res) => {
   console.log('Ping recibido a las', new Date().toISOString());
   res.status(200).send('OK');
@@ -117,7 +117,28 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Manejador de errores 404
+app.use((req, res, next) => {
+  res.status(404).json({ message: 'Ruta no encontrada' });
+});
+
+// Manejador de errores genérico
+app.use((err, req, res, next) => {
+  console.error('Error en el servidor:', err.stack);
+  res.status(500).json({ message: 'Error en el servidor' });
+});
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT} a las ${new Date().toISOString()}`);
+});
+
+app.get('/api/transaction', auth, async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ userId: req.user });
+    res.json(transactions);
+  } catch (err) {
+    console.error('Error en GET /api/transaction:', err);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
 });
