@@ -25,7 +25,7 @@
             --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
             --shadow-cyan: 0 6px 18px rgba(0, 255, 255, 0.15);
             --transition-base: 0.3s ease-in-out;
-            --accent-green: #66ff66; /* Verde suave de mercado-fichajes */
+            --accent-green: #66ff66;
         }
         *, *::before, *::after {
             box-sizing: border-box;
@@ -635,6 +635,7 @@
                 <a href="index.html" class="nav-link transition-link" data-href="index.html">Inicio</a>
                 <a href="liga-master.html" class="nav-link">Liga Master</a>
                 <a href="mercado-fichajes.html" class="nav-link transition-link" data-href="mercado-fichajes.html">Mercado de Fichajes</a>
+                <a href="#" id="logoutLink" class="nav-link">Cerrar Sesión</a>
             </div>
         </nav>
     </header>
@@ -693,7 +694,7 @@
                     </select>
                     <button type="submit" class="cta-button">Guardar</button>
                 </form>
-                <button id="resetClub" class="reset-button">Reiniciar Club</button>
+                <button id="resetClub" class="reset-button" style="margin-top: 1rem;">Reiniciar Club</button>
             </div>
         </section>
 
@@ -839,36 +840,64 @@
             wins: parseInt(localStorage.getItem('seasonWins')) || 0
         };
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        // Funciones de notificación
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            notification.style.borderColor = type === 'success' ? 'var(--accent-green)' : 'var(--secondary-purple)';
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.5s ease-out forwards';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        // Cargar datos del club desde el backend
+        async function syncClubData() {
             const token = localStorage.getItem('token');
+            console.log('Token enviado desde Liga Master:', token);
             if (!token) {
                 showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
                 setTimeout(() => window.location.href = 'login.html', 2000);
                 return;
             }
-
             try {
                 const response = await fetch(`${BASE_URL}/api/club/me`, {
+                    method: 'GET',
                     headers: { 'x-auth-token': token }
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    club = {
-                        ...data,
-                        players: Array.isArray(data.players) ? data.players : [],
-                        wins: data.wins || 0
-                    };
-                    localStorage.setItem('clubName', club.name);
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    localStorage.setItem('clubColor', club.color || '#00ffff');
-                    localStorage.setItem('clubWins', club.wins);
-                } else {
-                    showNotification(data.msg || 'Error al cargar el club', 'error');
+                console.log('Estado de la respuesta:', response.status);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.log('Error del servidor:', errorData);
+                    showNotification(errorData.msg || 'Error al cargar el club', 'error');
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                    }
+                    return;
                 }
+                const data = await response.json();
+                club = {
+                    ...data,
+                    players: Array.isArray(data.players) ? data.players : [],
+                    wins: data.wins || 0
+                };
+                localStorage.setItem('clubName', club.name);
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                localStorage.setItem('clubColor', club.color || '#00ffff');
+                localStorage.setItem('clubWins', club.wins);
+                updateClubPreview();
             } catch (err) {
                 showNotification('Error de conexión: ' + err.message, 'error');
+                console.error('Error en syncClubData:', err);
             }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await syncClubData();
 
             document.querySelectorAll('.transition-link').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -892,44 +921,27 @@
             setInterval(updateSeasonTimer, 1000);
             setInterval(updateMarketStatus, 1000);
             updateSeasonTimer();
-            syncClubData();
             updateClubPreview();
-            updateClubProfile();
             updateTransactions();
             updateAchievements();
             updateMarketStatus();
             updateStep();
-        });
 
-        async function syncClubData() {
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetch(`${BASE_URL}/api/club/me`, {
-                    headers: { 'x-auth-token': token }
+            const logoutLink = document.getElementById('logoutLink');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem('token');
+                    showNotification('Sesión cerrada', 'success');
+                    window.location.href = 'login.html';
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    club = {
-                        ...data,
-                        players: Array.isArray(data.players) ? data.players : [],
-                        wins: data.wins || 0
-                    };
-                    localStorage.setItem('clubName', club.name);
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    localStorage.setItem('clubColor', club.color || '#00ffff');
-                    localStorage.setItem('clubWins', club.wins);
-                }
-            } catch (err) {
-                console.error('Error en syncClubData:', err);
             }
-            updateClubPreview();
-            updateClubProfile();
-        }
+        });
 
         function updateSeasonTimer() {
             const now = new Date().getTime();
             const timer = document.getElementById('season-timer');
+            if (!timer) return;
             if (now < season.start) {
                 const timeUntil = season.start - now;
                 const days = Math.floor(timeUntil / (1000 * 60 * 60 * 24));
@@ -946,28 +958,34 @@
         }
 
         function updateClubPreview() {
-            document.getElementById('clubName').textContent = club.name;
-            document.getElementById('clubBudget').textContent = club.budget.toLocaleString();
-            document.getElementById('playerCount').textContent = club.players.length;
-            const teamValue = club.players.reduce((sum, p) => sum + (p.value || 0), 0);
-            document.getElementById('teamValue').textContent = teamValue.toLocaleString();
-            const avgRating = club.players.length ? (club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length).toFixed(1) : 0;
-            document.getElementById('avgRating').textContent = avgRating;
-            document.querySelector('.club-preview-container').style.borderColor = club.color;
-            document.getElementById('clubNameInput').value = club.name;
-            document.getElementById('clubColor').value = club.color;
+            const clubName = document.getElementById('clubName');
+            const clubBudget = document.getElementById('clubBudget');
+            const playerCount = document.getElementById('playerCount');
+            const teamValue = document.getElementById('teamValue');
+            const avgRating = document.getElementById('avgRating');
             const playerList = document.getElementById('playerList');
+            const clubNameInput = document.getElementById('clubNameInput');
+            const clubColor = document.getElementById('clubColor');
+
+            if (!clubName || !clubBudget || !playerCount || !teamValue || !avgRating || !playerList || !clubNameInput || !clubColor) {
+                console.error('Elementos del DOM no encontrados en updateClubPreview');
+                return;
+            }
+
+            clubName.textContent = club.name;
+            clubBudget.textContent = club.budget.toLocaleString();
+            playerCount.textContent = club.players.length;
+            const teamValueCalc = club.players.reduce((sum, p) => sum + (p.value || 0), 0);
+            teamValue.textContent = teamValueCalc.toLocaleString();
+            const avgRatingCalc = club.players.length ? (club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length).toFixed(1) : 0;
+            avgRating.textContent = avgRatingCalc;
+            clubNameInput.value = club.name;
+            clubColor.value = club.color;
+
             playerList.innerHTML = club.players.length ? club.players.map(p => `
                 <li>${p.name} (Rating: ${p.rating || 0}) 
                     <button class="train-button" ${isMarketOpen() ? '' : 'disabled'} onclick="trainPlayer('${p._id || p.id}', ${p.value || 0}, '${p.name}')">Entrenar ($${Math.floor((p.value || 0) * 0.1).toLocaleString()})</button>
                 </li>`).join('') : '<li>No hay jugadores.</li>';
-        }
-
-        function updateClubProfile() {
-            document.getElementById('clubNameProfile').textContent = club.name;
-            document.getElementById('clubBudgetProfile').textContent = club.budget.toLocaleString();
-            document.getElementById('clubWins').textContent = club.wins;
-            document.getElementById('clubEmblem').style.backgroundColor = club.color;
         }
 
         function isMarketOpen() {
@@ -987,6 +1005,12 @@
             }
 
             const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión.', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
             const playerIndex = club.players.findIndex(p => p._id === id || p.id === id);
             if (playerIndex === -1) {
                 showNotification('Jugador no encontrado.', 'error');
@@ -998,22 +1022,27 @@
             club.players[playerIndex].value = (value || 0) + cost;
 
             try {
-                const response = await fetch(`${BASE_URL}/api/club/me`, {
-                    method: 'PUT',
+                const response = await fetch(`${BASE_URL}/api/club/me/train`, {
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                    body: JSON.stringify({ budget: club.budget, players: club.players, wins: club.wins })
+                    body: JSON.stringify({ playerId: id, cost })
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    showNotification(`¡${name} ha sido entrenado! Rating aumentado a ${club.players[playerIndex].rating} (+$${cost.toLocaleString()})`);
-                    updateClubPreview();
-                    updateClubProfile();
-                    updateAchievements();
-                } else {
-                    throw new Error(data.msg || 'Error al entrenar');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    showNotification(errorData.msg || 'Error al entrenar jugador', 'error');
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = 'login.html';
+                    }
+                    throw new Error('Error en la solicitud');
                 }
+                const data = await response.json();
+                club = data.club;
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                showNotification(`¡${name} ha sido entrenado! Rating aumentado a ${club.players[playerIndex].rating} (+$${cost.toLocaleString()})`, 'success');
+                updateClubPreview();
+                updateAchievements();
             } catch (err) {
                 showNotification('Error: ' + err.message, 'error');
                 club.budget += cost;
@@ -1026,13 +1055,19 @@
 
         function updateAchievements() {
             const firstBuy = document.getElementById('first-buy');
+            const top10 = document.getElementById('top-10');
+            const millionSpent = document.getElementById('million-spent');
+
+            if (!firstBuy || !top10 || !millionSpent) {
+                console.error('Elementos de logros no encontrados');
+                return;
+            }
+
             firstBuy.innerHTML = `<i class="fas fa-shopping-bag" ${club.players.length > 0 ? '' : 'style="color: gray;"'}></i><h3>Primera Compra</h3><p>${club.players.length > 0 ? 'Completado' : 'Compra tu primer jugador'}</p>`;
             if (club.players.length > 0) firstBuy.classList.add('completed');
 
-            const top10 = document.getElementById('top-10');
             top10.innerHTML = `<i class="fas fa-trophy" style="color: gray;"></i><h3>Top 10</h3><p>Clasifícate entre los 10 mejores clubes</p>`;
 
-            const millionSpent = document.getElementById('million-spent');
             const spent = 100000000 - club.budget;
             millionSpent.innerHTML = `<i class="fas fa-money-bill-wave" ${spent >= 1000000 ? '' : 'style="color: gray;"'}></i><h3>Millonario</h3><p>${spent >= 1000000 ? 'Completado' : 'Gasta $1M en el mercado'}</p>`;
             if (spent >= 1000000) millionSpent.classList.add('completed');
@@ -1040,12 +1075,14 @@
 
         function updateTransactions() {
             const list = document.getElementById('transactionList');
+            if (!list) return;
             list.innerHTML = transactions.length ? transactions.map(t => `<li>${t.date ? new Date(t.date).toLocaleDateString() : ''} - ${t.type}: ${t.playerName} por $${t.value.toLocaleString()}</li>`).join('') : '<li>No hay transacciones recientes.</li>';
         }
 
         function updateMarketStatus() {
             const now = new Date().getTime();
             const status = document.getElementById('market-status');
+            if (!status) return;
             if (now >= season.start && now <= season.end) {
                 const timeLeft = season.end - now;
                 const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
@@ -1061,18 +1098,6 @@
             }
         }
 
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
-            notification.style.borderColor = type === 'success' ? 'var(--accent-green)' : 'var(--secondary-purple)';
-            document.body.appendChild(notification);
-            setTimeout(() => {
-                notification.style.animation = 'fadeOut 0.5s ease-out forwards';
-                setTimeout(() => notification.remove(), 500);
-            }, 3000);
-        }
-
         let currentStep = 1;
         const steps = document.querySelectorAll('.guide-step');
         const prevButton = document.getElementById('prevStep');
@@ -1081,23 +1106,27 @@
         function updateStep() {
             steps.forEach(step => step.classList.remove('active'));
             steps[currentStep - 1].classList.add('active');
-            prevButton.disabled = currentStep === 1;
-            nextButton.disabled = currentStep === steps.length;
+            if (prevButton) prevButton.disabled = currentStep === 1;
+            if (nextButton) nextButton.disabled = currentStep === steps.length;
         }
 
-        prevButton.addEventListener('click', () => {
-            if (currentStep > 1) {
-                currentStep--;
-                updateStep();
-            }
-        });
+        if (prevButton) {
+            prevButton.addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateStep();
+                }
+            });
+        }
 
-        nextButton.addEventListener('click', () => {
-            if (currentStep < steps.length) {
-                currentStep++;
-                updateStep();
-            }
-        });
+        if (nextButton) {
+            nextButton.addEventListener('click', () => {
+                if (currentStep < steps.length) {
+                    currentStep++;
+                    updateStep();
+                }
+            });
+        }
 
         document.getElementById('clubForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1108,8 +1137,12 @@
                 return;
             }
 
-            club.name = document.getElementById('clubNameInput').value || '[Sin registrar]';
-            club.color = document.getElementById('clubColor').value;
+            const clubNameInput = document.getElementById('clubNameInput');
+            const clubColor = document.getElementById('clubColor');
+            if (!clubNameInput || !clubColor) return;
+
+            club.name = clubNameInput.value || '[Sin registrar]';
+            club.color = clubColor.value;
 
             try {
                 const response = await fetch(`${BASE_URL}/api/club/me`, {
@@ -1117,18 +1150,27 @@
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ name: club.name, color: club.color, budget: club.budget, players: club.players, wins: club.wins })
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    localStorage.setItem('clubName', club.name);
-                    localStorage.setItem('clubColor', club.color);
-                    showNotification(`¡Club ${club.name} actualizado con éxito!`);
-                    updateClubPreview();
-                    updateClubProfile();
-                } else {
-                    throw new Error(data.msg || 'Error al actualizar el club');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    showNotification(errorData.msg || 'Error al actualizar el club', 'error');
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = 'login.html';
+                    }
+                    return;
                 }
+                const data = await response.json();
+                club = data;
+                localStorage.setItem('clubName', club.name);
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                localStorage.setItem('clubColor', club.color);
+                localStorage.setItem('clubWins', club.wins);
+                showNotification(`¡Club ${club.name} actualizado con éxito!`, 'success');
+                updateClubPreview();
             } catch (err) {
-                showNotification('Error: ' + err.message, 'error');
+                showNotification('Error de conexión: ' + err.message, 'error');
+                console.error('Error al guardar club:', err);
             }
         });
 
@@ -1136,33 +1178,43 @@
             if (!confirm('¿Estás seguro de reiniciar tu club? Esto eliminará todos tus datos.')) return;
 
             const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión.', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
             try {
-                const response = await fetch(`${BASE_URL}/api/club/me`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                    body: JSON.stringify({ name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0 })
+                const response = await fetch(`${BASE_URL}/api/club/me/reset`, {
+                    method: 'POST',
+                    headers: { 'x-auth-token': token }
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0 };
-                    localStorage.setItem('clubName', club.name);
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    localStorage.setItem('clubColor', club.color);
-                    localStorage.setItem('clubWins', club.wins);
-                    localStorage.setItem('transactions', JSON.stringify([]));
-                    localStorage.setItem('seasonWins', 0);
-                    transactions = [];
-                    showNotification('¡Tu club ha sido reiniciado!');
-                    updateClubPreview();
-                    updateClubProfile();
-                    updateTransactions();
-                    updateAchievements();
-                } else {
-                    throw new Error(data.msg || 'Error al reiniciar el club');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    showNotification(errorData.msg || 'Error al reiniciar el club', 'error');
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = 'login.html';
+                    }
+                    return;
                 }
+                const data = await response.json();
+                club = data.club;
+                localStorage.setItem('clubName', club.name);
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                localStorage.setItem('clubColor', club.color);
+                localStorage.setItem('clubWins', club.wins);
+                localStorage.setItem('transactions', JSON.stringify([]));
+                localStorage.setItem('seasonWins', 0);
+                transactions = [];
+                showNotification('¡Tu club ha sido reiniciado!', 'success');
+                updateClubPreview();
+                updateTransactions();
+                updateAchievements();
             } catch (err) {
-                showNotification('Error: ' + err.message, 'error');
+                showNotification('Error de conexión: ' + err.message, 'error');
+                console.error('Error al reiniciar club:', err);
             }
         });
     </script>
