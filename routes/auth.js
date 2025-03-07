@@ -4,27 +4,47 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// Constantes de configuración
+const JWT_EXPIRY = '1h'; // Tiempo de expiración del token
+
+// Middleware para validar campos requeridos
+const validateRequiredFields = (req, res, fields) => {
+  for (const field of fields) {
+    if (!req.body[field]) {
+      return res.status(400).json({ message: `El campo ${field} es requerido` });
+    }
+  }
+  return null;
+};
+
 // Registro de un nuevo usuario
 router.post('/register', async (req, res) => {
-  const { name, email, password, parsecId } = req.body;
   try {
-    // Validación de campos requeridos
-    if (!name || !email || !password || !parsecId) {
-      return res.status(400).json({ message: 'Todos los campos son requeridos: name, email, password, parsecId' });
+    // Validar campos requeridos
+    const requiredFields = ['name', 'email', 'password', 'parsecId'];
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
+
+    const { name, email, password, parsecId } = req.body;
+
+    // Normalizar email (minúsculas) y validar formato
+    const normalizedEmail = email.toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return res.status(400).json({ message: 'Email inválido' });
     }
 
     // Verificar si el usuario ya existe
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: normalizedEmail });
     if (user) return res.status(400).json({ message: 'El usuario ya existe' });
 
     // Hashear la contraseña
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Crear el nuevo usuario
     user = new User({
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
       parsecId
     });
@@ -32,9 +52,9 @@ router.post('/register', async (req, res) => {
 
     // Generar token JWT
     const payload = { id: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET || 'tu_secreto_muy_largo_y_seguro', { expiresIn: '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRY });
 
-    // Respuesta con token y datos del usuario
+    // Respuesta con token y datos del usuario (excluyendo la contraseña)
     res.json({
       token,
       user: { id: user._id, name: user.name, email: user.email, parsecId: user.parsecId }
@@ -47,15 +67,19 @@ router.post('/register', async (req, res) => {
 
 // Inicio de sesión
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
   try {
-    // Validación de campos requeridos
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email y contraseña son requeridos' });
-    }
+    // Validar campos requeridos
+    const requiredFields = ['email', 'password'];
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
+
+    const { email, password } = req.body;
+
+    // Normalizar email
+    const normalizedEmail = email.toLowerCase();
 
     // Buscar al usuario
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) return res.status(400).json({ message: 'Credenciales inválidas' });
 
     // Comparar la contraseña
@@ -64,7 +88,7 @@ router.post('/login', async (req, res) => {
 
     // Generar token JWT
     const payload = { id: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET || 'tu_secreto_muy_largo_y_seguro', { expiresIn: '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRY });
 
     // Respuesta con token y datos del usuario
     res.json({
@@ -83,8 +107,9 @@ router.get('/me', async (req, res) => {
   if (!token) return res.status(401).json({ message: 'No autorizado, falta token' });
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_secreto_muy_largo_y_seguro');
-    const user = await User.findById(decoded.id).select('-password'); // Excluir la contraseña
+    // Verificar token JWT
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select('-password');
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
     res.json({ id: user._id, name: user.name, email: user.email, parsecId: user.parsecId });
@@ -95,6 +120,14 @@ router.get('/me', async (req, res) => {
     }
     res.status(401).json({ message: 'Token inválido' });
   }
+});
+
+// Middleware para manejar errores
+router.use((err, req, res, next) => {
+  if (err.name === 'UnauthorizedError') {
+    return res.status(401).json({ message: 'No autorizado' });
+  }
+  next(err);
 });
 
 module.exports = router;

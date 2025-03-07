@@ -1,21 +1,35 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken'); // Añadido explícitamente, ya que lo usas en auth
 const Player = require('../models/Player');
 const Club = require('../models/Club');
 const Transaction = require('../models/Transaction');
-const jwt = require('jsonwebtoken');
 
-// Middleware de autenticación (alineado con server.js, auth.js y club.js)
+// Middleware de autenticación (alineado con auth.js, club.js)
 const auth = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1] || req.header('x-auth-token');
-  if (!token) return res.status(401).json({ message: 'No autorizado' });
+  if (!token) return res.status(401).json({ message: 'No autorizado, falta token' });
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_secreto_muy_largo_y_seguro');
-    req.user = decoded.id;
+    req.user = decoded.id; // Asegúrate de que sea el ID del usuario (ObjectId)
     next();
   } catch (err) {
+    console.error('Error en autenticación:', err);
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expirado' });
+    }
     res.status(401).json({ message: 'Token inválido' });
   }
+};
+
+// Función auxiliar para validar campos requeridos
+const validateRequiredFields = (req, res, fields) => {
+  for (const field of fields) {
+    if (!req.body[field]) {
+      return res.status(400).json({ message: `El campo ${field} es requerido` });
+    }
+  }
+  return null;
 };
 
 // GET /api/players/ - Obtener jugadores disponibles (no en el club del usuario)
@@ -31,16 +45,31 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// POST /api/players/ - Crear un jugador (para pruebas o admin)
+// POST /api/players/ - Crear un jugador (para pruebas o admin, opcional restringir a admin)
 router.post('/', auth, async (req, res) => {
-  const { name, position, rating, value } = req.body;
   try {
-    // Validación de campos requeridos
-    if (!name || !position || rating === undefined || value === undefined) {
-      return res.status(400).json({ message: 'Faltan datos requeridos: name, position, rating, value' });
+    const requiredFields = ['name', 'position', 'rating', 'value'];
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
+
+    const { name, position, rating, value } = req.body;
+
+    // Validar rangos
+    if (rating < 0 || rating > 99) {
+      return res.status(400).json({ message: 'El rating debe estar entre 0 y 99' });
+    }
+    if (value < 0) {
+      return res.status(400).json({ message: 'El valor no puede ser negativo' });
+    }
+
+    // Verificar si el jugador ya existe (por nombre o _id)
+    const existingPlayer = await Player.findOne({ name });
+    if (existingPlayer) {
+      return res.status(400).json({ message: 'El jugador ya existe' });
     }
 
     const player = new Player({
+      _id: `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generar un _id único
       name,
       position,
       rating: Math.max(0, Math.min(99, rating)), // Asegurar que rating esté entre 0 y 99
@@ -57,11 +86,12 @@ router.post('/', auth, async (req, res) => {
 
 // POST /api/players/buy - Comprar un jugador y añadirlo al club
 router.post('/buy', auth, async (req, res) => {
-  const { playerId } = req.body;
   try {
-    // Validación de campo requerido
-    if (!playerId) return res.status(400).json({ message: 'Falta el playerId' });
+    const requiredFields = ['playerId'];
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
 
+    const { playerId } = req.body;
     const club = await Club.findOne({ userId: req.user }).populate('players');
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
@@ -81,18 +111,19 @@ router.post('/buy', auth, async (req, res) => {
     // Actualizar el club
     club.budget -= player.value;
     club.players.push(player._id);
-    await club.save();
-
-    // Registrar la transacción
-    const transaction = new Transaction({
-      userId: req.user,
+    club.transactions.push({
       type: 'compra',
       playerName: player.name,
-      value: player.value
+      value: player.value,
+      date: new Date()
     });
-    await transaction.save();
+    await club.save();
 
-    res.json({ club, transaction, message: 'Jugador comprado exitosamente' });
+    // Opcional: Marcar el jugador como comprado (si usas un campo en Player)
+    // player.isBought = true;
+    // await player.save();
+
+    res.json({ club, message: 'Jugador comprado exitosamente' });
   } catch (err) {
     console.error('Error en POST /api/players/buy:', err);
     res.status(500).json({ message: 'Error del servidor' });
@@ -101,11 +132,12 @@ router.post('/buy', auth, async (req, res) => {
 
 // POST /api/players/watchlist - Agregar un jugador a la watchlist
 router.post('/watchlist', auth, async (req, res) => {
-  const { playerId } = req.body;
   try {
-    // Validación de campo requerido
-    if (!playerId) return res.status(400).json({ message: 'Falta el playerId' });
+    const requiredFields = ['playerId'];
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
 
+    const { playerId } = req.body;
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
@@ -158,6 +190,12 @@ router.get('/all', auth, async (req, res) => {
     console.error('Error en GET /api/players/all:', err);
     res.status(500).json({ message: 'Error del servidor' });
   }
+});
+
+// Middleware para manejar errores globales en este router
+router.use((err, req, res, next) => {
+  console.error('Error en players.js:', err);
+  res.status(500).json({ message: 'Error interno del servidor' });
 });
 
 module.exports = router;
