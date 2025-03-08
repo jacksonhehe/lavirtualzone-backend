@@ -14,7 +14,12 @@ app.use(express.json());
 
 // Configuración de CORS
 app.use(cors({
-    origin: ['http://127.0.0.1:8080', 'http://localhost:8080', 'https://lavirtualzone-backend.onrender.com'],
+    origin: [
+        'http://127.0.0.1:8080',
+        'http://localhost:8080',
+        'https://lavirtualzone-backend.onrender.com',
+        'https://lavirtualzone-frontend.onrender.com' // Ajusta según el dominio de tu frontend
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'x-auth-token']
 }));
@@ -72,9 +77,12 @@ const auth = expressJwt({
     getToken: req => req.headers['x-auth-token']
 });
 
-// Ruta raíz
+// Servir archivos estáticos desde la carpeta 'public'
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Ruta raíz para servir index.html
 app.get('/', (req, res) => {
-    res.send('¡Bienvenido a La Virtual Zone! Este es el backend.');
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Rutas API
@@ -295,7 +303,7 @@ app.get('/api/market', auth, async (req, res) => {
     }
 });
 
-// Procesar register.json al iniciar el servidor
+// Procesar register.json al iniciar el servidor (opcional en producción)
 async function processRegisterJson() {
     const registerJsonPath = path.join(__dirname, 'register.json');
     try {
@@ -326,7 +334,8 @@ async function processRegisterJson() {
     }
 }
 
-processRegisterJson();
+// Descomenta la siguiente línea si necesitas procesar register.json al iniciar
+// processRegisterJson();
 
 // Puerto del servidor
 const PORT = process.env.PORT || 3000;
