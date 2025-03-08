@@ -1194,9 +1194,7 @@
             <h2 class="section-title" id="chat-heading">Foro de la Comunidad</h2>
             <div class="chat-container animate-fade-in">
                 <div class="chat-messages" id="chatMessages">
-                    <div class="chat-message"><span>CyberNinja:</span> ¡Listos para el próximo torneo de Liga Master!</div>
-                    <div class="chat-message"><span>PixelMaster:</span> Gran partido ayer, GG a todos.</div>
-                    <div class="chat-message"><span>ByteBlaster:</span> Activo mi host en 15 minutos.</div>
+                    <!-- Los mensajes se cargarán aquí desde localStorage -->
                 </div>
                 <form id="chatForm" class="chat-input">
                     <input type="text" placeholder="Escribe tu mensaje..." required>
@@ -1208,10 +1206,10 @@
         <section class="partners-section" id="socios" aria-labelledby="socios-heading">
             <h2 class="section-title" id="socios-heading">Socios y Patrocinadores</h2>
             <div class="partners-grid">
-                <img src="https://via.placeholder.com/150x50?text=GameTech" alt="GameTech" class="partner-logo animate-fade-in">
-                <img src="https://via.placeholder.com/150x50?text=Parsec" alt="Parsec" class="partner-logo animate-fade-in">
-                <img src="https://via.placeholder.com/150x50?text=Twitch" alt="Twitch" class="partner-logo animate-fade-in">
-                <img src="https://via.placeholder.com/150x50?text=Discord" alt="Discord" class="partner-logo animate-fade-in">
+                <img src="https://via.placeholder.com/150x50?text=GameTech" alt="Logo de GameTech" class="partner-logo animate-fade-in" loading="lazy">
+                <img src="https://via.placeholder.com/150x50?text=Parsec" alt="Logo de Parsec" class="partner-logo animate-fade-in" loading="lazy">
+                <img src="https://via.placeholder.com/150x50?text=Twitch" alt="Logo de Twitch" class="partner-logo animate-fade-in" loading="lazy">
+                <img src="https://via.placeholder.com/150x50?text=Discord" alt="Logo de Discord" class="partner-logo animate-fade-in" loading="lazy">
             </div>
         </section>
 
@@ -1330,8 +1328,11 @@
                     messages.appendChild(newMessage);
                     messages.scrollTop = messages.scrollHeight;
                     input.value = '';
+                    saveMessage(newMessage.innerHTML);
                 }
             });
+
+            loadMessages();
         });
 
         const season = {
@@ -1360,8 +1361,26 @@
 
         function updateStats() {
             const clubs = JSON.parse(localStorage.getItem('clubPlayers')) || [];
-            document.getElementById('clubsCount').textContent = clubs.length;
-            document.getElementById('lmClubsCount').textContent = clubs.length;
+            document.getElementById('clubsCount').textContent = clubs.length || 0;
+            document.getElementById('lmClubsCount').textContent = clubs.length || 0;
+        }
+
+        function saveMessage(message) {
+            let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+            messages.push(message);
+            localStorage.setItem('chatMessages', JSON.stringify(messages));
+        }
+
+        function loadMessages() {
+            const messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+            const chatMessages = document.getElementById('chatMessages');
+            messages.forEach(msg => {
+                const newMessage = document.createElement('div');
+                newMessage.className = 'chat-message';
+                newMessage.innerHTML = msg;
+                chatMessages.appendChild(newMessage);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
     </script>
 </body>

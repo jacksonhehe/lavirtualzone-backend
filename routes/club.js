@@ -1,24 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken'); // Añadido explícitamente, ya que lo usas en auth
+const jwt = require('jsonwebtoken');
 const Club = require('../models/Club');
-const Player = require('../models/Player');
-const Transaction = require('../models/Transaction');
 
-// Middleware de autenticación (alineado con auth.js)
+// Middleware de autenticación
 const auth = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1] || req.header('x-auth-token');
   if (!token) return res.status(401).json({ message: 'No autorizado, falta token' });
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_secreto_muy_largo_y_seguro');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded.id; // Asegúrate de que sea el ID del usuario (ObjectId)
     next();
   } catch (err) {
     console.error('Error en autenticación:', err);
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({ message: 'Token expirado' });
+    } else if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Token inválido' });
     }
-    res.status(401).json({ message: 'Token inválido' });
+    res.status(500).json({ message: 'Error del servidor en autenticación' });
   }
 };
 
@@ -85,6 +85,10 @@ router.post('/me/train', auth, async (req, res) => {
     if (validationError) return validationError;
 
     const { playerId, cost } = req.body;
+    if (typeof cost !== 'number' || cost <= 0) {
+      return res.status(400).json({ message: 'El costo debe ser un número positivo' });
+    }
+
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
@@ -119,6 +123,10 @@ router.post('/me/simulate', auth, async (req, res) => {
     if (validationError) return validationError;
 
     const { win } = req.body;
+    if (typeof win !== 'boolean') {
+      return res.status(400).json({ message: 'El campo win debe ser un booleano' });
+    }
+
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
@@ -145,15 +153,18 @@ router.post('/me/reset', auth, async (req, res) => {
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
-    club.name = '[Sin registrar]';
-    club.budget = 100000000;
-    club.players = [];
-    club.color = '#00ffff';
-    club.wins = 0;
-    club.watchlist = [];
-    club.gamesPlayed = 0;
-    club.transactions = [];
-    club.seasonWins = 0;
+    // Reiniciar a valores por defecto
+    Object.assign(club, {
+      name: '[Sin registrar]',
+      budget: 100000000,
+      players: [],
+      color: '#00ffff',
+      wins: 0,
+      watchlist: [],
+      gamesPlayed: 0,
+      transactions: [],
+      seasonWins: 0
+    });
 
     await club.save();
     res.json({ club, message: 'Club reiniciado exitosamente' });
@@ -167,11 +178,15 @@ router.post('/me/reset', auth, async (req, res) => {
 router.get('/leaderboard', auth, async (req, res) => {
   try {
     const clubs = await Club.find().sort({ wins: -1, gamesPlayed: 1 }).populate('players');
-    const leaderboard = clubs.map(club => ({
-      clubName: club.name,
-      wins: club.wins || 0,
-      avgRating: club.players.length ? club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length : 0
-    }));
+    const leaderboard = clubs.map(club => {
+      const totalRating = club.players.reduce((sum, p) => sum + (p.rating || 0), 0);
+      const avgRating = club.players.length ? totalRating / club.players.length : 0;
+      return {
+        clubName: club.name,
+        wins: club.wins || 0,
+        avgRating: avgRating.toFixed(2)
+      };
+    });
     res.json(leaderboard);
   } catch (err) {
     console.error('Error en GET /api/club/leaderboard:', err);

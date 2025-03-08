@@ -1,24 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken'); // Añadido explícitamente, ya que lo usas en auth
+const jwt = require('jsonwebtoken');
 const Player = require('../models/Player');
 const Club = require('../models/Club');
-const Transaction = require('../models/Transaction');
 
-// Middleware de autenticación (alineado con auth.js, club.js)
+// Middleware de autenticación
 const auth = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1] || req.header('x-auth-token');
   if (!token) return res.status(401).json({ message: 'No autorizado, falta token' });
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_secreto_muy_largo_y_seguro');
+    // Usamos exclusivamente process.env.JWT_SECRET para mayor seguridad
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded.id; // Asegúrate de que sea el ID del usuario (ObjectId)
     next();
   } catch (err) {
     console.error('Error en autenticación:', err);
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({ message: 'Token expirado' });
+    } else if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Token inválido' });
     }
-    res.status(401).json({ message: 'Token inválido' });
+    res.status(500).json({ message: 'Error del servidor en autenticación' });
   }
 };
 
@@ -36,7 +38,7 @@ const validateRequiredFields = (req, res, fields) => {
 router.get('/', auth, async (req, res) => {
   try {
     const club = await Club.findOne({ userId: req.user }).populate('players');
-    const clubPlayerIds = club && club.players.length ? club.players.map(p => p._id.toString()) : [];
+    const clubPlayerIds = club ? club.players.map(p => p._id.toString()) : [];
     const players = await Player.find({ _id: { $nin: clubPlayerIds } });
     res.json(players);
   } catch (err) {
@@ -45,7 +47,7 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// POST /api/players/ - Crear un jugador (para pruebas o admin, opcional restringir a admin)
+// POST /api/players/ - Crear un jugador (para pruebas o admin)
 router.post('/', auth, async (req, res) => {
   try {
     const requiredFields = ['name', 'position', 'rating', 'value'];
@@ -62,18 +64,18 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'El valor no puede ser negativo' });
     }
 
-    // Verificar si el jugador ya existe (por nombre o _id)
+    // Verificar si el jugador ya existe
     const existingPlayer = await Player.findOne({ name });
     if (existingPlayer) {
       return res.status(400).json({ message: 'El jugador ya existe' });
     }
 
     const player = new Player({
-      _id: `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generar un _id único
+      _id: `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // ID único
       name,
       position,
-      rating: Math.max(0, Math.min(99, rating)), // Asegurar que rating esté entre 0 y 99
-      value: Math.max(0, value) // Asegurar que value no sea negativo
+      rating: Math.max(0, Math.min(99, rating)), // Asegurar rango
+      value: Math.max(0, value) // Asegurar valor no negativo
     });
     await player.save();
 
@@ -118,10 +120,6 @@ router.post('/buy', auth, async (req, res) => {
       date: new Date()
     });
     await club.save();
-
-    // Opcional: Marcar el jugador como comprado (si usas un campo en Player)
-    // player.isBought = true;
-    // await player.save();
 
     res.json({ club, message: 'Jugador comprado exitosamente' });
   } catch (err) {

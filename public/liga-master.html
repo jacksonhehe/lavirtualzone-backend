@@ -337,29 +337,6 @@
             border-color: var(--secondary-purple);
             box-shadow: var(--shadow-cyan);
         }
-        .club-profile-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            background: var(--light-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-light);
-            box-shadow: var(--shadow-soft);
-            text-align: center;
-        }
-        .club-emblem {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-bottom: 1rem;
-            background-color: var(--primary-cyan);
-        }
-        .social-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            justify-content: center;
-        }
         .achievements-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -856,7 +833,6 @@
         // Cargar datos del club desde el backend
         async function syncClubData() {
             const token = localStorage.getItem('token');
-            console.log('Token enviado desde Liga Master:', token);
             if (!token) {
                 showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
                 setTimeout(() => window.location.href = 'login.html', 2000);
@@ -867,10 +843,8 @@
                     method: 'GET',
                     headers: { 'x-auth-token': token }
                 });
-                console.log('Estado de la respuesta:', response.status);
                 if (!response.ok) {
                     const errorData = await response.json();
-                    console.log('Error del servidor:', errorData);
                     showNotification(errorData.msg || 'Error al cargar el club', 'error');
                     if (response.status === 401) {
                         localStorage.removeItem('token');
