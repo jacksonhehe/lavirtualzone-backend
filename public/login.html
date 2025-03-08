@@ -784,8 +784,8 @@
         });
 
         // URL base dinámica
-        const BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://lavirtualzone-backend.onrender.com/api';
-
+        const BASE_URL = 'https://lavirtualzone-backend.onrender.com/api';
+        
         // Verificar sesión al cargar
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
