@@ -994,14 +994,14 @@
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('Error en /auth/me:', errorText);
-                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                    throw new Error(`Error ${response.status}: ${response.statusText}. Detalle: ${errorText}`);
                 }
                 const data = await response.json();
                 console.log('Usuario autenticado:', data);
                 return true;
             } catch (err) {
                 console.error('Error al validar token:', err);
-                showNotification('Error al validar el token. Intenta iniciar sesión nuevamente.', 'error');
+                showNotification('Error al validar el token. Intenta iniciar sesión nuevamente. Detalle: ' + err.message, 'error');
                 localStorage.removeItem('token');
                 setTimeout(() => window.location.href = 'login.html', 2000);
                 return false;

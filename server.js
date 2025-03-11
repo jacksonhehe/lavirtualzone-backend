@@ -18,7 +18,7 @@ app.use(cors({
         'http://127.0.0.1:8080',
         'http://localhost:8080',
         'https://lavirtualzone-backend.onrender.com',
-        'https://lavirtualzone-frontend.onrender.com' // Ajusta según el dominio de tu frontend
+        'https://lavirtualzone-frontend.onrender.com'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'x-auth-token']
@@ -28,11 +28,9 @@ app.use(cors({
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}).then(() => {
-    console.log('Conectado a MongoDB');
-}).catch(err => {
-    console.error('Error al conectar a MongoDB:', err);
-});
+})
+    .then(() => console.log('Conectado a MongoDB'))
+    .catch(err => console.error('Error al conectar a MongoDB:', err));
 
 // Esquemas de Mongoose
 const userSchema = new mongoose.Schema({
@@ -75,7 +73,7 @@ const auth = expressJwt({
     secret: process.env.JWT_SECRET,
     algorithms: ['HS256'],
     getToken: req => req.headers['x-auth-token']
-});
+}).unless({ path: ['/api/register', '/api/login', '/'] }); // Excepciones para rutas públicas
 
 // Servir archivos estáticos desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
@@ -90,6 +88,9 @@ app.get('/', (req, res) => {
 app.post('/api/register', async (req, res) => {
     try {
         const { name, email, password, parsecId } = req.body;
+        if (!name || !email || !password || !parsecId) {
+            return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+        }
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -106,7 +107,7 @@ app.post('/api/register', async (req, res) => {
         await newClub.save();
 
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token, user: { name: newUser.name, email: newUser.email, parsecId: newUser.parsecId } });
+        res.status(201).json({ token, user: { name: newUser.name, email: newUser.email, parsecId: newUser.parsecId } });
     } catch (err) {
         console.error('Error en /api/register:', err);
         res.status(500).json({ message: 'Error al registrar usuario' });
@@ -117,6 +118,10 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email y contraseña son obligatorios' });
+        }
+
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
@@ -135,7 +140,26 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// 3. Obtener datos del club (GET /api/club/me)
+// 3. Obtener información del usuario autenticado (GET /api/auth/me)
+app.get('/api/auth/me', auth, async (req, res) => {
+    try {
+        console.log('req.user:', req.user); // Depuración
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Token inválido o mal formado' });
+        }
+
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        res.json(user);
+    } catch (err) {
+        console.error('Error en /api/auth/me:', err);
+        res.status(500).json({ message: 'Error al obtener datos del usuario' });
+    }
+});
+
+// 4. Obtener datos del club (GET /api/club/me)
 app.get('/api/club/me', auth, async (req, res) => {
     try {
         const club = await Club.findOne({ userId: req.user.id });
@@ -149,10 +173,14 @@ app.get('/api/club/me', auth, async (req, res) => {
     }
 });
 
-// 4. Actualizar nombre y color del club (PUT /api/club/me)
+// 5. Actualizar nombre y color del club (PUT /api/club/me)
 app.put('/api/club/me', auth, async (req, res) => {
     try {
         const { name, color } = req.body;
+        if (!name || !color) {
+            return res.status(400).json({ message: 'Nombre y color son obligatorios' });
+        }
+
         const club = await Club.findOneAndUpdate(
             { userId: req.user.id },
             { name, color },
@@ -166,10 +194,14 @@ app.put('/api/club/me', auth, async (req, res) => {
     }
 });
 
-// 5. Entrenar un jugador (POST /api/club/me/train)
+// 6. Entrenar un jugador (POST /api/club/me/train)
 app.post('/api/club/me/train', auth, async (req, res) => {
     try {
         const { playerId, cost } = req.body;
+        if (!playerId || !cost) {
+            return res.status(400).json({ message: 'ID del jugador y costo son obligatorios' });
+        }
+
         const club = await Club.findOne({ userId: req.user.id });
         if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
@@ -200,7 +232,7 @@ app.post('/api/club/me/train', auth, async (req, res) => {
     }
 });
 
-// 6. Reiniciar el club (POST /api/club/me/reset)
+// 7. Reiniciar el club (POST /api/club/me/reset)
 app.post('/api/club/me/reset', auth, async (req, res) => {
     try {
         const club = await Club.findOneAndUpdate(
@@ -226,10 +258,14 @@ app.post('/api/club/me/reset', auth, async (req, res) => {
     }
 });
 
-// 7. Simular un partido (POST /api/club/me/simulate)
+// 8. Simular un partido (POST /api/club/me/simulate)
 app.post('/api/club/me/simulate', auth, async (req, res) => {
     try {
         const { win } = req.body;
+        if (typeof win !== 'boolean') {
+            return res.status(400).json({ message: 'El campo "win" debe ser un booleano' });
+        }
+
         const club = await Club.findOne({ userId: req.user.id });
         if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
@@ -251,7 +287,7 @@ app.post('/api/club/me/simulate', auth, async (req, res) => {
     }
 });
 
-// 8. Obtener la clasificación (GET /api/leaderboard)
+// 9. Obtener la clasificación (GET /api/leaderboard)
 app.get('/api/leaderboard', auth, async (req, res) => {
     try {
         const clubs = await Club.find().sort({ wins: -1, gamesPlayed: 1 }).limit(10);
@@ -267,7 +303,7 @@ app.get('/api/leaderboard', auth, async (req, res) => {
     }
 });
 
-// 9. Verificar si el club es el mejor equipo (GET /api/best-team)
+// 10. Verificar si el club es el mejor equipo (GET /api/best-team)
 app.get('/api/best-team', auth, async (req, res) => {
     try {
         const club = await Club.findOne({ userId: req.user.id });
@@ -288,7 +324,7 @@ app.get('/api/best-team', auth, async (req, res) => {
     }
 });
 
-// 10. Ruta para el mercado de fichajes (GET /api/market)
+// 11. Ruta para el mercado de fichajes (GET /api/market)
 app.get('/api/market', auth, async (req, res) => {
     try {
         const players = [
@@ -300,20 +336,6 @@ app.get('/api/market', auth, async (req, res) => {
     } catch (err) {
         console.error('Error en /api/market:', err);
         res.status(500).json({ message: 'Error al obtener jugadores del mercado' });
-    }
-});
-
-// 11. Obtener información del usuario autenticado (GET /api/auth/me)
-app.get('/api/auth/me', auth, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id).select('-password');
-        if (!user) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-        res.json(user);
-    } catch (err) {
-        console.error('Error en /api/auth/me:', err);
-        res.status(500).json({ message: 'Error al obtener datos del usuario' });
     }
 });
 
@@ -350,6 +372,14 @@ async function processRegisterJson() {
 
 // Descomenta la siguiente línea si necesitas procesar register.json al iniciar
 // processRegisterJson();
+
+// Manejo de errores del middleware JWT
+app.use((err, req, res, next) => {
+    if (err.name === 'UnauthorizedError') {
+        return res.status(401).json({ message: 'Token inválido o no proporcionado' });
+    }
+    next(err);
+});
 
 // Puerto del servidor
 const PORT = process.env.PORT || 3000;
