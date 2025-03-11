@@ -303,6 +303,20 @@ app.get('/api/market', auth, async (req, res) => {
     }
 });
 
+// 11. Obtener información del usuario autenticado (GET /api/auth/me)
+app.get('/api/auth/me', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        res.json(user);
+    } catch (err) {
+        console.error('Error en /api/auth/me:', err);
+        res.status(500).json({ message: 'Error al obtener datos del usuario' });
+    }
+});
+
 // Procesar register.json al iniciar el servidor (opcional en producción)
 async function processRegisterJson() {
     const registerJsonPath = path.join(__dirname, 'register.json');

@@ -92,7 +92,7 @@
         .logo {
             width: 60px;
             height: 60px;
-            background: url('logo-la-virtual-zone.svg') no-repeat center center, #00ffff;
+            background: url('/images/logo-la-virtual-zone.svg') no-repeat center center, #00ffff;
             background-size: contain;
             text-indent: -9999px;
             transition: var(--transition-base);
@@ -991,16 +991,17 @@
                     method: 'GET',
                     headers: { 'x-auth-token': token }
                 });
-                const data = await response.json();
                 if (!response.ok) {
-                    console.error('Error en /auth/me:', data);
-                    throw new Error(data.message || 'Token inválido o sesión expirada');
+                    const errorText = await response.text();
+                    console.error('Error en /auth/me:', errorText);
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
                 }
+                const data = await response.json();
                 console.log('Usuario autenticado:', data);
                 return true;
             } catch (err) {
                 console.error('Error al validar token:', err);
-                showNotification(err.message, 'error');
+                showNotification('Error al validar el token. Intenta iniciar sesión nuevamente.', 'error');
                 localStorage.removeItem('token');
                 setTimeout(() => window.location.href = 'login.html', 2000);
                 return false;
