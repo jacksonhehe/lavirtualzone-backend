@@ -73,7 +73,14 @@ const auth = expressJwt({
     secret: process.env.JWT_SECRET,
     algorithms: ['HS256'],
     getToken: req => req.headers['x-auth-token']
-}).unless({ path: ['/api/register', '/api/login', '/'] }); // Excepciones para rutas públicas
+}).unless({
+    path: [
+        '/api/register',
+        '/api/login',
+        '/', // Ruta raíz para archivos estáticos
+        { url: /\/public\/.*/i, methods: ['GET'] } // Permitir acceso a archivos estáticos
+    ]
+});
 
 // Servir archivos estáticos desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
@@ -143,7 +150,6 @@ app.post('/api/login', async (req, res) => {
 // 3. Obtener información del usuario autenticado (GET /api/auth/me)
 app.get('/api/auth/me', auth, async (req, res) => {
     try {
-        console.log('req.user:', req.user); // Depuración
         if (!req.user || !req.user.id) {
             return res.status(401).json({ message: 'Token inválido o mal formado' });
         }
@@ -370,7 +376,7 @@ async function processRegisterJson() {
     }
 }
 
-// Descomenta la siguiente línea si necesitas procesar register.json al iniciar
+// Descomentar si necesitas procesar register.json al iniciar
 // processRegisterJson();
 
 // Manejo de errores del middleware JWT
@@ -378,7 +384,13 @@ app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {
         return res.status(401).json({ message: 'Token inválido o no proporcionado' });
     }
-    next(err);
+    console.error('Error no manejado:', err);
+    res.status(500).json({ message: 'Error interno del servidor' });
+});
+
+// Manejo de rutas no encontradas (404)
+app.use((req, res) => {
+    res.status(404).json({ message: 'Ruta no encontrada' });
 });
 
 // Puerto del servidor
