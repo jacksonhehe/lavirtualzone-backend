@@ -9,7 +9,7 @@
     <meta name="robots" content="index, follow">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-    <!-- Meta Redes Sociales -->
+    <!-- Meta para Redes Sociales -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://lavirtualzone-backend.onrender.com">
     <meta property="og:title" content="La Virtual Zone | Comunidad Profesional de Videojuegos vía Parsec">
@@ -49,7 +49,7 @@
             --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
             --shadow-cyan: 0 6px 18px rgba(0, 255, 255, 0.15);
             --transition-base: 0.3s ease-in-out;
-            --accent-green: #66ff66; /* Verde suave de mercado-fichajes */
+            --accent-green: #66ff66;
         }
 
         *, *::before, *::after {
@@ -751,7 +751,7 @@
         }
 
         .faq-item.active p {
-            max-height: 200px; /* Ajustar según contenido */
+            max-height: 200px;
         }
 
         /* Footer */
@@ -1256,6 +1256,7 @@
         </div>
     </footer>
 
+    <script src="/js/particles.min.js"></script>
     <script>
 const BASE_URL = 'https://lavirtualzone-backend.onrender.com/api';
 
@@ -1353,32 +1354,33 @@ const BASE_URL = 'https://lavirtualzone-backend.onrender.com/api';
                 const timeLeft = season.end - now;
                 const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                lmSeasonStatus.textContent = `Activa - Termina en ${days}d ${hours}h`;
+                lmSeasonStatus.textContent = `Finaliza en ${days}d ${hours}h`;
             } else {
-                lmSeasonStatus.textContent = "Finalizada";
+                lmSeasonStatus.textContent = 'Temporada Finalizada';
             }
         }
 
         function updateStats() {
-            const clubs = JSON.parse(localStorage.getItem('clubPlayers')) || [];
-            document.getElementById('clubsCount').textContent = clubs.length || 0;
-            document.getElementById('lmClubsCount').textContent = clubs.length || 0;
+            document.getElementById('playersCount').textContent = '2,000';
+            document.getElementById('clubsCount').textContent = '0';
         }
 
         function saveMessage(message) {
             let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
             messages.push(message);
+            if (messages.length > 50) messages.shift();
             localStorage.setItem('chatMessages', JSON.stringify(messages));
         }
 
         function loadMessages() {
             const messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
             const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
             messages.forEach(msg => {
-                const newMessage = document.createElement('div');
-                newMessage.className = 'chat-message';
-                newMessage.innerHTML = msg;
-                chatMessages.appendChild(newMessage);
+                const div = document.createElement('div');
+                div.className = 'chat-message';
+                div.innerHTML = msg;
+                chatMessages.appendChild(div);
             });
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
