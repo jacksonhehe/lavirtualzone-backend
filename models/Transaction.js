@@ -18,7 +18,7 @@ const transactionSchema = new mongoose.Schema({
     immutable: true
   },
   
-  // Tipo de transacción: compra, venta, prestamo, entrenamiento, etc.
+  // Tipo de transacción: compra, venta, prestamo, entrenamiento, bonificación
   type: {
     type: String,
     enum: {
@@ -37,6 +37,13 @@ const transactionSchema = new mongoose.Schema({
     },
     minlength: [3, 'El nombre del jugador debe tener al menos 3 caracteres'],
     maxlength: [50, 'El nombre del jugador no puede exceder los 50 caracteres']
+  },
+  
+  // ID del jugador involucrado (opcional, para referencia directa)
+  playerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Player',
+    default: null
   },
   
   // Valor de la transacción (monto)
@@ -81,13 +88,14 @@ transactionSchema.virtual('typeName').get(function() {
   return typeNames[this.type] || 'Desconocido';
 });
 
-// Método para registrar una transacción fácilmente
-transactionSchema.statics.recordTransaction = async function(userId, clubId, type, playerName, value, details = '') {
+// Método estático para registrar una transacción fácilmente
+transactionSchema.statics.recordTransaction = async function(userId, clubId, type, playerName, value, playerId = null, details = '') {
   const transaction = new this({
     userId,
     clubId,
     type,
     playerName,
+    playerId,
     value,
     details
   });

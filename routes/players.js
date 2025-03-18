@@ -34,7 +34,7 @@ const validateRequiredFields = (req, res, fields) => {
   return null;
 };
 
-// GET /api/players/ - Obtener jugadores disponibles (no en el club del usuario)
+// **GET /api/players/** - Obtener jugadores disponibles (no en el club del usuario)
 router.get('/', auth, async (req, res) => {
   try {
     const club = await Club.findOne({ userId: req.user }).populate('players');
@@ -47,7 +47,7 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// POST /api/players/ - Crear un jugador (para pruebas o admin)
+// **POST /api/players/** - Crear un jugador (para pruebas o admin)
 router.post('/', auth, async (req, res) => {
   try {
     const requiredFields = ['name', 'position', 'rating', 'value'];
@@ -86,7 +86,7 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// POST /api/players/buy - Comprar un jugador y añadirlo al club
+// **POST /api/players/buy** - Comprar un jugador y añadirlo al club
 router.post('/buy', auth, async (req, res) => {
   try {
     const requiredFields = ['playerId'];
@@ -128,7 +128,44 @@ router.post('/buy', auth, async (req, res) => {
   }
 });
 
-// POST /api/players/watchlist - Agregar un jugador a la watchlist
+// **POST /api/players/sell** - Vender un jugador del club
+router.post('/sell', auth, async (req, res) => {
+  try {
+    const requiredFields = ['playerId'];
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
+
+    const { playerId } = req.body;
+    const club = await Club.findOne({ userId: req.user }).populate('players');
+    if (!club) return res.status(404).json({ message: 'Club no encontrado' });
+
+    const playerIndex = club.players.findIndex(p => p._id.toString() === playerId);
+    if (playerIndex === -1) {
+      return res.status(404).json({ message: 'Jugador no encontrado en tu club' });
+    }
+
+    const player = club.players[playerIndex];
+    const sellValue = Math.floor(player.value * 0.8); // Ejemplo: 80% del valor original
+
+    // Actualizar el club
+    club.budget += sellValue;
+    club.players.splice(playerIndex, 1);
+    club.transactions.push({
+      type: 'venta',
+      playerName: player.name,
+      value: sellValue,
+      date: new Date()
+    });
+    await club.save();
+
+    res.json({ club, message: `Jugador vendido por $${sellValue}` });
+  } catch (err) {
+    console.error('Error en POST /api/players/sell:', err);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
+});
+
+// **POST /api/players/watchlist** - Agregar un jugador a la watchlist
 router.post('/watchlist', auth, async (req, res) => {
   try {
     const requiredFields = ['playerId'];
@@ -158,7 +195,7 @@ router.post('/watchlist', auth, async (req, res) => {
   }
 });
 
-// DELETE /api/players/watchlist/:playerId - Eliminar un jugador de la watchlist
+// **DELETE /api/players/watchlist/:playerId** - Eliminar un jugador de la watchlist
 router.delete('/watchlist/:playerId', auth, async (req, res) => {
   const { playerId } = req.params;
   try {
@@ -179,7 +216,7 @@ router.delete('/watchlist/:playerId', auth, async (req, res) => {
   }
 });
 
-// GET /api/players/all - Obtener todos los jugadores (para admin o debugging)
+// **GET /api/players/all** - Obtener todos los jugadores (para admin o debugging)
 router.get('/all', auth, async (req, res) => {
   try {
     const players = await Player.find();

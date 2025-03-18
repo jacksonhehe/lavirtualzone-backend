@@ -7,6 +7,25 @@ const config = require('config');
 const { check, validationResult } = require('express-validator');
 const User = require('../models/User');
 
+// Middleware para proteger rutas (autenticación con JWT)
+const authMiddleware = async (req, res, next) => {
+  // Obtener el token del encabezado Authorization
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+
+  if (!token) {
+    return res.status(401).json({ message: 'No hay token, autorización denegada' });
+  }
+
+  try {
+    // Verificar el token
+    const decoded = jwt.verify(token, config.get('jwtSecret'));
+    req.user = decoded; // Agregar los datos decodificados (como el id) al request
+    next();
+  } catch (err) {
+    res.status(401).json({ message: 'Token inválido' });
+  }
+};
+
 // @route    POST api/auth/register
 // @desc     Registrar un nuevo usuario
 // @access   Public
@@ -99,9 +118,9 @@ router.post(
 // @route    GET api/auth/me
 // @desc     Obtener datos del usuario autenticado
 // @access   Private
-router.get('/me', async (req, res) => {
+router.get('/me', authMiddleware, async (req, res) => {
   try {
-    // El middleware de autenticación debe agregar req.user
+    // Obtener el usuario por ID (excluimos la contraseña)
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
