@@ -1,8 +1,8 @@
+require('dotenv').config(); // Cargar variables de entorno desde .env
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { expressjwt: expressJwt } = require('express-jwt');
 const bcrypt = require('bcryptjs');
 const fs = require('fs').promises;
 const path = require('path');
@@ -24,7 +24,10 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'x-auth-token']
 }));
 
-// Conectar a MongoDB
+// Servir archivos estáticos desde la carpeta 'public'
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Conectar a MongoDB usando la URI desde .env
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -37,8 +40,8 @@ const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    parsecId: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now }
+    parsecId: { type: String, required: true, unique: true },
+    createdAt: { type: Date, default: Date.now },
 });
 
 const User = mongoose.model('User', userSchema);
@@ -47,20 +50,24 @@ const clubSchema = new mongoose.Schema({
     name: { type: String, default: '[Sin registrar]' },
     budget: { type: Number, default: 100000000 },
     players: [{
-        _id: { type: String, required: true },
-        name: { type: String, required: true },
+        _id: String,
+        name: String,
         rating: { type: Number, default: 50 },
         value: { type: Number, default: 1000000 }
     }],
     color: { type: String, default: '#00ffff' },
     wins: { type: Number, default: 0 },
-    watchlist: [{}],
+    watchlist: [{
+        _id: String,
+        name: String,
+        value: Number
+    }],
     gamesPlayed: { type: Number, default: 0 },
     transactions: [{
-        type: { type: String },
-        playerName: { type: String },
-        value: { type: Number },
-        date: { type: Date }
+        type: String,
+        playerName: String,
+        value: Number,
+        date: { type: Date, default: Date.now }
     }],
     seasonWins: { type: Number, default: 0 },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
@@ -68,29 +75,28 @@ const clubSchema = new mongoose.Schema({
 
 const Club = mongoose.model('Club', clubSchema);
 
+// Clave secreta JWT desde .env
+const jwtSecret = process.env.JWT_SECRET || 'tu-secreto-jwt-muy-seguro';
+console.log('JWT_SECRET en server.js:', jwtSecret);
+
 // Middleware de autenticación JWT
-const auth = expressJwt({
-    secret: process.env.JWT_SECRET,
-    algorithms: ['HS256'],
-    getToken: req => req.headers['x-auth-token']
-}).unless({
-    path: [
-        '/api/register',
-        '/api/login',
-        '/', // Ruta raíz para archivos estáticos
-        { url: /\/public\/.*/i, methods: ['GET'] } // Permitir acceso a archivos estáticos
-    ]
-});
-
-// Servir archivos estáticos desde la carpeta 'public'
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Ruta raíz para servir index.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+const auth = (req, res, next) => {
+    const token = req.header('x-auth-token');
+    if (!token) return res.status(401).json({ message: 'No autorizado, falta token' });
+    try {
+        const decoded = jwt.verify(token, jwtSecret);
+        req.user = { id: decoded.id };
+        next();
+    } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+            return res.status(401).json({ message: 'Token expirado' });
+        }
+        res.status(401).json({ message: 'Token inválido' });
+    }
+};
 
 // Rutas API
+
 // 1. Registrar un usuario (POST /api/register)
 app.post('/api/register', async (req, res) => {
     try {
@@ -98,22 +104,17 @@ app.post('/api/register', async (req, res) => {
         if (!name || !email || !password || !parsecId) {
             return res.status(400).json({ message: 'Todos los campos son obligatorios' });
         }
-
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'El email ya está registrado' });
         }
-
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-
         const newUser = new User({ name, email, password: hashedPassword, parsecId });
         await newUser.save();
-
         const newClub = new Club({ name: '[Sin registrar]', userId: newUser._id });
         await newClub.save();
-
-        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: newUser._id }, jwtSecret, { expiresIn: '1h' });
         res.status(201).json({ token, user: { name: newUser.name, email: newUser.email, parsecId: newUser.parsecId } });
     } catch (err) {
         console.error('Error en /api/register:', err);
@@ -128,18 +129,15 @@ app.post('/api/login', async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({ message: 'Email y contraseña son obligatorios' });
         }
-
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
-
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
-
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
         res.json({ token, user: { name: user.name, email: user.email, parsecId: user.parsecId } });
     } catch (err) {
         console.error('Error en /api/login:', err);
@@ -147,18 +145,12 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// 3. Obtener información del usuario autenticado (GET /api/auth/me)
+// 3. Obtener datos del usuario autenticado (GET /api/auth/me)
 app.get('/api/auth/me', auth, async (req, res) => {
     try {
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: 'Token inválido o mal formado' });
-        }
-
         const user = await User.findById(req.user.id).select('-password');
-        if (!user) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-        res.json(user);
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+        res.json({ id: user._id, name: user.name, email: user.email, parsecId: user.parsecId });
     } catch (err) {
         console.error('Error en /api/auth/me:', err);
         res.status(500).json({ message: 'Error al obtener datos del usuario' });
@@ -169,9 +161,7 @@ app.get('/api/auth/me', auth, async (req, res) => {
 app.get('/api/club/me', auth, async (req, res) => {
     try {
         const club = await Club.findOne({ userId: req.user.id });
-        if (!club) {
-            return res.status(404).json({ message: 'Club no encontrado' });
-        }
+        if (!club) return res.status(404).json({ message: 'Club no encontrado' });
         res.json(club);
     } catch (err) {
         console.error('Error en /api/club/me:', err);
@@ -183,10 +173,7 @@ app.get('/api/club/me', auth, async (req, res) => {
 app.put('/api/club/me', auth, async (req, res) => {
     try {
         const { name, color } = req.body;
-        if (!name || !color) {
-            return res.status(400).json({ message: 'Nombre y color son obligatorios' });
-        }
-
+        if (!name || !color) return res.status(400).json({ message: 'Nombre y color son obligatorios' });
         const club = await Club.findOneAndUpdate(
             { userId: req.user.id },
             { name, color },
@@ -195,7 +182,7 @@ app.put('/api/club/me', auth, async (req, res) => {
         if (!club) return res.status(404).json({ message: 'Club no encontrado' });
         res.json(club);
     } catch (err) {
-        console.error('Error en /api/club/me:', err);
+        console.error('Error en /api/club/me (PUT):', err);
         res.status(500).json({ message: 'Error al actualizar el club' });
     }
 });
@@ -204,22 +191,12 @@ app.put('/api/club/me', auth, async (req, res) => {
 app.post('/api/club/me/train', auth, async (req, res) => {
     try {
         const { playerId, cost } = req.body;
-        if (!playerId || !cost) {
-            return res.status(400).json({ message: 'ID del jugador y costo son obligatorios' });
-        }
-
+        if (!playerId || !cost) return res.status(400).json({ message: 'ID del jugador y costo son obligatorios' });
         const club = await Club.findOne({ userId: req.user.id });
         if (!club) return res.status(404).json({ message: 'Club no encontrado' });
-
-        if (club.budget < cost) {
-            return res.status(400).json({ message: 'No tienes suficiente presupuesto' });
-        }
-
+        if (club.budget < cost) return res.status(400).json({ message: 'Presupuesto insuficiente' });
         const playerIndex = club.players.findIndex(p => p._id === playerId);
-        if (playerIndex === -1) {
-            return res.status(404).json({ message: 'Jugador no encontrado' });
-        }
-
+        if (playerIndex === -1) return res.status(404).json({ message: 'Jugador no encontrado' });
         club.budget -= cost;
         club.players[playerIndex].rating = Math.min(club.players[playerIndex].rating + 1, 99);
         club.players[playerIndex].value += cost;
@@ -229,7 +206,6 @@ app.post('/api/club/me/train', auth, async (req, res) => {
             value: cost,
             date: new Date()
         });
-
         await club.save();
         res.json(club);
     } catch (err) {
@@ -268,23 +244,15 @@ app.post('/api/club/me/reset', auth, async (req, res) => {
 app.post('/api/club/me/simulate', auth, async (req, res) => {
     try {
         const { win } = req.body;
-        if (typeof win !== 'boolean') {
-            return res.status(400).json({ message: 'El campo "win" debe ser un booleano' });
-        }
-
+        if (typeof win !== 'boolean') return res.status(400).json({ message: 'El campo "win" debe ser booleano' });
         const club = await Club.findOne({ userId: req.user.id });
         if (!club) return res.status(404).json({ message: 'Club no encontrado' });
-
-        if (club.players.length === 0) {
-            return res.status(400).json({ message: 'No tienes jugadores en tu club' });
-        }
-
+        if (club.players.length === 0) return res.status(400).json({ message: 'No tienes jugadores en tu club' });
         club.gamesPlayed += 1;
         if (win) {
             club.wins += 1;
             club.seasonWins += 1;
         }
-
         await club.save();
         res.json(club);
     } catch (err) {
@@ -314,14 +282,12 @@ app.get('/api/best-team', auth, async (req, res) => {
     try {
         const club = await Club.findOne({ userId: req.user.id });
         if (!club) return res.status(404).json({ message: 'Club no encontrado' });
-
         const allClubs = await Club.find();
         const bestTeam = allClubs.reduce((best, current) => {
             const bestAvg = best.players.length ? best.players.reduce((sum, p) => sum + p.rating, 0) / best.players.length : 0;
             const currentAvg = current.players.length ? current.players.reduce((sum, p) => sum + p.rating, 0) / current.players.length : 0;
             return bestAvg > currentAvg ? best : current;
         }, club);
-
         const isBestTeam = bestTeam._id.toString() === club._id.toString();
         res.json({ isBestTeam });
     } catch (err) {
@@ -333,6 +299,7 @@ app.get('/api/best-team', auth, async (req, res) => {
 // 11. Ruta para el mercado de fichajes (GET /api/market)
 app.get('/api/market', auth, async (req, res) => {
     try {
+        // Simulación de jugadores disponibles (reemplaza con lógica real si es necesario)
         const players = [
             { _id: 'player1', name: 'CyberStriker', rating: 75, value: 5000000 },
             { _id: 'player2', name: 'PixelBlaster', rating: 80, value: 7500000 },
@@ -345,28 +312,20 @@ app.get('/api/market', auth, async (req, res) => {
     }
 });
 
-// Procesar register.json al iniciar el servidor (opcional en producción)
+// Procesar register.json al iniciar el servidor (opcional)
 async function processRegisterJson() {
     const registerJsonPath = path.join(__dirname, 'register.json');
     try {
         const data = await fs.readFile(registerJsonPath, 'utf8');
         const userData = JSON.parse(data);
-
         const existingUser = await User.findOne({ email: userData.email });
         if (!existingUser) {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(userData.password, salt);
-            const newUser = new User({
-                name: userData.name,
-                email: userData.email,
-                password: hashedPassword,
-                parsecId: userData.parsecId
-            });
+            const newUser = new User({ name: userData.name, email: userData.email, password: hashedPassword, parsecId: userData.parsecId });
             await newUser.save();
-
             const newClub = new Club({ name: '[Sin registrar]', userId: newUser._id });
             await newClub.save();
-
             console.log('Usuario registrado desde register.json:', userData.name);
         } else {
             console.log('El usuario ya está registrado:', userData.email);
@@ -376,22 +335,8 @@ async function processRegisterJson() {
     }
 }
 
-// Descomentar si necesitas procesar register.json al iniciar
+// Descomentar para procesar register.json al iniciar el servidor
 // processRegisterJson();
-
-// Manejo de errores del middleware JWT
-app.use((err, req, res, next) => {
-    if (err.name === 'UnauthorizedError') {
-        return res.status(401).json({ message: 'Token inválido o no proporcionado' });
-    }
-    console.error('Error no manejado:', err);
-    res.status(500).json({ message: 'Error interno del servidor' });
-});
-
-// Manejo de rutas no encontradas (404)
-app.use((req, res) => {
-    res.status(404).json({ message: 'Ruta no encontrada' });
-});
 
 // Puerto del servidor
 const PORT = process.env.PORT || 3000;
