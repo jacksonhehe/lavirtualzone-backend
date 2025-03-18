@@ -92,7 +92,7 @@
         .logo {
             width: 60px;
             height: 60px;
-            background: url('/images/logo-la-virtual-zone.svg') no-repeat center center;
+            background: url('logo-la-virtual-zone.svg') no-repeat center center;
             background-size: contain;
             text-indent: -9999px;
             transition: var(--transition-base);
@@ -123,22 +123,71 @@
             background: rgba(0, 255, 255, 0.1);
             box-shadow: var(--shadow-cyan);
         }
-        .mobile-menu, .close-menu {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--primary-cyan);
-            font-size: 1.8rem;
-            padding: 0.5rem;
-            cursor: pointer;
+        .liga-master-hero {
+            padding: 160px 3rem 8rem;
+            background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            margin-top: 60px;
+            position: relative;
+            text-align: center;
+        }
+        .liga-master-hero::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to top, var(--dark-bg), transparent);
+            z-index: 1;
+        }
+        .liga-master-hero-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            line-height: 1.2;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        .hero-subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            font-weight: 300;
+        }
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 2.5rem;
+            background: var(--primary-cyan);
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.2rem;
             transition: var(--transition-base);
+            border: 1px solid var(--primary-cyan);
+            box-shadow: var(--shadow-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
         }
-        .mobile-menu:hover, .close-menu:hover {
-            color: var(--secondary-purple);
-        }
-        .section {
-            padding: 7rem 3rem;
-            background: var(--dark-bg);
+        .cta-button:hover {
+            background: var(--secondary-purple);
+            border-color: var(--secondary-purple);
+            box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
         }
         .section-title {
             font-family: 'Orbitron', sans-serif;
@@ -162,139 +211,419 @@
             transform: translateX(-50%);
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
         }
-        .club-container {
+        .liga-master-season, .liga-master-tournament-calendar, .liga-master-club-preview, .liga-master-achievements, 
+        .liga-master-rankings, .liga-master-transactions, .liga-master-market-status, .liga-master-features, .liga-master-guide {
+            padding: 7rem 3rem;
+            background: var(--dark-bg);
+        }
+        .season-container {
             max-width: 1280px;
             margin: 0 auto;
-            background: linear-gradient(135deg, rgba(42, 42, 58, 0.9), rgba(10, 10, 26, 0.9));
-            padding: 2.5rem;
-            border-radius: 16px;
-            border: 2px solid var(--primary-cyan);
-            box-shadow: var(--shadow-cyan);
-            position: relative;
-            z-index: 1;
-        }
-        .club-header {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            align-items: center;
-        }
-        .club-emblem {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background-color: var(--primary-cyan);
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 10 L90 40 L90 60 L50 90 L10 60 L10 40 Z" fill="white"/></svg>');
-            background-size: 85%;
-            background-position: center;
-            background-repeat: no-repeat;
-            transition: var(--transition-base);
-            box-shadow: var(--shadow-soft);
-            flex-shrink: 0;
-        }
-        .club-info {
-            flex: 1;
-        }
-        .club-name {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--primary-cyan);
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            letter-spacing: 1px;
-            text-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
-        }
-        .progress-bar {
-            margin-top: 1rem;
-            background: var(--dark-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            padding: 0.6rem;
-            transition: var(--transition-base);
-        }
-        .progress-fill {
-            height: 12px;
-            background: var(--primary-cyan);
-            border-radius: 8px;
-            transition: width 0.5s ease-in-out;
-        }
-        .player-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-        .player-card {
             background: var(--light-bg);
+            padding: 2rem;
             border-radius: 12px;
-            padding: 1.8rem;
-            border: 2px solid transparent;
-            transition: var(--transition-base);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
             text-align: center;
         }
-        .player-card:hover {
-            border-color: var(--primary-cyan);
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(0, 255, 255, 0.3);
+        .season-container p {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
         }
-        .train-button {
-            padding: 0.8rem 1.8rem;
-            background: linear-gradient(45deg, var(--primary-cyan), rgba(0, 255, 255, 0.8));
-            color: var(--text-primary);
-            border: 2px solid var(--primary-cyan);
+        #season-timer {
+            font-size: 1.5rem;
+            color: var(--accent-green);
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .calendar-day {
+            background: var(--light-bg);
+            padding: 2.5rem;
             border-radius: 12px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
+            border-left: 4px solid var(--primary-cyan);
             transition: var(--transition-base);
+            box-shadow: var(--shadow-soft);
         }
-        .train-button:hover {
-            background: linear-gradient(45deg, var(--secondary-purple), rgba(128, 0, 128, 0.8));
-            border-color: var(--secondary-purple);
+        .calendar-day:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-cyan);
+        }
+        .event-time {
+            color: var(--primary-cyan);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        .club-preview-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: var(--light-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+            text-align: center;
+        }
+        .club-preview-container h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-cyan);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .club-preview-container p {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
         }
         .club-form {
+            margin-top: 2rem;
             display: flex;
             flex-direction: column;
             gap: 1rem;
-            width: 100%;
-            max-width: 400px;
+            align-items: center;
         }
         .form-input, .form-select {
             padding: 1rem;
             background: var(--dark-bg);
-            border: 2px solid var(--border-light);
-            border-radius: 10px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
             color: var(--text-primary);
             font-size: 1rem;
             transition: var(--transition-base);
+            width: 100%;
+            max-width: 300px;
         }
         .form-input:focus, .form-select:focus {
             border-color: var(--primary-cyan);
-            box-shadow: 0 6px 16px rgba(0, 255, 255, 0.3);
-            outline: none;
+            box-shadow: var(--shadow-cyan);
         }
-        .cta-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 1rem 2.5rem;
+        .train-button {
+            padding: 0.5rem 1rem;
             background: var(--primary-cyan);
             color: var(--text-primary);
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            transition: var(--transition-base);
             border: 1px solid var(--primary-cyan);
-            box-shadow: var(--shadow-cyan);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition-base);
             cursor: pointer;
         }
-        .cta-button:hover {
+        .train-button:hover {
             background: var(--secondary-purple);
             border-color: var(--secondary-purple);
+            box-shadow: var(--shadow-cyan);
+        }
+        .train-button:disabled {
+            background: var(--text-secondary);
+            border-color: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .reset-button {
+            padding: 0.8rem 1.5rem;
+            background: var(--primary-cyan);
+            color: var(--text-primary);
+            border: 1px solid var(--primary-cyan);
+            border-radius: 8px;
+            font-weight: 700;
+            transition: var(--transition-base);
+            cursor: pointer;
+        }
+        .reset-button:hover {
+            background: var(--secondary-purple);
+            border-color: var(--secondary-purple);
+            box-shadow: var(--shadow-cyan);
+        }
+        .club-profile-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: var(--light-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+            text-align: center;
+        }
+        .club-emblem {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            background-color: var(--primary-cyan);
+        }
+        .social-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .achievement-card {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border-light);
+            transition: var(--transition-base);
+            box-shadow: var(--shadow-soft);
+            text-align: center;
+        }
+        .achievement-card.completed {
+            border-color: var(--accent-green);
+        }
+        .achievement-card i {
+            font-size: 2rem;
+            color: var(--accent-green);
+            margin-bottom: 1rem;
+        }
+        .achievement-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-cyan);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        .ranking-table {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 2.5rem;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+            color: var(--text-primary);
+        }
+        th {
+            background: var(--dark-bg);
+            padding: 1.5rem;
+            text-align: left;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--primary-cyan);
+            font-weight: 700;
+            border-bottom: 1px solid var(--primary-cyan);
+        }
+        td {
+            padding: 1.3rem;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 1rem;
+        }
+        tr:hover td {
+            background: rgba(0, 255, 255, 0.05);
+        }
+        .transactions-list {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: var(--light-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+        }
+        .transactions-list ul {
+            list-style: none;
+        }
+        .transactions-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        #market-status {
+            font-size: 1.5rem;
+            color: var(--accent-green);
+            text-align: center;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .feature-card {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border-light);
+            transition: var(--transition-base);
+            box-shadow: var(--shadow-soft);
+            text-align: center;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-cyan);
+            border-color: var(--primary-cyan);
+        }
+        .feature-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-cyan);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        .guide-container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: var(--light-bg);
+            padding: 3.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+        }
+        .guide-step {
+            display: none;
+            padding: 2rem;
+            background: var(--dark-bg);
+            border-radius: 8px;
+            transition: var(--transition-base);
+        }
+        .guide-step.active {
+            display: block;
+        }
+        .guide-step h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--primary-cyan);
+            margin-bottom: 1rem;
+        }
+        .guide-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        .guide-nav button {
+            padding: 0.8rem 1.5rem;
+            background: var(--primary-cyan);
+            color: var(--text-primary);
+            border: 1px solid var(--primary-cyan);
+            border-radius: 8px;
+            font-weight: 700;
+            transition: var(--transition-base);
+            cursor: pointer;
+        }
+        .guide-nav button:hover {
+            background: var(--secondary-purple);
+            border-color: var(--secondary-purple);
+            box-shadow: var(--shadow-cyan);
+        }
+        .guide-nav button:disabled {
+            background: var(--text-secondary);
+            border-color: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .main-footer {
+            margin-top: auto;
+            background: var(--dark-bg);
+            padding: 6rem 3rem;
+            border-top: 1px solid var(--border-light);
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3.5rem;
+        }
+        .footer-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.8rem;
+        }
+        .footer-section h3 {
+            color: var(--primary-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+        }
+        .social-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: var(--transition-base);
+        }
+        .social-link:hover {
+            color: var(--primary-cyan);
+            transform: translateX(5px);
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--light-bg);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--primary-cyan);
+            box-shadow: var(--shadow-cyan);
+            z-index: 2000;
+            animation: slideIn 0.5s ease-out forwards;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 2.5rem;
+            right: 2.5rem;
+            background: var(--primary-cyan);
+            color: var(--text-primary);
+            padding: 1.2rem;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition-base);
+            box-shadow: var(--shadow-cyan);
+            transform: translateY(20px);
+        }
+        .back-to-top.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .back-to-top:hover {
+            background: var(--secondary-purple);
+        }
+        @media (max-width: 768px) {
+            .liga-master-hero {
+                padding: 100px 2rem 4rem;
+            }
+            .hero-title {
+                font-size: 2rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            .features-grid, .achievements-grid, .calendar-grid {
+                grid-template-columns: 1fr;
+            }
+            .guide-container {
+                padding: 2rem;
+            }
         }
     </style>
 </head>
@@ -302,139 +631,180 @@
     <header class="main-header" role="banner">
         <nav class="nav-container" aria-label="Navegación principal">
             <a href="index.html" class="logo" aria-label="Inicio de La Virtual Zone"></a>
-            <button class="mobile-menu" aria-label="Abrir menú" aria-expanded="false" aria-controls="main-nav">
-                <i class="fas fa-bars" aria-hidden="true"></i>
-            </button>
             <div class="main-nav" id="main-nav" role="navigation" aria-label="Secciones principales">
-                <button class="close-menu" aria-label="Cerrar menú"><i class="fas fa-times" aria-hidden="true"></i></button>
                 <a href="index.html" class="nav-link transition-link" data-href="index.html">Inicio</a>
-                <a href="liga-master.html" class="nav-link transition-link" data-href="liga-master.html">Liga Master</a>
-                <a href="mi-liga-master.html" class="nav-link">Mi Club</a>
+                <a href="liga-master.html" class="nav-link">Liga Master</a>
                 <a href="mercado-fichajes.html" class="nav-link transition-link" data-href="mercado-fichajes.html">Mercado de Fichajes</a>
-                <a href="login.html" id="logoutLink" class="nav-link transition-link" data-href="login.html">Cerrar Sesión</a>
+                <a href="#" id="logoutLink" class="nav-link">Cerrar Sesión</a>
             </div>
         </nav>
     </header>
 
     <main role="main">
-        <section class="hero-section" aria-labelledby="hero-heading">
-            <h1 class="hero-title" id="hero-heading">Mi Liga Master</h1>
-            <p class="hero-subtitle">Gestiona tu club, sigue jugadores, y compite por los mejores logros en La Virtual Zone.</p>
-        </section>
-
-        <nav class="section-nav" aria-label="Navegación interna">
-            <a href="#club-section" class="section-nav-link">Tu Club</a>
-            <a href="#watchlist-section" class="section-nav-link">Jugadores Seguidos</a>
-            <a href="#transactions-section" class="section-nav-link">Transacciones</a>
-            <a href="#stats-section" class="section-nav-link">Estadísticas</a>
-            <a href="#achievements-section" class="section-nav-link">Logros</a>
-            <a href="#leaderboard-section" class="section-nav-link">Clasificación</a>
-        </nav>
-
-        <section class="section" id="club-section" aria-labelledby="club-heading">
-            <h2 class="section-title" id="club-heading">Tu Club</h2>
-            <div class="club-container">
-                <div class="club-header">
-                    <div class="club-emblem" id="clubEmblem" role="img" aria-label="Emblema del club"></div>
-                    <div class="club-info">
-                        <h3 class="club-name" id="clubName">[Sin registrar]</h3>
-                        <div class="progress-bar" role="progressbar" aria-label="Presupuesto del club">
-                            <div class="progress-fill" id="budgetProgress" style="width: 100%;"></div>
-                            <span>Presupuesto: $<span id="clubBudget">100,000,000</span></span>
-                        </div>
-                        <p>Jugadores: <span id="playerCount">0</span></p>
-                        <div class="progress-bar" role="progressbar" aria-label="Valor total del club">
-                            <div class="progress-fill" id="valueProgress" style="width: 0%;"></div>
-                            <span>Valor Total: $<span id="teamValue">0</span></span>
-                        </div>
-                        <div class="progress-bar" role="progressbar" aria-label="Rating promedio del club">
-                            <div class="progress-fill" id="ratingProgress" style="width: 0%;"></div>
-                            <span>Rating Promedio: <span id="avgRating">0</span></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="player-grid" id="playerList" role="list" aria-label="Lista de jugadores del club"></div>
-                <div class="club-actions">
-                    <form class="club-form" id="clubForm" aria-label="Formulario de tu club">
-                        <label for="clubNameInput" class="form-label">Nombre del Club</label>
-                        <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club" aria-label="Nombre del club">
-                        <label for="clubColor" class="form-label">Color del Club</label>
-                        <select id="clubColor" class="form-select" aria-label="Color del club">
-                            <option value="#00ffff">Cian</option>
-                            <option value="#800080">Púrpura</option>
-                            <option value="#66ff66">Verde</option>
-                        </select>
-                        <button type="submit" class="cta-button">Guardar</button>
-                    </form>
-                    <div class="action-buttons">
-                        <button id="resetClub" class="reset-button cta-button" aria-label="Reiniciar club">Reiniciar Club</button>
-                        <button id="simulateMatch" class="cta-button" aria-label="Simular un partido">Simular Partido</button>
-                        <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html" aria-label="Ir al Mercado de Fichajes">Ir al Mercado</a>
-                    </div>
-                </div>
+        <section class="liga-master-hero" aria-labelledby="liga-master-heading">
+            <div class="liga-master-hero-content animate-fade-in">
+                <h1 class="hero-title" id="liga-master-heading">Liga Master</h1>
+                <p class="hero-subtitle">Forja tu legado: crea tu club, domina el mercado y conquista los torneos.</p>
+                <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html">
+                    <i class="fas fa-shopping-cart" aria-hidden="true"></i> Mercado de Fichajes
+                </a>
             </div>
         </section>
 
-        <section class="section" id="watchlist-section" aria-labelledby="watchlist-heading">
-            <h2 class="section-title" id="watchlist-heading">Jugadores Seguidos</h2>
-            <div class="container">
-                <ul id="watchlist" class="watchlist" role="list" aria-label="Lista de jugadores seguidos"></ul>
+        <section class="liga-master-season" aria-labelledby="season-heading">
+            <h2 class="section-title" id="season-heading">Temporada Actual</h2>
+            <div class="season-container animate-fade-in">
+                <p>Temporada 1: Camino a la Gloria</p>
+                <p id="season-timer">Cargando...</p>
+                <p>Objetivo: Gana 5 partidos</p>
             </div>
         </section>
 
-        <section class="section" id="transactions-section" aria-labelledby="transactions-heading">
-            <h2 class="section-title" id="transactions-heading">Historial de Transacciones</h2>
-            <div class="container">
-                <ul id="transactionList" class="transactions-list" role="list" aria-label="Historial de transacciones"></ul>
-                <button id="exportTransactions" class="cta-button" aria-label="Exportar transacciones">Exportar Transacciones</button>
+        <section class="liga-master-tournament-calendar" aria-labelledby="calendar-heading">
+            <h2 class="section-title" id="calendar-heading">Calendario de Torneos</h2>
+            <div class="calendar-grid">
+                <article class="calendar-day animate-fade-in">
+                    <time class="event-time" datetime="2025-03-05T21:00">5 Mar 2025 - 21:00</time>
+                    <h3>Torneo Apertura</h3>
+                    <p>Modalidad: 1v1 | Premio: $500</p>
+                </article>
+                <article class="calendar-day animate-fade-in">
+                    <time class="event-time" datetime="2025-03-15T19:00">15 Mar 2025 - 19:00</time>
+                    <h3>Copa Master</h3>
+                    <p>Modalidad: 2v2 | Premio: $1,000</p>
+                </article>
             </div>
         </section>
 
-        <section class="section" id="stats-section" aria-labelledby="stats-heading">
-            <h2 class="section-title" id="stats-heading">Estadísticas del Club</h2>
-            <div class="container">
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number" id="winsCount">0</div>
-                        <p>Victorias</p>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="gamesPlayed">0</div>
-                        <p>Partidos Jugados</p>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="seasonProgress">0/5</div>
-                        <p>Progreso Temporada</p>
-                    </div>
-                </div>
+        <section class="liga-master-club-preview" aria-labelledby="club-preview-heading">
+            <h2 class="section-title" id="club-preview-heading">Tu Club</h2>
+            <div class="club-preview-container animate-fade-in">
+                <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
+                <p>Presupuesto: $<span id="clubBudget">100,000,000</span></p>
+                <p>Jugadores: <span id="playerCount">0</span></p>
+                <p>Valor Total: $<span id="teamValue">0</span></p>
+                <p>Rating Promedio: <span id="avgRating">0</span></p>
+                <ul id="playerList" style="list-style: none; margin-top: 1rem;"></ul>
+                <form class="club-form" id="clubForm">
+                    <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club">
+                    <select id="clubColor" class="form-select">
+                        <option value="#00ffff">Cian</option>
+                        <option value="#800080">Púrpura</option>
+                        <option value="#66ff66">Verde</option>
+                    </select>
+                    <button type="submit" class="cta-button">Guardar</button>
+                </form>
+                <button id="resetClub" class="reset-button" style="margin-top: 1rem;">Reiniciar Club</button>
             </div>
         </section>
 
-        <section class="section" id="achievements-section" aria-labelledby="achievements-heading">
+        <section class="liga-master-achievements" aria-labelledby="achievements-heading">
             <h2 class="section-title" id="achievements-heading">Logros</h2>
-            <div class="container">
-                <div class="achievements-grid">
-                    <div class="achievement-card" id="first-buy"></div>
-                    <div class="achievement-card" id="top-10"></div>
-                    <div class="achievement-card" id="million-spent"></div>
-                    <div class="achievement-card" id="best-team"></div>
-                </div>
+            <div class="achievements-grid">
+                <div class="achievement-card animate-fade-in" id="first-buy"></div>
+                <div class="achievement-card animate-fade-in" id="top-10"></div>
+                <div class="achievement-card animate-fade-in" id="million-spent"></div>
             </div>
         </section>
 
-        <section class="section" id="leaderboard-section" aria-labelledby="leaderboard-heading">
-            <h2 class="section-title" id="leaderboard-heading">Clasificación Liga Master</h2>
-            <div class="container">
-                <ul id="leaderboardList" class="leaderboard-list" role="list" aria-label="Clasificación de la liga"></ul>
+        <section class="liga-master-rankings" aria-labelledby="rankings-heading">
+            <h2 class="section-title" id="rankings-heading">Clasificación de Clubes</h2>
+            <div class="ranking-table animate-fade-in">
+                <table role="grid">
+                    <thead>
+                        <tr>
+                            <th scope="col">Posición</th>
+                            <th scope="col">Club</th>
+                            <th scope="col">Presupuesto</th>
+                            <th scope="col">Victorias</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankingsBody">
+                        <tr>
+                            <td>1</td>
+                            <td>CyberNinja FC</td>
+                            <td>$150M</td>
+                            <td>25</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>PixelMaster United</td>
+                            <td>$130M</td>
+                            <td>22</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>ByteBlaster SC</td>
+                            <td>$110M</td>
+                            <td>20</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="liga-master-transactions" aria-labelledby="transactions-heading">
+            <h2 class="section-title" id="transactions-heading">Historial de Transacciones</h2>
+            <div class="transactions-list animate-fade-in">
+                <ul id="transactionList"></ul>
+            </div>
+        </section>
+
+        <section class="liga-master-market-status" aria-labelledby="market-status-heading">
+            <h2 class="section-title" id="market-status-heading">Estado del Mercado</h2>
+            <p id="market-status" class="animate-fade-in">Cargando...</p>
+        </section>
+
+        <section class="liga-master-features" aria-labelledby="features-heading">
+            <h2 class="section-title" id="features-heading">Características de Liga Master</h2>
+            <div class="features-grid">
+                <article class="feature-card animate-fade-in">
+                    <h3>Gestiona tu Club</h3>
+                    <p>Personaliza tu equipo y lleva tu club al éxito.</p>
+                </article>
+                <article class="feature-card animate-fade-in">
+                    <h3>Mercado de Fichajes</h3>
+                    <p>Compra y vende jugadores con un presupuesto inicial de $100M.</p>
+                </article>
+                <article class="feature-card animate-fade-in">
+                    <h3>Torneos Exclusivos</h3>
+                    <p>Compite contra los mejores en ligas únicas.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="liga-master-guide" aria-labelledby="guide-heading">
+            <h2 class="section-title" id="guide-heading">Cómo Empezar en Liga Master</h2>
+            <div class="guide-container animate-fade-in">
+                <div class="guide-step active" data-step="1">
+                    <h3>1. Registra tu Club</h3>
+                    <p>Completa el formulario para crear tu club y comenzar.</p>
+                </div>
+                <div class="guide-step" data-step="2">
+                    <h3>2. Accede al Mercado</h3>
+                    <p>Visita el "Mercado de Fichajes" para armar tu equipo ideal.</p>
+                </div>
+                <div class="guide-step" data-step="3">
+                    <h3>3. Compite en Torneos</h3>
+                    <p>Inscríbete en torneos y lucha por el primer lugar.</p>
+                </div>
+                <div class="guide-nav">
+                    <button id="prevStep" disabled>Anterior</button>
+                    <button id="nextStep">Siguiente</button>
+                </div>
             </div>
         </section>
     </main>
+
+    <button class="back-to-top" aria-label="Volver al inicio">
+        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+    </button>
 
     <footer class="main-footer" role="contentinfo">
         <div class="footer-content">
             <div class="footer-section">
                 <h3>Contacto</h3>
-                <p><a href="mailto:lavirtualzone@gmail.com">lavirtualzone@gmail.com</a></p>
+                <p><a href="mailto:support@lavirtualzone.com">support@lavirtualzone.com</a></p>
                 <p><a href="tel:+34123456789">+34 123 456 789</a></p>
             </div>
             <div class="footer-section">
@@ -455,456 +825,25 @@
     </footer>
 
     <script>
-        const BASE_URL = 'https://lavirtualzone-backend.onrender.com/api';
-        let club = { name: '[Sin registrar]', budget: 100000000, players: [], color: '#00ffff', wins: 0, watchlist: [], gamesPlayed: 0 };
-        let transactions = [];
+        const BASE_URL = window.location.origin;
+        let club = {
+            name: localStorage.getItem('clubName') || '[Sin registrar]',
+            budget: parseInt(localStorage.getItem('clubBudget')) || 100000000,
+            players: JSON.parse(localStorage.getItem('clubPlayers')) || [],
+            color: localStorage.getItem('clubColor') || '#00ffff',
+            wins: parseInt(localStorage.getItem('clubWins')) || 0
+        };
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         let season = {
             start: new Date().getTime() - 24 * 60 * 60 * 1000,
             end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000,
-            wins: 0
+            wins: parseInt(localStorage.getItem('seasonWins')) || 0
         };
-        let isProcessing = false;
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('Script cargado');
-            if (!(await validateToken())) return;
-
-            const menuButton = document.querySelector('.mobile-menu');
-            const closeButton = document.querySelector('.close-menu');
-            const mainNav = document.querySelector('.main-nav');
-
-            function toggleMenu() {
-                console.log('Toggling mobile menu...');
-                mainNav.classList.toggle('show');
-                const isExpanded = mainNav.classList.contains('show');
-                menuButton.setAttribute('aria-expanded', isExpanded);
-            }
-
-            menuButton.addEventListener('click', toggleMenu);
-            closeButton.addEventListener('click', toggleMenu);
-
-            document.querySelectorAll('.transition-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    console.log(`Navigating to ${link.getAttribute('data-href')}...`);
-                    e.preventDefault();
-                    document.body.classList.add('fade-out');
-                    setTimeout(() => window.location.href = link.getAttribute('data-href'), 500);
-                });
-            });
-
-            document.getElementById('clubForm').addEventListener('submit', saveClub);
-            document.getElementById('resetClub').addEventListener('click', resetClub);
-            document.getElementById('simulateMatch').addEventListener('click', simulateMatch);
-            document.getElementById('exportTransactions').addEventListener('click', exportTransactions);
-            document.getElementById('logoutLink').addEventListener('click', (e) => {
-                e.preventDefault();
-                localStorage.removeItem('token');
-                showNotification('Sesión cerrada', 'success');
-                window.location.href = 'login.html';
-            });
-
-            await initializePage();
-        });
-
-        async function validateToken() {
-            console.log('Validando token...');
-            const token = localStorage.getItem('token');
-            if (!token) {
-                showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
-                setTimeout(() => window.location.href = 'login.html', 2000);
-                return false;
-            }
-            try {
-                const response = await fetch(`${BASE_URL}/auth/me`, {
-                    method: 'GET',
-                    headers: { 'x-auth-token': token }
-                });
-                if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-                const data = await response.json();
-                console.log('Usuario autenticado:', data);
-                return true;
-            } catch (err) {
-                console.error('Error al validar token:', err);
-                showNotification('Error al validar el token. Intenta iniciar sesión nuevamente.', 'error');
-                localStorage.removeItem('token');
-                setTimeout(() => window.location.href = 'login.html', 2000);
-                return false;
-            }
-        }
-
-        async function initializePage() {
-            console.log('Inicializando página...');
-            try {
-                await syncClubData();
-                await syncTransactions();
-                updateClubPreview();
-                updateWatchlist();
-                updateTransactions();
-                await updateAchievements();
-                await updateLeaderboard();
-                updateStats();
-                if (!isMarketOpen()) {
-                    showNotification('El mercado está cerrado. Reabrirá el ' + new Date(season.end).toLocaleString(), 'warning');
-                    document.getElementById('simulateMatch').disabled = true;
-                }
-            } catch (err) {
-                console.error('Error en initializePage:', err);
-                showNotification('Error al cargar datos: ' + err.message, 'error');
-                updateClubPreview();
-                updateWatchlist();
-                updateTransactions();
-                updateStats();
-            } finally {
-                isProcessing = false;
-            }
-        }
-
-        async function syncClubData() {
-            console.log('Sincronizando datos del club con MongoDB...');
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetch(`${BASE_URL}/club/me`, {
-                    method: 'GET',
-                    headers: { 'x-auth-token': token }
-                });
-                if (!response.ok) throw new Error('Error al sincronizar con el backend');
-                club = await response.json();
-                season.wins = club.wins || 0;
-                updateClubPreview();
-                updateWatchlist();
-                updateStats();
-            } catch (err) {
-                console.error('Sync Error:', err);
-                throw err;
-            }
-        }
-
-        async function syncTransactions() {
-            console.log('Sincronizando transacciones...');
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetch(`${BASE_URL}/transaction`, {
-                    method: 'GET',
-                    headers: { 'x-auth-token': token }
-                });
-                if (!response.ok) throw new Error('Error al sincronizar transacciones');
-                transactions = await response.json();
-                updateTransactions();
-            } catch (err) {
-                console.error('Error al sincronizar transacciones:', err);
-                transactions = [];
-                updateTransactions();
-            }
-        }
-
-        function isMarketOpen() {
-            const now = new Date().getTime();
-            return now >= season.start && now <= season.end;
-        }
-
-        function updateClubPreview() {
-            console.log('Actualizando vista previa del club...');
-            const clubName = document.getElementById('clubName');
-            const clubBudget = document.getElementById('clubBudget');
-            const playerCount = document.getElementById('playerCount');
-            const teamValue = document.getElementById('teamValue');
-            const avgRating = document.getElementById('avgRating');
-            const clubEmblem = document.getElementById('clubEmblem');
-            const playerList = document.getElementById('playerList');
-            const clubNameInput = document.getElementById('clubNameInput');
-            const clubColor = document.getElementById('clubColor');
-            const budgetProgress = document.getElementById('budgetProgress');
-            const valueProgress = document.getElementById('valueProgress');
-            const ratingProgress = document.getElementById('ratingProgress');
-
-            clubName.textContent = club.name;
-            clubBudget.textContent = club.budget.toLocaleString();
-            playerCount.textContent = club.players.length;
-            const teamValueCalc = club.players.reduce((sum, p) => sum + (p.value || 0), 0);
-            teamValue.textContent = teamValueCalc.toLocaleString();
-            const avgRatingCalc = club.players.length ? (club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length).toFixed(1) : 0;
-            avgRating.textContent = avgRatingCalc;
-            clubEmblem.style.backgroundColor = club.color;
-            clubNameInput.value = club.name;
-            clubColor.value = club.color;
-
-            playerList.innerHTML = club.players.length ? club.players.map(p => `
-                <article class="player-card" role="listitem" aria-label="${p.name}">
-                    <img src="${getPlayerImage(p.name)}" alt="${p.name}" loading="lazy">
-                    <h3>${p.name}</h3>
-                    <ul class="player-stats">
-                        <li><strong>Rating:</strong> ${p.rating || 0}</li>
-                        <li><strong>Valor:</strong> $${(p.value || 0).toLocaleString()}</li>
-                    </ul>
-                    <button class="train-button" onclick="trainPlayer('${p._id}', ${p.value || 0}, '${p.name}')">Entrenar ($${Math.floor((p.value || 0) * 0.1).toLocaleString()})</button>
-                </article>
-            `).join('') : '<p role="listitem">No hay jugadores.</p>';
-
-            budgetProgress.style.width = `${(club.budget / 100000000) * 100}%`;
-            valueProgress.style.width = `${Math.min((teamValueCalc / 100000000) * 100, 100)}%`;
-            ratingProgress.style.width = `${Math.min(avgRatingCalc, 100)}%`;
-        }
-
-        function updateWatchlist() {
-            console.log('Actualizando lista de seguimiento...');
-            const watchlist = document.getElementById('watchlist');
-            if (!watchlist) return;
-            watchlist.innerHTML = club.watchlist.length ? club.watchlist.map(p => `
-                <li role="listitem">${p.name} ($${p.value.toLocaleString()}) 
-                    <button class="cta-button" onclick="confirmBuy('${p._id}', '${p.name}')">Comprar</button>
-                    <button class="cta-button" onclick="removeFromWatchlist('${p._id}')">Eliminar</button>
-                    <img src="${getPlayerImage(p.name)}" alt="${p.name}" loading="lazy">
-                </li>
-            `).join('') : '<li role="listitem">No hay jugadores seguidos.</li>';
-        }
-
-        function updateTransactions() {
-            console.log('Actualizando transacciones...');
-            const list = document.getElementById('transactionList');
-            if (!list) return;
-            list.innerHTML = transactions.length ? transactions.map(t => `
-                <li role="listitem">${new Date(t.date).toLocaleDateString()} - ${t.type.charAt(0).toUpperCase() + t.type.slice(1)}: ${t.playerName} por $${t.value.toLocaleString()}</li>
-            `).join('') : '<li role="listitem">No hay transacciones recientes.</li>';
-        }
-
-        function updateStats() {
-            console.log('Actualizando estadísticas...');
-            const winsCount = document.getElementById('winsCount');
-            const gamesPlayed = document.getElementById('gamesPlayed');
-            const seasonProgress = document.getElementById('seasonProgress');
-            if (!winsCount || !gamesPlayed || !seasonProgress) return;
-            winsCount.textContent = club.wins || 0;
-            gamesPlayed.textContent = club.gamesPlayed || 0;
-            seasonProgress.textContent = `${club.wins || 0}/5`;
-        }
-
-        async function updateAchievements() {
-            console.log('Actualizando logros...');
-            const firstBuy = document.getElementById('first-buy');
-            const top10 = document.getElementById('top-10');
-            const millionSpent = document.getElementById('million-spent');
-            const bestTeam = document.getElementById('best-team');
-
-            if (!firstBuy || !top10 || !millionSpent || !bestTeam) return;
-
-            firstBuy.innerHTML = `<i class="fas fa-shopping-bag" ${club.players.length > 0 ? '' : 'style="color: gray;"'}></i><h3>Primera Compra</h3><p>${club.players.length > 0 ? 'Completado' : 'Compra tu primer jugador'}</p>`;
-            if (club.players.length > 0) firstBuy.classList.add('completed');
-
-            let isTop10 = false;
-            try {
-                const response = await fetch(`${BASE_URL}/club/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
-                if (!response.ok) throw new Error('Error al cargar leaderboard');
-                const leaderboard = await response.json();
-                isTop10 = leaderboard.slice(0, 10).some(entry => entry.clubName === club.name);
-            } catch (err) {
-                console.warn('No se pudo verificar Top 10:', err);
-            }
-            top10.innerHTML = `<i class="fas fa-trophy" ${isTop10 ? '' : 'style="color: gray;"'}></i><h3>Top 10</h3><p>${isTop10 ? 'Completado' : 'Clasifícate entre los 10 mejores'}</p>`;
-            if (isTop10) top10.classList.add('completed');
-
-            const spent = 100000000 - club.budget;
-            millionSpent.innerHTML = `<i class="fas fa-money-bill-wave" ${spent >= 1000000 ? '' : 'style="color: gray;"'}></i><h3>Millonario</h3><p>${spent >= 1000000 ? 'Completado' : 'Gasta $1M'}</p>`;
-            if (spent >= 1000000) millionSpent.classList.add('completed');
-
-            let isBestTeam = false;
-            try {
-                const response = await fetch(`${BASE_URL}/club/best-team`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
-                if (!response.ok) throw new Error('Error al verificar mejor equipo');
-                const bestTeamData = await response.json();
-                isBestTeam = bestTeamData.isBestTeam || false;
-            } catch (err) {
-                console.warn('No se pudo verificar Mejor Equipo:', err);
-            }
-            bestTeam.innerHTML = `<i class="fas fa-star" ${isBestTeam ? '' : 'style="color: gray;"'}></i><h3>Mejor Equipo del Mes</h3><p>${isBestTeam ? 'Completado' : 'Alcanza el mejor rating promedio'}</p>`;
-            if (isBestTeam) bestTeam.classList.add('completed');
-        }
-
-        async function updateLeaderboard() {
-            console.log('Actualizando clasificación...');
-            const list = document.getElementById('leaderboardList');
-            if (!list) return;
-            try {
-                const response = await fetch(`${BASE_URL}/club/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
-                if (!response.ok) throw new Error('Error al cargar clasificación');
-                const leaderboard = await response.json();
-                list.innerHTML = leaderboard.slice(0, 10).map((entry, index) => `
-                    <li role="listitem">${index + 1}. ${entry.clubName} - Victorias: ${entry.wins || 0}, Rating: ${entry.avgRating || 0}</li>
-                `).join('');
-            } catch (err) {
-                console.error('Error al cargar clasificación:', err);
-                list.innerHTML = '<li role="listitem">Error al cargar clasificación. <button class="cta-button" onclick="updateLeaderboard()">Reintentar</button></li>';
-            }
-        }
-
-        async function trainPlayer(id, value, name) {
-            console.log(`Entrenando a ${name}...`);
-            if (isProcessing || !isMarketOpen()) {
-                if (!isMarketOpen()) showNotification('El mercado está cerrado.', 'error');
-                return;
-            }
-            isProcessing = true;
-            const button = document.querySelector(`button[onclick="trainPlayer('${id}', ${value}, '${name}')"]`);
-            if (button) button.disabled = true;
-
-            const cost = Math.floor(value * 0.1);
-            if (club.budget < cost) {
-                showNotification('No tienes suficiente presupuesto.', 'error');
-                if (button) button.disabled = false;
-                isProcessing = false;
-                return;
-            }
-
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${BASE_URL}/club/me/train`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                    body: JSON.stringify({ playerId: id, cost })
-                });
-                if (!response.ok) throw new Error('Error al entrenar');
-                const data = await response.json();
-                club = data.club;
-                showNotification(`¡${name} entrenado! Rating: ${club.players.find(p => p._id === id).rating}`, 'success');
-                updateClubPreview();
-                updateAchievements();
-            } catch (err) {
-                showNotification('Error al entrenar: ' + err.message, 'error');
-            } finally {
-                isProcessing = false;
-                if (button) button.disabled = false;
-            }
-        }
-
-        async function saveClub(e) {
-            console.log('Guardando club...');
-            e.preventDefault();
-            if (isProcessing) return;
-            isProcessing = true;
-
-            const name = document.getElementById('clubNameInput').value.trim() || '[Sin registrar]';
-            const color = document.getElementById('clubColor').value;
-
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${BASE_URL}/club/me`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                    body: JSON.stringify({ name, color })
-                });
-                if (!response.ok) throw new Error('Error al guardar');
-                club = await response.json();
-                showNotification(`¡Club ${name} actualizado!`, 'success');
-                updateClubPreview();
-            } catch (err) {
-                showNotification('Error al guardar: ' + err.message, 'error');
-            } finally {
-                isProcessing = false;
-            }
-        }
-
-        async function resetClub() {
-            console.log('Reiniciando club...');
-            if (isProcessing || !confirm('¿Estás seguro de reiniciar tu club? Esto eliminará todos tus datos.')) return;
-            isProcessing = true;
-
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${BASE_URL}/club/me/reset`, {
-                    method: 'POST',
-                    headers: { 'x-auth-token': token }
-                });
-                if (!response.ok) throw new Error('Error al reiniciar');
-                const data = await response.json();
-                club = data.club;
-                transactions = [];
-                season.wins = 0;
-                showNotification('¡Club reiniciado!', 'success');
-                updateClubPreview();
-                updateWatchlist();
-                updateTransactions();
-                updateStats();
-                updateAchievements();
-            } catch (err) {
-                showNotification('Error al reiniciar: ' + err.message, 'error');
-            } finally {
-                isProcessing = false;
-            }
-        }
-
-        function confirmBuy(playerId, playerName) {
-            console.log(`Confirmando compra de ${playerName}...`);
-            if (confirm(`¿Quieres ir al Mercado de Fichajes para comprar a ${playerName}?`)) {
-                window.location.href = `mercado-fichajes.html?playerId=${playerId}`;
-            }
-        }
-
-        async function removeFromWatchlist(playerId) {
-            console.log(`Eliminando ${playerId} de la watchlist...`);
-            if (isProcessing) return;
-            isProcessing = true;
-
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${BASE_URL}/players/watchlist/${playerId}`, {
-                    method: 'DELETE',
-                    headers: { 'x-auth-token': token }
-                });
-                if (!response.ok) throw new Error('Error al eliminar de la watchlist');
-                const data = await response.json();
-                club = data.club;
-                showNotification('Jugador eliminado de la watchlist', 'success');
-                updateWatchlist();
-            } catch (err) {
-                showNotification('Error: ' + err.message, 'error');
-            } finally {
-                isProcessing = false;
-            }
-        }
-
-        function exportTransactions() {
-            console.log('Exportando transacciones...');
-            const csv = ['Fecha,Tipo,Jugador,Valor', ...transactions.map(t => `${new Date(t.date).toLocaleDateString()},${t.type},${t.playerName},${t.value}`).join('\n')];
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'transacciones.csv';
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-
-        async function simulateMatch() {
-            console.log('Simulando partido...');
-            if (!isMarketOpen()) return showNotification('El mercado está cerrado.', 'error');
-            if (club.players.length === 0) return showNotification('No tienes jugadores en tu club.', 'error');
-
-            try {
-                const token = localStorage.getItem('token');
-                const winChance = Math.random() < 0.7;
-                const response = await fetch(`${BASE_URL}/club/me/simulate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                    body: JSON.stringify({ win: winChance })
-                });
-                if (!response.ok) throw new Error('Error al simular partido');
-                const data = await response.json();
-                club = data.club;
-                season.wins = club.wins;
-                const message = winChance ? `¡Victoria! Tu club tiene ${club.wins} victorias.` : 'Derrota. ¡Sigue mejorando tu equipo!';
-                showNotification(message, winChance ? 'success' : 'error');
-                updateClubPreview();
-                updateStats();
-                updateAchievements();
-            } catch (err) {
-                showNotification('Error al simular partido: ' + err.message, 'error');
-            }
-        }
-
+        // Funciones de notificación
         function showNotification(message, type = 'success') {
-            console.log(`Notificación: ${message} (${type})`);
             const notification = document.createElement('div');
             notification.className = 'notification';
-            notification.setAttribute('aria-live', 'polite');
             notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
             notification.style.borderColor = type === 'success' ? 'var(--accent-green)' : 'var(--secondary-purple)';
             document.body.appendChild(notification);
@@ -914,9 +853,370 @@
             }, 3000);
         }
 
-        function getPlayerImage(name) {
-            return `https://api.dicebear.com/6.x/pixel-art/svg?seed=${encodeURIComponent(name)}`;
+        // Cargar datos del club desde el backend
+        async function syncClubData() {
+            const token = localStorage.getItem('token');
+            console.log('Token enviado desde Liga Master:', token);
+            if (!token) {
+                showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+            try {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
+                    method: 'GET',
+                    headers: { 'x-auth-token': token }
+                });
+                console.log('Estado de la respuesta:', response.status);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.log('Error del servidor:', errorData);
+                    showNotification(errorData.msg || 'Error al cargar el club', 'error');
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                    }
+                    return;
+                }
+                const data = await response.json();
+                club = {
+                    ...data,
+                    players: Array.isArray(data.players) ? data.players : [],
+                    wins: data.wins || 0
+                };
+                localStorage.setItem('clubName', club.name);
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                localStorage.setItem('clubColor', club.color || '#00ffff');
+                localStorage.setItem('clubWins', club.wins);
+                updateClubPreview();
+            } catch (err) {
+                showNotification('Error de conexión: ' + err.message, 'error');
+                console.error('Error en syncClubData:', err);
+            }
         }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await syncClubData();
+
+            document.querySelectorAll('.transition-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.body.classList.add('fade-out');
+                    setTimeout(() => window.location.href = link.getAttribute('data-href'), 500);
+                });
+            });
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
+
+            const backToTop = document.querySelector('.back-to-top');
+            window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
+            backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+            setInterval(updateSeasonTimer, 1000);
+            setInterval(updateMarketStatus, 1000);
+            updateSeasonTimer();
+            updateClubPreview();
+            updateTransactions();
+            updateAchievements();
+            updateMarketStatus();
+            updateStep();
+
+            const logoutLink = document.getElementById('logoutLink');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem('token');
+                    showNotification('Sesión cerrada', 'success');
+                    window.location.href = 'login.html';
+                });
+            }
+        });
+
+        function updateSeasonTimer() {
+            const now = new Date().getTime();
+            const timer = document.getElementById('season-timer');
+            if (!timer) return;
+            if (now < season.start) {
+                const timeUntil = season.start - now;
+                const days = Math.floor(timeUntil / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeUntil % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                timer.textContent = `Temporada comienza en ${days}d ${hours}h`;
+            } else if (now <= season.end) {
+                const timeLeft = season.end - now;
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                timer.textContent = `Temporada termina en ${days}d ${hours}h - Victorias: ${season.wins}/5`;
+            } else {
+                timer.textContent = "Temporada finalizada";
+            }
+        }
+
+        function updateClubPreview() {
+            const clubName = document.getElementById('clubName');
+            const clubBudget = document.getElementById('clubBudget');
+            const playerCount = document.getElementById('playerCount');
+            const teamValue = document.getElementById('teamValue');
+            const avgRating = document.getElementById('avgRating');
+            const playerList = document.getElementById('playerList');
+            const clubNameInput = document.getElementById('clubNameInput');
+            const clubColor = document.getElementById('clubColor');
+
+            if (!clubName || !clubBudget || !playerCount || !teamValue || !avgRating || !playerList || !clubNameInput || !clubColor) {
+                console.error('Elementos del DOM no encontrados en updateClubPreview');
+                return;
+            }
+
+            clubName.textContent = club.name;
+            clubBudget.textContent = club.budget.toLocaleString();
+            playerCount.textContent = club.players.length;
+            const teamValueCalc = club.players.reduce((sum, p) => sum + (p.value || 0), 0);
+            teamValue.textContent = teamValueCalc.toLocaleString();
+            const avgRatingCalc = club.players.length ? (club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length).toFixed(1) : 0;
+            avgRating.textContent = avgRatingCalc;
+            clubNameInput.value = club.name;
+            clubColor.value = club.color;
+
+            playerList.innerHTML = club.players.length ? club.players.map(p => `
+                <li>${p.name} (Rating: ${p.rating || 0}) 
+                    <button class="train-button" ${isMarketOpen() ? '' : 'disabled'} onclick="trainPlayer('${p._id || p.id}', ${p.value || 0}, '${p.name}')">Entrenar ($${Math.floor((p.value || 0) * 0.1).toLocaleString()})</button>
+                </li>`).join('') : '<li>No hay jugadores.</li>';
+        }
+
+        function isMarketOpen() {
+            const now = new Date().getTime();
+            return now >= season.start && now <= season.end;
+        }
+
+        async function trainPlayer(id, value, name) {
+            if (!isMarketOpen()) {
+                showNotification('El mercado está cerrado.', 'error');
+                return;
+            }
+            const cost = Math.floor(value * 0.1);
+            if (club.budget < cost) {
+                showNotification('No tienes suficiente presupuesto para entrenar a este jugador.', 'error');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión.', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const playerIndex = club.players.findIndex(p => p._id === id || p.id === id);
+            if (playerIndex === -1) {
+                showNotification('Jugador no encontrado.', 'error');
+                return;
+            }
+
+            club.budget -= cost;
+            club.players[playerIndex].rating = Math.min((club.players[playerIndex].rating || 0) + 1, 99);
+            club.players[playerIndex].value = (value || 0) + cost;
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/club/me/train`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({ playerId: id, cost })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    showNotification(errorData.msg || 'Error al entrenar jugador', 'error');
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = 'login.html';
+                    }
+                    throw new Error('Error en la solicitud');
+                }
+                const data = await response.json();
+                club = data.club;
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                showNotification(`¡${name} ha sido entrenado! Rating aumentado a ${club.players[playerIndex].rating} (+$${cost.toLocaleString()})`, 'success');
+                updateClubPreview();
+                updateAchievements();
+            } catch (err) {
+                showNotification('Error: ' + err.message, 'error');
+                club.budget += cost;
+                club.players[playerIndex].rating = (club.players[playerIndex].rating || 0) - 1;
+                club.players[playerIndex].value = value;
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+            }
+        }
+
+        function updateAchievements() {
+            const firstBuy = document.getElementById('first-buy');
+            const top10 = document.getElementById('top-10');
+            const millionSpent = document.getElementById('million-spent');
+
+            if (!firstBuy || !top10 || !millionSpent) {
+                console.error('Elementos de logros no encontrados');
+                return;
+            }
+
+            firstBuy.innerHTML = `<i class="fas fa-shopping-bag" ${club.players.length > 0 ? '' : 'style="color: gray;"'}></i><h3>Primera Compra</h3><p>${club.players.length > 0 ? 'Completado' : 'Compra tu primer jugador'}</p>`;
+            if (club.players.length > 0) firstBuy.classList.add('completed');
+
+            top10.innerHTML = `<i class="fas fa-trophy" style="color: gray;"></i><h3>Top 10</h3><p>Clasifícate entre los 10 mejores clubes</p>`;
+
+            const spent = 100000000 - club.budget;
+            millionSpent.innerHTML = `<i class="fas fa-money-bill-wave" ${spent >= 1000000 ? '' : 'style="color: gray;"'}></i><h3>Millonario</h3><p>${spent >= 1000000 ? 'Completado' : 'Gasta $1M en el mercado'}</p>`;
+            if (spent >= 1000000) millionSpent.classList.add('completed');
+        }
+
+        function updateTransactions() {
+            const list = document.getElementById('transactionList');
+            if (!list) return;
+            list.innerHTML = transactions.length ? transactions.map(t => `<li>${t.date ? new Date(t.date).toLocaleDateString() : ''} - ${t.type}: ${t.playerName} por $${t.value.toLocaleString()}</li>`).join('') : '<li>No hay transacciones recientes.</li>';
+        }
+
+        function updateMarketStatus() {
+            const now = new Date().getTime();
+            const status = document.getElementById('market-status');
+            if (!status) return;
+            if (now >= season.start && now <= season.end) {
+                const timeLeft = season.end - now;
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                status.textContent = `Mercado abierto - ${days}d ${hours}h restantes`;
+            } else if (now < season.start) {
+                const timeUntil = season.start - now;
+                const days = Math.floor(timeUntil / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeUntil % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                status.textContent = `Mercado cerrado - Abre en ${days}d ${hours}h`;
+            } else {
+                status.textContent = "Mercado cerrado";
+            }
+        }
+
+        let currentStep = 1;
+        const steps = document.querySelectorAll('.guide-step');
+        const prevButton = document.getElementById('prevStep');
+        const nextButton = document.getElementById('nextStep');
+
+        function updateStep() {
+            steps.forEach(step => step.classList.remove('active'));
+            steps[currentStep - 1].classList.add('active');
+            if (prevButton) prevButton.disabled = currentStep === 1;
+            if (nextButton) nextButton.disabled = currentStep === steps.length;
+        }
+
+        if (prevButton) {
+            prevButton.addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateStep();
+                }
+            });
+        }
+
+        if (nextButton) {
+            nextButton.addEventListener('click', () => {
+                if (currentStep < steps.length) {
+                    currentStep++;
+                    updateStep();
+                }
+            });
+        }
+
+        document.getElementById('clubForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión para crear un club.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+
+            const clubNameInput = document.getElementById('clubNameInput');
+            const clubColor = document.getElementById('clubColor');
+            if (!clubNameInput || !clubColor) return;
+
+            club.name = clubNameInput.value || '[Sin registrar]';
+            club.color = clubColor.value;
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({ name: club.name, color: club.color, budget: club.budget, players: club.players, wins: club.wins })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    showNotification(errorData.msg || 'Error al actualizar el club', 'error');
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = 'login.html';
+                    }
+                    return;
+                }
+                const data = await response.json();
+                club = data;
+                localStorage.setItem('clubName', club.name);
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                localStorage.setItem('clubColor', club.color);
+                localStorage.setItem('clubWins', club.wins);
+                showNotification(`¡Club ${club.name} actualizado con éxito!`, 'success');
+                updateClubPreview();
+            } catch (err) {
+                showNotification('Error de conexión: ' + err.message, 'error');
+                console.error('Error al guardar club:', err);
+            }
+        });
+
+        document.getElementById('resetClub').addEventListener('click', async () => {
+            if (!confirm('¿Estás seguro de reiniciar tu club? Esto eliminará todos tus datos.')) return;
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión.', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/club/me/reset`, {
+                    method: 'POST',
+                    headers: { 'x-auth-token': token }
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    showNotification(errorData.msg || 'Error al reiniciar el club', 'error');
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = 'login.html';
+                    }
+                    return;
+                }
+                const data = await response.json();
+                club = data.club;
+                localStorage.setItem('clubName', club.name);
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                localStorage.setItem('clubColor', club.color);
+                localStorage.setItem('clubWins', club.wins);
+                localStorage.setItem('transactions', JSON.stringify([]));
+                localStorage.setItem('seasonWins', 0);
+                transactions = [];
+                showNotification('¡Tu club ha sido reiniciado!', 'success');
+                updateClubPreview();
+                updateTransactions();
+                updateAchievements();
+            } catch (err) {
+                showNotification('Error de conexión: ' + err.message, 'error');
+                console.error('Error al reiniciar club:', err);
+            }
+        });
     </script>
 </body>
 </html>
