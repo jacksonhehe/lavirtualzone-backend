@@ -766,8 +766,8 @@
     </footer>
 
     <script>
-        const BASE_URL = 'https://lavirtualzone-backend.onrender.com/api';
-        
+        const BASE_URL = 'https://lavirtualzone-backend.onrender.com'; // Corregido para evitar duplicación de /api
+
         let club = {
             name: localStorage.getItem('clubName') || '[Sin registrar]',
             budget: parseInt(localStorage.getItem('clubBudget')) || 100000000,
@@ -851,23 +851,23 @@
                 const response = await fetch(`${BASE_URL}/api/club/me`, {
                     headers: { 'x-auth-token': token }
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    club = {
-                        ...data,
-                        players: Array.isArray(data.players) ? data.players : [],
-                        watchlist: Array.isArray(data.watchlist) ? data.watchlist : []
-                    };
-                    localStorage.setItem('clubName', club.name);
-                    localStorage.setItem('clubBudget', club.budget);
-                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-                    localStorage.setItem('marketPoints', club.points || 0);
-                    localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
-                } else {
-                    throw new Error(data.msg || 'Error al cargar el club');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Error ${response.status}: ${errorData.msg || 'Error al cargar el club'}`);
                 }
+                const data = await response.json();
+                club = {
+                    ...data,
+                    players: Array.isArray(data.players) ? data.players : [],
+                    watchlist: Array.isArray(data.watchlist) ? data.watchlist : []
+                };
+                localStorage.setItem('clubName', club.name);
+                localStorage.setItem('clubBudget', club.budget);
+                localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                localStorage.setItem('marketPoints', club.points || 0);
+                localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
             } catch (err) {
-                showNotification('Error al sincronizar datos del club: ' + err.message, 'error');
+                showNotification(`Error al sincronizar datos del club: ${err.message}`, 'error');
                 club.players = club.players || [];
                 club.watchlist = club.watchlist || [];
             }
@@ -881,7 +881,7 @@
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.msg || 'Error al cargar jugadores');
+                    throw new Error(`Error ${response.status}: ${errorData.msg || 'Error al cargar jugadores'}`);
                 }
                 const data = await response.json();
                 playersMarket = Array.isArray(data) ? data : [];
@@ -894,7 +894,7 @@
                 renderOffers();
                 updateStats();
             } catch (err) {
-                showNotification('Error al cargar datos del mercado: ' + err.message, 'error');
+                showNotification(`Error al cargar datos del mercado: ${err.message}`, 'error');
                 playersMarket = [];
                 renderMarket();
             }
