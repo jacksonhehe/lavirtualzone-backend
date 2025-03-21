@@ -34,7 +34,7 @@ const validateRequiredFields = (req, res, fields) => {
   return null;
 };
 
-// POST /api/transactions - Crear una nueva transacción (ej: comprar un jugador)
+// POST /api/transactions - Crear una nueva transacción (ej: comprar, vender o prestar un jugador)
 router.post('/', auth, async (req, res) => {
   try {
     const requiredFields = ['type', 'playerId', 'value'];
@@ -73,7 +73,8 @@ router.post('/', auth, async (req, res) => {
       club.budget += value;
       club.players = club.players.filter(p => p._id.toString() !== playerId);
     } else if (type === 'prestamo') {
-      // Aquí puedes añadir lógica específica para préstamos si aplica
+      // Lógica básica para préstamos (puedes personalizarla según tus necesidades)
+      // Por ejemplo, podrías agregar una fecha de devolución o condiciones específicas
     }
 
     await club.save();
