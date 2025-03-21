@@ -924,7 +924,30 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('Página cargada, inicializando...');
-            if (!(await validateToken())) return;
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/auth/me`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${await response.text()}`);
+                }
+                const data = await response.json();
+                console.log('Usuario autenticado:', data);
+            } catch (err) {
+                console.error('Error al validar token:', err);
+                showNotification('Error al validar el token. Intenta iniciar sesión nuevamente.', 'error');
+                localStorage.removeItem('token');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
 
             const menuButton = document.querySelector('.mobile-menu');
             const closeButton = document.querySelector('.close-menu');
@@ -978,36 +1001,6 @@
             await initializePage();
         });
 
-        async function validateToken() {
-            console.log('Validando token...');
-            const token = localStorage.getItem('token');
-            if (!token) {
-                showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
-                setTimeout(() => window.location.href = 'login.html', 2000);
-                return false;
-            }
-            try {
-                const response = await fetch(`${BASE_URL}/auth/me`, {
-                    method: 'GET',
-                    headers: { 'x-auth-token': token }
-                });
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Error en /auth/me:', errorText);
-                    throw new Error(`Error ${response.status}: ${response.statusText}. Detalle: ${errorText}`);
-                }
-                const data = await response.json();
-                console.log('Usuario autenticado:', data);
-                return true;
-            } catch (err) {
-                console.error('Error al validar token:', err);
-                showNotification('Error al validar el token. Intenta iniciar sesión nuevamente. Detalle: ' + err.message, 'error');
-                localStorage.removeItem('token');
-                setTimeout(() => window.location.href = 'login.html', 2000);
-                return false;
-            }
-        }
-
         async function initializePage() {
             console.log('Inicializando página...');
             const spinner = document.getElementById('loadingSpinner');
@@ -1044,7 +1037,7 @@
             try {
                 const response = await fetch(`${BASE_URL}/club/me`, {
                     method: 'GET',
-                    headers: { 'x-auth-token': token }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -1073,7 +1066,7 @@
             try {
                 const response = await fetch(`${BASE_URL}/transaction`, {
                     method: 'GET',
-                    headers: { 'x-auth-token': token }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -1194,7 +1187,7 @@
 
             let isTop10 = false;
             try {
-                const response = await fetch(`${BASE_URL}/club/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
+                const response = await fetch(`${BASE_URL}/club/leaderboard`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
                 if (!response.ok) {
                     const errorData = await response.json();
                     if (response.status === 401) {
@@ -1219,7 +1212,7 @@
 
             let isBestTeam = false;
             try {
-                const response = await fetch(`${BASE_URL}/club/best-team`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
+                const response = await fetch(`${BASE_URL}/club/best-team`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
                 if (!response.ok) {
                     const errorData = await response.json();
                     if (response.status === 401) {
@@ -1244,7 +1237,7 @@
             const list = document.getElementById('leaderboardList');
             if (!list) return;
             try {
-                const response = await fetch(`${BASE_URL}/club/leaderboard`, { headers: { 'x-auth-token': localStorage.getItem('token') } });
+                const response = await fetch(`${BASE_URL}/club/leaderboard`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
                 if (!response.ok) {
                     const errorData = await response.json();
                     if (response.status === 401) {
@@ -1287,7 +1280,7 @@
                 const token = localStorage.getItem('token');
                 const response = await fetch(`${BASE_URL}/club/me/train`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ playerId: id, cost })
                 });
                 if (!response.ok) {
@@ -1326,7 +1319,7 @@
                 const token = localStorage.getItem('token');
                 const response = await fetch(`${BASE_URL}/club/me`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ name, color })
                 });
                 if (!response.ok) {
@@ -1358,7 +1351,7 @@
                 const token = localStorage.getItem('token');
                 const response = await fetch(`${BASE_URL}/club/me/reset`, {
                     method: 'POST',
-                    headers: { 'x-auth-token': token }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -1403,7 +1396,7 @@
                 const token = localStorage.getItem('token');
                 const response = await fetch(`${BASE_URL}/players/watchlist/${playerId}`, {
                     method: 'DELETE',
-                    headers: { 'x-auth-token': token }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -1448,7 +1441,7 @@
                 const winChance = Math.random() < 0.7;
                 const response = await fetch(`${BASE_URL}/club/me/simulate`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ win: winChance })
                 });
                 if (!response.ok) {
