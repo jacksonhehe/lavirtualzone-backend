@@ -1125,7 +1125,7 @@
             /*
             async function updateLiveStats() {
                 try {
-                    const response = await fetch(`${BASE_URL}/club/count`);
+                    const response = await fcdetch(`${BASE_URL}/club/count`);
                     const data = await response.json();
                     if (response.ok) {
                         document.getElementById('liveClubs').textContent = data.count.toLocaleString();
