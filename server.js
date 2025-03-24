@@ -3,12 +3,25 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const helmet = require('helmet'); // Middleware para seguridad HTTP
+const rateLimit = require('express-rate-limit'); // Limitar tasa de solicitudes
 
 // Inicializar la aplicación Express
 const app = express();
 
 // Middleware para parsear solicitudes JSON
 app.use(express.json());
+
+// Configuración de Helmet para seguridad HTTP
+app.use(helmet());
+
+// Configuración de Rate Limiting para prevenir abusos
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 100, // Limitar a 100 solicitudes por IP
+    message: 'Demasiadas solicitudes desde esta IP, por favor intenta de nuevo más tarde.'
+});
+app.use(limiter);
 
 // Configuración de CORS para permitir solicitudes desde el frontend
 app.use(cors({
@@ -34,8 +47,8 @@ mongoose.connect(process.env.MONGO_URI)
     });
 
 // Clave secreta para JWT desde variables de entorno
-const JWT_SECRET = process.env.JWT_SECRET || 'tu-secreto-jwt-muy-seguro';
-if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'tu-secreto-jwt-muy-seguro') {
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET === 'tu-secreto-jwt-muy-seguro') {
     console.warn('⚠️ ATENCIÓN: Configura un JWT_SECRET seguro en producción');
 }
 
@@ -57,6 +70,11 @@ app.get('/api/health', (req, res) => {
         status: 'OK', 
         message: 'Servidor funcionando correctamente' 
     });
+});
+
+// Middleware para manejar rutas no encontradas (404)
+app.use((req, res, next) => {
+    res.status(404).json({ message: 'Ruta no encontrada' });
 });
 
 // Middleware para manejar errores globales

@@ -94,7 +94,7 @@
         .logo {
             width: 60px;
             height: 60px;
-            background: url('logo-la-virtual-zone.svg') no-repeat center center;
+            background: url('/images/logo-la-virtual-zone.svg') no-repeat center center;
             background-size: contain;
             text-indent: -9999px;
             transition: var(--transition-base);
@@ -1221,7 +1221,7 @@
 
             showNotification('Procesando compra...', 'info');
             try {
-                const response = await fetch(`${BASE_URL}/api/transaction`, {
+                const response = await fetch(`${BASE_URL}/api/transactions`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ type: 'compra', playerName: name, value })
@@ -1264,7 +1264,7 @@
             const sellValue = Math.floor(value * 0.8);
             showNotification('Procesando venta...', 'info');
             try {
-                const response = await fetch(`${BASE_URL}/api/transaction`, {
+                const response = await fetch(`${BASE_URL}/api/transactions`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ type: 'venta', playerName: name, value: sellValue })
@@ -1320,7 +1320,7 @@
 
             showNotification('Procesando préstamo...', 'info');
             try {
-                const response = await fetch(`${BASE_URL}/api/transaction`, {
+                const response = await fetch(`${BASE_URL}/api/transactions`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                     body: JSON.stringify({ type: 'prestamo', playerName: name, value })
