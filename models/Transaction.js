@@ -2,15 +2,15 @@ const mongoose = require('mongoose');
 
 // Definir el esquema de la transacción
 const transactionSchema = new mongoose.Schema({
-  // ID del usuario que realizó la transacción
+  // Referencia al usuario que realizó la transacción
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: [true, 'El ID del usuario es obligatorio'],
-    immutable: true // No permitir cambios después de la creación
+    immutable: true  // No modificable una vez creada la transacción
   },
   
-  // ID del club involucrado en la transacción
+  // Referencia al club involucrado en la transacción
   clubId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Club',
@@ -18,35 +18,36 @@ const transactionSchema = new mongoose.Schema({
     immutable: true
   },
   
-  // Tipo de transacción: compra, venta, prestamo, entrenamiento, bonificación
+  // Tipo de transacción (compra, venta, prestamo, entrenamiento)
   type: {
     type: String,
     enum: {
-      values: ['compra', 'venta', 'prestamo', 'entrenamiento', 'bonificación'],
-      message: 'Tipo de transacción inválido. Debe ser: compra, venta, prestamo, entrenamiento o bonificación'
+      values: ['compra', 'venta', 'prestamo', 'entrenamiento'],
+      message: 'Tipo de transacción inválido. Debe ser compra, venta, prestamo o entrenamiento'
     },
     required: [true, 'El tipo de transacción es obligatorio']
   },
   
-  // Nombre del jugador involucrado (si aplica)
+  // Nombre del jugador involucrado (si aplica a la transacción)
   playerName: {
     type: String,
     trim: true,
     required: function() {
+      // Solo es obligatorio si el tipo de transacción involucra a un jugador
       return ['compra', 'venta', 'prestamo', 'entrenamiento'].includes(this.type);
     },
     minlength: [3, 'El nombre del jugador debe tener al menos 3 caracteres'],
     maxlength: [50, 'El nombre del jugador no puede exceder los 50 caracteres']
   },
   
-  // ID del jugador involucrado (opcional, para referencia directa)
+  // Referencia al jugador involucrado (opcional, puede ser null si no aplica)
   playerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Player',
     default: null
   },
   
-  // Valor de la transacción (monto)
+  // Valor (monto) de la transacción
   value: {
     type: Number,
     required: [true, 'El valor de la transacción es obligatorio'],
@@ -57,10 +58,10 @@ const transactionSchema = new mongoose.Schema({
   date: {
     type: Date,
     default: Date.now,
-    immutable: true // No permitir cambios después de la creación
+    immutable: true  // La fecha de una transacción no debe cambiarse
   },
   
-  // Detalles adicionales (opcional, para notas o descripciones)
+  // Detalles adicionales (opcional, por ejemplo notas)
   details: {
     type: String,
     trim: true,
@@ -68,27 +69,26 @@ const transactionSchema = new mongoose.Schema({
   }
 }, {
   // Opciones del esquema
-  timestamps: true, // Añade createdAt y updatedAt automáticamente
+  timestamps: true,            // createdAt y updatedAt automáticos
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-// Índice para optimizar búsquedas por usuario y club
+// Índice para optimizar búsquedas frecuentes (buscar transacciones por usuario y club, ordenadas por fecha)
 transactionSchema.index({ userId: 1, clubId: 1, date: -1 });
 
-// Virtual para obtener el nombre del tipo de transacción en español
+// Virtual: nombre descriptivo del tipo de transacción (por ejemplo, para uso en frontend)
 transactionSchema.virtual('typeName').get(function() {
-  const typeNames = {
+  const types = {
     'compra': 'Compra de jugador',
     'venta': 'Venta de jugador',
     'prestamo': 'Préstamo de jugador',
-    'entrenamiento': 'Entrenamiento',
-    'bonificación': 'Bonificación'
+    'entrenamiento': 'Entrenamiento'
   };
-  return typeNames[this.type] || 'Desconocido';
+  return types[this.type] || 'Desconocido';
 });
 
-// Método estático para registrar una transacción fácilmente
+// Método estático: registrar fácilmente una nueva transacción 
 transactionSchema.statics.recordTransaction = async function(userId, clubId, type, playerName, value, playerId = null, details = '') {
   const transaction = new this({
     userId,
@@ -102,5 +102,5 @@ transactionSchema.statics.recordTransaction = async function(userId, clubId, typ
   return transaction.save();
 };
 
-// Exportar el modelo
+// Exportar el modelo Transaction basado en el esquema transactionSchema
 module.exports = mongoose.model('Transaction', transactionSchema);

@@ -3,25 +3,21 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const config = require('config');
 const { check, validationResult } = require('express-validator');
 const User = require('../models/User');
 
 // Middleware para proteger rutas (autenticación con JWT)
 const authMiddleware = async (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
-
   if (!token) {
     return res.status(401).json({ message: 'No hay token, autorización denegada' });
   }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    const decoded = jwt.verify(token, config.get('jwtSecret'));
+    req.user = decoded; 
     next();
   } catch (err) {
-    if (err.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expirado' });
-    }
     res.status(401).json({ message: 'Token inválido' });
   }
 };
@@ -42,25 +38,30 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
-
+    const { name, email, password, parsecId } = req.body;
     try {
+      // Verificar si el usuario ya existe (email)
       let user = await User.findOne({ email });
       if (user) {
         return res.status(400).json({ message: 'El usuario ya existe' });
       }
+      // Verificar si el parsecId ya está registrado
+      user = await User.findOne({ parsecId });
+      if (user) {
+        return res.status(400).json({ message: 'El ID de Parsec ya está registrado' });
+      }
 
-      user = new User({ name, email, password });
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
+      // Crear nuevo usuario
+      user = new User({ name, email, password, parsecId });
       await user.save();
 
+      // Generar token JWT
       const payload = { id: user.id };
-      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-      res.json({ token });
+      const token = jwt.sign(payload, config.get('jwtSecret'), { expiresIn: '1h' });
+      res.json({ token, user: { name: user.name } });
     } catch (err) {
       console.error(err.message);
-      res.status(500).json({ message: 'Error del servidor' });
+      res.status(500).send('Error del servidor');
     }
   }
 );
@@ -81,24 +82,24 @@ router.post(
     }
 
     const { email, password } = req.body;
-
     try {
-      let user = await User.findOne({ email });
+      // Buscar usuario por email
+      const user = await User.findOne({ email });
       if (!user) {
         return res.status(400).json({ message: 'Credenciales inválidas' });
       }
-
+      // Verificar contraseña
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({ message: 'Credenciales inválidas' });
       }
-
+      // Generar token JWT
       const payload = { id: user.id };
-      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-      res.json({ token });
+      const token = jwt.sign(payload, config.get('jwtSecret'), { expiresIn: '1h' });
+      res.json({ token, user: { name: user.name } });
     } catch (err) {
       console.error(err.message);
-      res.status(500).json({ message: 'Error del servidor' });
+      res.status(500).send('Error del servidor');
     }
   }
 );
@@ -115,7 +116,7 @@ router.get('/me', authMiddleware, async (req, res) => {
     res.json(user);
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ message: 'Error del servidor' });
+    res.status(500).send('Error del servidor');
   }
 });
 

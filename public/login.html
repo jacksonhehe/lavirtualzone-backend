@@ -765,39 +765,19 @@
     </main>
 
     <script>
-        // Partículas
-        particlesJS('particles-js', {
-            particles: {
-                number: { value: 80, density: { enable: true, value_area: 800 } },
-                color: { value: '#00ffff' },
-                shape: { type: 'circle' },
-                opacity: { value: 0.5, random: true },
-                size: { value: 3, random: true },
-                line_linked: { enable: true, distance: 150, color: '#00ffff', opacity: 0.4, width: 1 },
-                move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
-            },
-            interactivity: {
-                detect_on: 'canvas',
-                events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true },
-                modes: { repulse: { distance: 100, duration: 0.4 }, push: { particles_nb: 4 } }
-            },
-            retina_detect: true
-        });
-
-        // URL base dinámica para el backend
-        const BASE_URL = 'https://lavirtualzone-backend.onrender.com/api';
-
+        // URL base para el backend
+        const BASE_URL = window.location.origin;
+        
         // Verificar sesión al cargar
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    const response = await fetch(`${BASE_URL}/auth/me`, {
+                    const response = await fetch(`${BASE_URL}/api/auth/me`, {
                         method: 'GET',
-                        headers: { 'Authorization': `Bearer ${token}` }
+                        headers: { 'x-auth-token': token }
                     });
                     if (response.ok) {
-                        console.log('Sesión activa, redirigiendo...');
                         document.body.classList.add('fade-out');
                         setTimeout(() => window.location.href = 'mi-liga-master.html', 500);
                     } else {
@@ -813,24 +793,22 @@
             const menuButton = document.querySelector('.mobile-menu');
             const closeButton = document.querySelector('.close-menu');
             const mainNav = document.querySelector('.main-nav');
-
             function toggleMenu() {
                 const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
                 menuButton.setAttribute('aria-expanded', !isExpanded);
                 mainNav.classList.toggle('show');
             }
-
             menuButton.addEventListener('click', toggleMenu);
             closeButton.addEventListener('click', toggleMenu);
 
-            // Mensaje dinámico
+            // Mensaje de bienvenida dinámico
             const welcomeMessage = document.getElementById('welcomeMessage');
             const hour = new Date().getHours();
-            welcomeMessage.textContent = hour < 12 ? '¡Buenos días! Únete a la acción.' : 
-                                         hour < 18 ? '¡Buenas tardes! La batalla te espera.' : 
+            welcomeMessage.textContent = hour < 12 ? '¡Buenos días! Únete a la acción.' :
+                                         hour < 18 ? '¡Buenas tardes! La batalla te espera.' :
                                          '¡Buenas noches! Domina la zona virtual.';
 
-            // Selector de idioma
+            // Selector de idioma (traducción del texto del formulario)
             const languageSelect = document.getElementById('language');
             const texts = {
                 es: {
@@ -866,107 +844,28 @@
                     discord: 'Join our Discord community'
                 }
             };
-
-            function updateLanguage(lang) {
+            // Aplicar texto según idioma seleccionado
+            function applyLanguage(lang) {
                 const text = texts[lang];
-                welcomeMessage.textContent = text.welcome;
-                document.querySelector('.tab-button[data-tab="login"]').textContent = text.login;
-                document.querySelector('.tab-button[data-tab="register"]').textContent = text.register;
+                document.getElementById('welcomeMessage').textContent = text.welcome;
+                document.querySelector('[data-tab="login"]').textContent = text.login;
+                document.querySelector('[data-tab="register"]').textContent = text.register;
                 document.getElementById('loginEmail').placeholder = text.emailPlaceholder;
                 document.getElementById('loginPassword').placeholder = text.passwordPlaceholder;
-                document.getElementById('playerName').placeholder = text.namePlaceholder;
                 document.getElementById('playerEmail').placeholder = text.emailPlaceholder;
                 document.getElementById('playerPassword').placeholder = text.passwordPlaceholder;
                 document.getElementById('playerParsec').placeholder = text.parsecPlaceholder;
-                document.querySelector('#loginForm .cta-button').innerHTML = `<i class="fas fa-sign-in-alt" aria-hidden="true"></i> ${text.loginBtn}`;
+                document.getElementById('playerName').placeholder = text.namePlaceholder;
+                document.querySelector('#loginForm .cta-button').innerHTML = `<i class="fas fa-sign-in-alt"></i> ${text.loginBtn}`;
                 document.querySelector('#registerForm .cta-button').innerHTML = `<i class="fas fa-user-plus" aria-hidden="true"></i> ${text.registerBtn}`;
                 document.getElementById('forgotPasswordLink').textContent = text.forgotPassword;
-                document.querySelector('#forgotPasswordModal .section-title').textContent = text.resetPasswordTitle;
+                document.getElementById('resetPasswordTitle').textContent = text.resetPasswordTitle;
                 document.getElementById('resetEmail').placeholder = text.resetEmailPlaceholder;
-                document.querySelector('#resetPasswordForm .cta-button').innerHTML = `<i class="fas fa-paper-plane" aria-hidden="true"></i> ${text.resetBtn}`;
-                document.querySelector('.discord-cta').innerHTML = `<i class="fab fa-discord" aria-hidden="true"></i> ${text.discord}`;
+                document.getElementById('resetBtn').textContent = text.resetBtn;
+                document.getElementById('discordLink').textContent = text.discord;
             }
-
-            languageSelect.addEventListener('change', (e) => updateLanguage(e.target.value));
-            updateLanguage('es');
-
-            // Pestañas
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const formContainers = document.querySelectorAll('.form-container');
-
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    formContainers.forEach(container => container.classList.remove('active'));
-                    button.classList.add('active');
-                    document.getElementById(button.dataset.tab).classList.add('active');
-                });
-            });
-
-            // Toggle de contraseña
-            document.querySelectorAll('.toggle-password').forEach(toggle => {
-                toggle.addEventListener('click', () => {
-                    const input = document.getElementById(toggle.dataset.target);
-                    const isPassword = input.type === 'password';
-                    input.type = isPassword ? 'text' : 'password';
-                    toggle.classList.toggle('fa-eye', !isPassword);
-                    toggle.classList.toggle('fa-eye-slash', isPassword);
-                });
-            });
-
-            // Validación en tiempo real
-            function validateInput(input, errorId, condition, message) {
-                const error = document.getElementById(errorId);
-                input.addEventListener('input', () => {
-                    if (condition(input.value)) {
-                        input.classList.remove('invalid');
-                        error.classList.remove('active');
-                    } else {
-                        input.classList.add('invalid');
-                        error.textContent = message;
-                        error.classList.add('active');
-                    }
-                });
-            }
-
-            validateInput(document.getElementById('loginEmail'), 'loginEmailError', 
-                value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
-                'Por favor, ingrese un correo válido.');
-            validateInput(document.getElementById('loginPassword'), 'loginPasswordError', 
-                value => value.length >= 6, 
-                'La contraseña debe tener al menos 6 caracteres.');
-            validateInput(document.getElementById('playerName'), 'playerNameError', 
-                value => value.length >= 3, 
-                'El nombre debe tener al menos 3 caracteres.');
-            validateInput(document.getElementById('playerEmail'), 'playerEmailError', 
-                value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
-                'Por favor, ingrese un correo válido.');
-            validateInput(document.getElementById('playerPassword'), 'playerPasswordError', 
-                value => value.length >= 6, 
-                'La contraseña debe tener al menos 6 caracteres.');
-            validateInput(document.getElementById('playerParsec'), 'playerParsecError', 
-                value => value.length >= 5, 
-                'El ID de Parsec debe tener al menos 5 caracteres.');
-            validateInput(document.getElementById('resetEmail'), 'resetEmailError', 
-                value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
-                'Por favor, ingrese un correo válido.');
-
-            // Vista previa del perfil
-            const playerNameInput = document.getElementById('playerName');
-            const profilePreview = document.getElementById('profilePreview');
-            const previewName = document.getElementById('previewName');
-            const previewAvatar = document.getElementById('previewAvatar');
-
-            playerNameInput.addEventListener('input', () => {
-                const name = playerNameInput.value.trim();
-                if (name.length >= 3) {
-                    previewName.textContent = name;
-                    previewAvatar.src = `/images/user-placeholder.png`;
-                    profilePreview.classList.add('active');
-                } else {
-                    profilePreview.classList.remove('active');
-                }
-            });
+            languageSelect.addEventListener('change', () => applyLanguage(languageSelect.value));
+            applyLanguage(languageSelect.value);
 
             // Formulario de Inicio de Sesión
             document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -974,27 +873,22 @@
                 const submitBtn = e.target.querySelector('button[type="submit"]');
                 const loginEmail = document.getElementById('loginEmail').value.trim();
                 const loginPassword = document.getElementById('loginPassword').value.trim();
-
                 if (!loginEmail || !loginPassword || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail) || loginPassword.length < 6) {
                     showNotification('Por favor, corrija los campos inválidos.', 'error');
                     return;
                 }
-
                 submitBtn.classList.add('loading');
                 submitBtn.disabled = true;
-
                 try {
-                    const response = await fetch(`${BASE_URL}/auth/login`, {
+                    const response = await fetch(`${BASE_URL}/api/auth/login`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+                        body: JSON.stringify({ email: loginEmail, password: loginPassword })
                     });
                     const data = await response.json();
-
                     if (response.ok) {
-                        console.log('Token recibido:', data.token);
                         localStorage.setItem('token', data.token);
-                        showNotification('¡Bienvenido de nuevo! Redirigiendo...', 'success');
+                        showNotification(`¡Bienvenido de nuevo, ${data.user.name}! Redirigiendo...`, 'success');
                         setTimeout(() => {
                             document.body.classList.add('fade-out');
                             setTimeout(() => window.location.href = 'mi-liga-master.html', 500);
@@ -1018,33 +912,30 @@
                 const playerEmail = document.getElementById('playerEmail').value.trim();
                 const playerPassword = document.getElementById('playerPassword').value.trim();
                 const playerParsec = document.getElementById('playerParsec').value.trim();
-
-                if (!playerName || !playerEmail || !playerPassword || !playerParsec || 
-                    playerName.length < 3 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(playerEmail) || 
+                if (!playerName || !playerEmail || !playerPassword || !playerParsec ||
+                    playerName.length < 3 ||
+                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(playerEmail) ||
                     playerPassword.length < 6 || playerParsec.length < 5) {
                     showNotification('Por favor, corrija los campos inválidos.', 'error');
                     return;
                 }
-
                 submitBtn.classList.add('loading');
                 submitBtn.disabled = true;
-
                 try {
-                    const response = await fetch(`${BASE_URL}/auth/register`, {
+                    const response = await fetch(`${BASE_URL}/api/auth/register`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             name: playerName,
                             email: playerEmail,
                             password: playerPassword,
-                            parsecId: playerParsec,
-                        }),
+                            parsecId: playerParsec
+                        })
                     });
                     const data = await response.json();
-
                     if (response.ok) {
                         localStorage.setItem('token', data.token);
-                        showNotification('¡Registrado exitosamente! Redirigiendo...', 'success');
+                        showNotification(`¡Registrado, ${data.user.name}! Redirigiendo...`, 'success');
                         setTimeout(() => {
                             document.body.classList.add('fade-out');
                             setTimeout(() => window.location.href = 'mi-liga-master.html', 500);
@@ -1060,36 +951,33 @@
                 }
             });
 
-            // Modal para Olvidé mi Contraseña
+            // Modal "Olvidé mi Contraseña"
             const forgotPasswordLink = document.getElementById('forgotPasswordLink');
             const forgotPasswordModal = document.getElementById('forgotPasswordModal');
             const modalClose = document.getElementById('modalClose');
-
             forgotPasswordLink.addEventListener('click', (e) => {
                 e.preventDefault();
                 forgotPasswordModal.classList.add('active');
             });
-
             modalClose.addEventListener('click', () => forgotPasswordModal.classList.remove('active'));
             forgotPasswordModal.addEventListener('click', (e) => {
                 if (e.target === forgotPasswordModal) forgotPasswordModal.classList.remove('active');
             });
 
+            // Formulario de Restablecer Contraseña (simulado, sin funcionalidad backend)
             document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const submitBtn = e.target.querySelector('button[type="submit"]');
                 const resetEmail = document.getElementById('resetEmail').value.trim();
-
                 if (!resetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetEmail)) {
                     showNotification('Por favor, ingrese un correo válido.', 'error');
                     return;
                 }
-
                 submitBtn.classList.add('loading');
                 submitBtn.disabled = true;
-
                 try {
                     showNotification('Funcionalidad de restablecimiento no implementada en el backend.', 'error');
+                    // (Simulación de envío de enlace de restablecimiento)
                 } catch (err) {
                     showNotification('Error de conexión: ' + err.message, 'error');
                 } finally {
@@ -1098,7 +986,7 @@
                 }
             });
 
-            // Transiciones
+            // Transiciones de enlaces con clase "transition-link"
             document.querySelectorAll('.transition-link').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -1107,19 +995,41 @@
                 });
             });
 
-            // Función de notificación reutilizable
-            function showNotification(message, type = 'success') {
-                const notification = document.createElement('div');
-                notification.className = 'form-success';
-                notification.style.background = type === 'success' ? 'var(--accent-green)' : 'var(--error-red)';
-                notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" aria-hidden="true"></i> ${message}`;
-                document.querySelector('.auth-container').appendChild(notification);
-                setTimeout(() => {
-                    notification.style.opacity = '0';
-                    setTimeout(() => notification.remove(), 500);
-                }, 3000);
+            // Ejemplo de estadísticas en vivo (comentado si no hay endpoint real)
+            /*
+            async function updateLiveStats() {
+                try {
+                    const response = await fetch(`${BASE_URL}/api/club/count`);
+                    const data = await response.json();
+                    if (response.ok) {
+                        document.getElementById('liveClubs').textContent = data.count.toLocaleString();
+                    }
+                    document.getElementById('livePlayers').textContent = Math.floor(Math.random() * 1000 + 1000).toLocaleString();
+                } catch (err) {
+                    console.error('Error al actualizar estadísticas:', err);
+                    document.getElementById('liveClubs').textContent = '567';
+                    document.getElementById('livePlayers').textContent = '1,234';
+                }
             }
+            updateLiveStats();
+            */
         });
+
+        // Función para mostrar notificaciones emergentes al usuario
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.setAttribute('aria-live', 'polite');
+            notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    notification.addEventListener('transitionend', () => notification.remove());
+                }, 4000);
+            }, 100);
+        }
     </script>
 
     <!-- Scripts locales -->
