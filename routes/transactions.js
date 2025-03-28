@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { validateRequiredFields } = require('../middleware/validation');
 const auth = require('../middleware/auth');
 const Transaction = require('../models/Transaction');
 const Club = require('../models/Club');
