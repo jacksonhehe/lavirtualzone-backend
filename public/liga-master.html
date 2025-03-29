@@ -1,218 +1,1183 @@
 <!DOCTYPE html>
 <html lang="es" dir="ltr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Liga Master - Gestiona tu club y compite en torneos exclusivos en La Virtual Zone">
-    <meta name="keywords" content="Liga Master, La Virtual Zone, Videojuegos, Parsec, Torneos, Gaming">
-    <meta name="theme-color" content="#0a0a1a">
-    <meta name="robots" content="index, follow">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <title>Liga Master | La Virtual Zone</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
-          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
-          crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Liga Master - Gestiona tu club y compite en torneos exclusivos en La Virtual Zone">
+  <meta name="keywords" content="Liga Master, La Virtual Zone, Videojuegos, Parsec, Torneos, Gaming">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <title>Liga Master | La Virtual Zone</title>
+
+  <!-- Fuentes y Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos internos (puedes extraer a styles.css) -->
+  <style>
+    :root {
+      --primary-cyan: #00ffff;
+      --secondary-purple: #800080;
+      --dark-bg: #0a0a1a;
+      --light-bg: #2a2a3a;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0c0;
+      --border-light: rgba(0, 255, 255, 0.2);
+      --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --shadow-cyan: 0 6px 18px rgba(0, 255, 255, 0.15);
+      --transition-base: 0.3s ease-in-out;
+      --accent-green: #66ff66;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: var(--dark-bg);
+      color: var(--text-primary);
+      font-family: 'Roboto', sans-serif;
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+      transition: opacity 0.5s ease;
+    }
+    body.fade-out {
+      opacity: 0;
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(10, 10, 26, 0.95), rgba(10, 10, 26, 1));
+      z-index: -1;
+      opacity: 0.9;
+    }
+    .main-header {
+      background: rgba(10, 10, 26, 0.98);
+      backdrop-filter: blur(8px);
+      padding: 1rem 2rem;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: var(--shadow-soft);
+    }
+    .nav-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+    }
+    .logo {
+      width: 60px;
+      height: 60px;
+      background: url('logo-la-virtual-zone.svg') no-repeat center center;
+      background-size: contain;
+      text-indent: -9999px;
+      transition: var(--transition-base);
+      border: 1px solid var(--border-light);
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    .logo:hover {
+      opacity: 0.9;
+    }
+    .main-nav {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .nav-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 400;
+      font-size: 1rem;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      transition: var(--transition-base);
+      letter-spacing: 0.5px;
+    }
+    .nav-link:hover {
+      color: var(--primary-cyan);
+      background: rgba(0, 255, 255, 0.1);
+      box-shadow: var(--shadow-cyan);
+    }
+    /* Liga Master Hero */
+    .liga-master-hero {
+      padding: 160px 3rem 8rem;
+      background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      margin-top: 60px;
+      position: relative;
+      text-align: center;
+    }
+    .liga-master-hero::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 40%;
+      background: linear-gradient(to top, var(--dark-bg), transparent);
+      z-index: 1;
+    }
+    .liga-master-hero-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    }
+    .hero-subtitle {
+      color: var(--text-secondary);
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      max-width: 800px;
+      margin: 0 auto 3rem;
+      font-weight: 300;
+    }
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 1rem 2.5rem;
+      background: var(--primary-cyan);
+      color: var(--text-primary);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      transition: var(--transition-base);
+      border: 1px solid var(--primary-cyan);
+      box-shadow: var(--shadow-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+    }
+    .cta-button:hover {
+      background: var(--secondary-purple);
+      border-color: var(--secondary-purple);
+      box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
+    }
+    /* Sección: Títulos de sección */
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin-bottom: 4rem;
+      color: var(--primary-cyan);
+      font-weight: 700;
+      letter-spacing: 1px;
+      position: relative;
+      text-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
+    }
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      width: 120px;
+      height: 3px;
+      background: var(--primary-cyan);
+      transform: translateX(-50%);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    }
+    /* Secciones de Liga Master */
+    .liga-master-season,
+    .liga-master-tournament-calendar,
+    .liga-master-club-preview,
+    .liga-master-achievements,
+    .liga-master-rankings,
+    .liga-master-transactions,
+    .liga-master-market-status,
+    .liga-master-features,
+    .liga-master-guide {
+      padding: 7rem 3rem;
+      background: var(--dark-bg);
+    }
+    /* Temporada */
+    .season-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: var(--light-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-soft);
+      text-align: center;
+    }
+    .season-container p {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    #season-timer {
+      font-size: 1.5rem;
+      color: var(--accent-green);
+    }
+    /* Calendario de torneos */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2.5rem;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .calendar-day {
+      background: var(--light-bg);
+      padding: 2.5rem;
+      border-radius: 12px;
+      border-left: 4px solid var(--primary-cyan);
+      transition: var(--transition-base);
+      box-shadow: var(--shadow-soft);
+    }
+    .calendar-day:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-cyan);
+    }
+    .event-time {
+      color: var(--primary-cyan);
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+    /* Vista previa del club */
+    .club-preview-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: var(--light-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-soft);
+      text-align: center;
+    }
+    .club-preview-container h3 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--primary-cyan);
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .club-preview-container p {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .club-form {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+    }
+    .form-input, .form-select {
+      padding: 1rem;
+      background: var(--dark-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: var(--transition-base);
+      width: 100%;
+      max-width: 300px;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--primary-cyan);
+      box-shadow: var(--shadow-cyan);
+    }
+    .train-button {
+      padding: 0.5rem 1rem;
+      background: var(--primary-cyan);
+      color: var(--text-primary);
+      border: 1px solid var(--primary-cyan);
+      border-radius: 8px;
+      font-weight: 600;
+      transition: var(--transition-base);
+      cursor: pointer;
+    }
+    .train-button:hover {
+      background: var(--secondary-purple);
+      border-color: var(--secondary-purple);
+      box-shadow: var(--shadow-cyan);
+    }
+    .train-button:disabled {
+      background: var(--text-secondary);
+      border-color: var(--text-secondary);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    .reset-button {
+      padding: 0.8rem 1.5rem;
+      background: var(--primary-cyan);
+      color: var(--text-primary);
+      border: 1px solid var(--primary-cyan);
+      border-radius: 8px;
+      font-weight: 700;
+      transition: var(--transition-base);
+      cursor: pointer;
+    }
+    .reset-button:hover {
+      background: var(--secondary-purple);
+      border-color: var(--secondary-purple);
+      box-shadow: var(--shadow-cyan);
+    }
+    /* Logros */
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2.5rem;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .achievement-card {
+      background: var(--light-bg);
+      border-radius: 12px;
+      padding: 2rem;
+      border: 1px solid var(--border-light);
+      transition: var(--transition-base);
+      box-shadow: var(--shadow-soft);
+      text-align: center;
+    }
+    .achievement-card.completed {
+      border-color: var(--accent-green);
+    }
+    .achievement-card i {
+      font-size: 2rem;
+      color: var(--accent-green);
+      margin-bottom: 1rem;
+    }
+    .achievement-card h3 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--primary-cyan);
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+    /* Clasificación de clubes */
+    .ranking-table {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: var(--light-bg);
+      border-radius: 12px;
+      padding: 2.5rem;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-soft);
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+      color: var(--text-primary);
+    }
+    th {
+      background: var(--dark-bg);
+      padding: 1.5rem;
+      text-align: left;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      color: var(--primary-cyan);
+      font-weight: 700;
+      border-bottom: 1px solid var(--primary-cyan);
+    }
+    td {
+      padding: 1.3rem;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 1rem;
+    }
+    tr:hover td {
+      background: rgba(0, 255, 255, 0.05);
+    }
+    /* Historial de transacciones */
+    .transactions-list {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: var(--light-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-soft);
+    }
+    .transactions-list ul {
+      list-style: none;
+    }
+    .transactions-list li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+    /* Estado del mercado */
+    #market-status {
+      font-size: 1.5rem;
+      color: var(--accent-green);
+      text-align: center;
+    }
+    /* Características */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2.5rem;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .feature-card {
+      background: var(--light-bg);
+      border-radius: 12px;
+      padding: 2rem;
+      border: 1px solid var(--border-light);
+      transition: var(--transition-base);
+      box-shadow: var(--shadow-soft);
+      text-align: center;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-cyan);
+      border-color: var(--primary-cyan);
+    }
+    .feature-card h3 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--primary-cyan);
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+    /* Guía */
+    .guide-container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--light-bg);
+      padding: 3.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-soft);
+    }
+    .guide-step {
+      display: none;
+      padding: 2rem;
+      background: var(--dark-bg);
+      border-radius: 8px;
+      transition: var(--transition-base);
+    }
+    .guide-step.active {
+      display: block;
+    }
+    .guide-step h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: var(--primary-cyan);
+      margin-bottom: 1rem;
+    }
+    .guide-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+    }
+    .guide-nav button {
+      padding: 0.8rem 1.5rem;
+      background: var(--primary-cyan);
+      color: var(--text-primary);
+      border: 1px solid var(--primary-cyan);
+      border-radius: 8px;
+      font-weight: 700;
+      transition: var(--transition-base);
+      cursor: pointer;
+    }
+    .guide-nav button:hover {
+      background: var(--secondary-purple);
+      border-color: var(--secondary-purple);
+      box-shadow: var(--shadow-cyan);
+    }
+    .guide-nav button:disabled {
+      background: var(--text-secondary);
+      border-color: var(--text-secondary);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    /* Botón Volver Arriba */
+    .back-to-top {
+      position: fixed;
+      bottom: 2.5rem;
+      right: 2.5rem;
+      background: var(--primary-cyan);
+      color: var(--text-primary);
+      padding: 1.2rem;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      opacity: 0;
+      transition: var(--transition-base);
+      box-shadow: var(--shadow-cyan);
+      transform: translateY(20px);
+    }
+    .back-to-top.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .back-to-top:hover {
+      background: var(--secondary-purple);
+    }
+    /* Animaciones */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--light-bg);
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      border: 1px solid var(--primary-cyan);
+      box-shadow: var(--shadow-cyan);
+      z-index: 2000;
+      animation: slideIn 0.5s ease-out forwards;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-20px); }
+    }
+    @media (max-width: 768px) {
+      .liga-master-hero {
+        padding: 100px 2rem 4rem;
+      }
+      .hero-title {
+        font-size: 2rem;
+      }
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+      .features-grid, .achievements-grid, .calendar-grid {
+        grid-template-columns: 1fr;
+      }
+      .guide-container {
+        padding: 2rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <header class="main-header" role="banner">
-        <nav class="nav-container" aria-label="Navegación principal">
-            <a href="index.html" class="logo" aria-label="Inicio de La Virtual Zone"></a>
-            <div class="main-nav" id="main-nav" role="navigation" aria-label="Secciones principales">
-                <a href="index.html" class="nav-link transition-link" data-href="index.html">Inicio</a>
-                <a href="liga-master.html" class="nav-link">Liga Master</a>
-                <a href="mercado-fichajes.html" class="nav-link transition-link" data-href="mercado-fichajes.html">Mercado de Fichajes</a>
-                <a href="#" id="logoutLink" class="nav-link">Cerrar Sesión</a>
-            </div>
-        </nav>
-    </header>
+  <header class="main-header" role="banner">
+    <nav class="nav-container" aria-label="Navegación principal">
+      <a href="index.html" class="logo" aria-label="Inicio de La Virtual Zone"></a>
+      <div class="main-nav" id="main-nav" role="navigation" aria-label="Secciones principales">
+        <a href="index.html" class="nav-link transition-link" data-href="index.html">Inicio</a>
+        <a href="liga-master.html" class="nav-link">Liga Master</a>
+        <a href="mercado-fichajes.html" class="nav-link transition-link" data-href="mercado-fichajes.html">Mercado de Fichajes</a>
+        <a href="#" id="logoutLink" class="nav-link">Cerrar Sesión</a>
+      </div>
+    </nav>
+  </header>
 
-    <main role="main">
-        <section class="liga-master-hero" aria-labelledby="liga-master-heading">
-            <div class="liga-master-hero-content animate-fade-in">
-                <h1 class="hero-title" id="liga-master-heading">Liga Master</h1>
-                <p class="hero-subtitle">Forja tu legado: crea tu club, domina el mercado y conquista los torneos.</p>
-                <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html">
-                    <i class="fas fa-shopping-cart" aria-hidden="true"></i> Mercado de Fichajes
-                </a>
-            </div>
-        </section>
+  <main role="main">
+    <!-- Sección Hero -->
+    <section class="liga-master-hero" aria-labelledby="liga-master-heading">
+      <div class="liga-master-hero-content animate-fade-in">
+        <h1 class="hero-title" id="liga-master-heading">Liga Master</h1>
+        <p class="hero-subtitle">Forja tu legado: crea tu club, domina el mercado y conquista los torneos.</p>
+        <a href="mercado-fichajes.html" class="cta-button transition-link" data-href="mercado-fichajes.html">
+          <i class="fas fa-shopping-cart" aria-hidden="true"></i> Mercado de Fichajes
+        </a>
+      </div>
+    </section>
 
-        <section class="liga-master-season" aria-labelledby="season-heading">
-            <h2 class="section-title" id="season-heading">Temporada Actual</h2>
-            <div class="season-container animate-fade-in">
-                <p>Temporada 1: Camino a la Gloria</p>
-                <p id="season-timer">Cargando...</p>
-                <p>Objetivo: Gana 5 partidos</p>
-            </div>
-        </section>
+    <!-- Sección Temporada -->
+    <section class="liga-master-season" aria-labelledby="season-heading">
+      <h2 class="section-title" id="season-heading">Temporada Actual</h2>
+      <div class="season-container animate-fade-in">
+        <p>Temporada 1: Camino a la Gloria</p>
+        <p id="season-timer">Cargando...</p>
+        <p>Objetivo: Gana 5 partidos</p>
+      </div>
+    </section>
 
-        <section class="liga-master-tournament-calendar" aria-labelledby="calendar-heading">
-            <h2 class="section-title" id="calendar-heading">Calendario de Torneos</h2>
-            <div class="calendar-grid">
-                <article class="calendar-day animate-fade-in">
-                    <time class="event-time" datetime="2025-03-05T21:00">5 Mar 2025 - 21:00</time>
-                    <h3>Torneo Apertura</h3>
-                    <p>Modalidad: 1v1 | Premio: $500</p>
-                </article>
-                <article class="calendar-day animate-fade-in">
-                    <time class="event-time" datetime="2025-03-15T19:00">15 Mar 2025 - 19:00</time>
-                    <h3>Copa Master</h3>
-                    <p>Modalidad: 2v2 | Premio: $1,000</p>
-                </article>
-            </div>
-        </section>
+    <!-- Calendario de Torneos -->
+    <section class="liga-master-tournament-calendar" aria-labelledby="calendar-heading">
+      <h2 class="section-title" id="calendar-heading">Calendario de Torneos</h2>
+      <div class="calendar-grid">
+        <article class="calendar-day animate-fade-in">
+          <time class="event-time" datetime="2025-03-05T21:00">5 Mar 2025 - 21:00</time>
+          <h3>Torneo Apertura</h3>
+          <p>Modalidad: 1v1 | Premio: $500</p>
+        </article>
+        <article class="calendar-day animate-fade-in">
+          <time class="event-time" datetime="2025-03-15T19:00">15 Mar 2025 - 19:00</time>
+          <h3>Copa Master</h3>
+          <p>Modalidad: 2v2 | Premio: $1,000</p>
+        </article>
+      </div>
+    </section>
 
-        <section class="liga-master-club-preview" aria-labelledby="club-preview-heading">
-            <h2 class="section-title" id="club-preview-heading">Tu Club</h2>
-            <div class="club-preview-container animate-fade-in">
-                <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
-                <p>Presupuesto: $<span id="clubBudget">100,000,000</span></p>
-                <p>Jugadores: <span id="playerCount">0</span></p>
-                <p>Valor Total: $<span id="teamValue">0</span></p>
-                <p>Rating Promedio: <span id="avgRating">0</span></p>
-                <ul id="playerList" style="list-style: none; margin-top: 1rem;"></ul>
-                <form class="club-form" id="clubForm">
-                    <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club">
-                    <select id="clubColor" class="form-select">
-                        <option value="#00ffff">Cian</option>
-                        <option value="#800080">Púrpura</option>
-                        <option value="#66ff66">Verde</option>
-                    </select>
-                    <button type="submit" class="cta-button">Guardar</button>
-                </form>
-                <button id="resetClub" class="reset-button" style="margin-top: 1rem;">Reiniciar Club</button>
-            </div>
-        </section>
+    <!-- Vista Previa del Club -->
+    <section class="liga-master-club-preview" aria-labelledby="club-preview-heading">
+      <h2 class="section-title" id="club-preview-heading">Tu Club</h2>
+      <div class="club-preview-container animate-fade-in">
+        <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
+        <p>Presupuesto: $<span id="clubBudget">100,000,000</span></p>
+        <p>Jugadores: <span id="playerCount">0</span></p>
+        <p>Valor Total: $<span id="teamValue">0</span></p>
+        <p>Rating Promedio: <span id="avgRating">0</span></p>
+        <ul id="playerList" style="list-style: none; margin-top: 1rem;"></ul>
+        <form class="club-form" id="clubForm">
+          <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club">
+          <select id="clubColor" class="form-select">
+            <option value="#00ffff">Cian</option>
+            <option value="#800080">Púrpura</option>
+            <option value="#66ff66">Verde</option>
+          </select>
+          <button type="submit" class="cta-button">Guardar</button>
+        </form>
+        <button id="resetClub" class="reset-button" style="margin-top: 1rem;">Reiniciar Club</button>
+      </div>
+    </section>
 
-        <section class="liga-master-achievements" aria-labelledby="achievements-heading">
-            <h2 class="section-title" id="achievements-heading">Logros</h2>
-            <div class="achievements-grid">
-                <div class="achievement-card animate-fade-in" id="first-buy"></div>
-                <div class="achievement-card animate-fade-in" id="top-10"></div>
-                <div class="achievement-card animate-fade-in" id="million-spent"></div>
-            </div>
-        </section>
+    <!-- Logros -->
+    <section class="liga-master-achievements" aria-labelledby="achievements-heading">
+      <h2 class="section-title" id="achievements-heading">Logros</h2>
+      <div class="achievements-grid">
+        <div class="achievement-card animate-fade-in" id="first-buy"></div>
+        <div class="achievement-card animate-fade-in" id="top-10"></div>
+        <div class="achievement-card animate-fade-in" id="million-spent"></div>
+      </div>
+    </section>
 
-        <section class="liga-master-rankings" aria-labelledby="rankings-heading">
-            <h2 class="section-title" id="rankings-heading">Clasificación de Clubes</h2>
-            <div class="ranking-table animate-fade-in">
-                <table role="grid">
-                    <thead>
-                        <tr>
-                            <th scope="col">Posición</th>
-                            <th scope="col">Club</th>
-                            <th scope="col">Presupuesto</th>
-                            <th scope="col">Victorias</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rankingsBody">
-                        <tr>
-                            <td>1</td>
-                            <td>CyberNinja FC</td>
-                            <td>$150M</td>
-                            <td>25</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>PixelMaster United</td>
-                            <td>$130M</td>
-                            <td>22</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>ByteBlaster SC</td>
-                            <td>$110M</td>
-                            <td>20</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+    <!-- Clasificación de Clubes -->
+    <section class="liga-master-rankings" aria-labelledby="rankings-heading">
+      <h2 class="section-title" id="rankings-heading">Clasificación de Clubes</h2>
+      <div class="ranking-table animate-fade-in">
+        <table role="grid">
+          <thead>
+            <tr>
+              <th scope="col">Posición</th>
+              <th scope="col">Club</th>
+              <th scope="col">Presupuesto</th>
+              <th scope="col">Victorias</th>
+            </tr>
+          </thead>
+          <tbody id="rankingsBody">
+            <tr>
+              <td>1</td>
+              <td>CyberNinja FC</td>
+              <td>$150M</td>
+              <td>25</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>PixelMaster United</td>
+              <td>$130M</td>
+              <td>22</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>ByteBlaster SC</td>
+              <td>$110M</td>
+              <td>20</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-        <section class="liga-master-transactions" aria-labelledby="transactions-heading">
-            <h2 class="section-title" id="transactions-heading">Historial de Transacciones</h2>
-            <div class="transactions-list animate-fade-in">
-                <ul id="transactionList"></ul>
-            </div>
-        </section>
+    <!-- Historial de Transacciones -->
+    <section class="liga-master-transactions" aria-labelledby="transactions-heading">
+      <h2 class="section-title" id="transactions-heading">Historial de Transacciones</h2>
+      <div class="transactions-list animate-fade-in">
+        <ul id="transactionList"></ul>
+      </div>
+    </section>
 
-        <section class="liga-master-market-status" aria-labelledby="market-status-heading">
-            <h2 class="section-title" id="market-status-heading">Estado del Mercado</h2>
-            <p id="market-status" class="animate-fade-in">Cargando...</p>
-        </section>
+    <!-- Estado del Mercado -->
+    <section class="liga-master-market-status" aria-labelledby="market-status-heading">
+      <h2 class="section-title" id="market-status-heading">Estado del Mercado</h2>
+      <p id="market-status" class="animate-fade-in">Cargando...</p>
+    </section>
 
-        <section class="liga-master-features" aria-labelledby="features-heading">
-            <h2 class="section-title" id="features-heading">Características de Liga Master</h2>
-            <div class="features-grid">
-                <article class="feature-card animate-fade-in">
-                    <h3>Gestiona tu Club</h3>
-                    <p>Personaliza tu equipo y lleva tu club al éxito.</p>
-                </article>
-                <article class="feature-card animate-fade-in">
-                    <h3>Mercado de Fichajes</h3>
-                    <p>Compra y vende jugadores con un presupuesto inicial de $100M.</p>
-                </article>
-                <article class="feature-card animate-fade-in">
-                    <h3>Torneos Exclusivos</h3>
-                    <p>Compite contra los mejores en ligas únicas.</p>
-                </article>
-            </div>
-        </section>
+    <!-- Características -->
+    <section class="liga-master-features" aria-labelledby="features-heading">
+      <h2 class="section-title" id="features-heading">Características de Liga Master</h2>
+      <div class="features-grid">
+        <article class="feature-card animate-fade-in">
+          <h3>Gestiona tu Club</h3>
+          <p>Personaliza tu equipo y lleva tu club al éxito.</p>
+        </article>
+        <article class="feature-card animate-fade-in">
+          <h3>Mercado de Fichajes</h3>
+          <p>Compra y vende jugadores con un presupuesto inicial de $100M.</p>
+        </article>
+        <article class="feature-card animate-fade-in">
+          <h3>Torneos Exclusivos</h3>
+          <p>Compite contra los mejores en ligas únicas.</p>
+        </article>
+      </div>
+    </section>
 
-        <section class="liga-master-guide" aria-labelledby="guide-heading">
-            <h2 class="section-title" id="guide-heading">Cómo Empezar en Liga Master</h2>
-            <div class="guide-container animate-fade-in">
-                <div class="guide-step active" data-step="1">
-                    <h3>1. Registra tu Club</h3>
-                    <p>Completa el formulario para crear tu club y comenzar.</p>
-                </div>
-                <div class="guide-step" data-step="2">
-                    <h3>2. Accede al Mercado</h3>
-                    <p>Visita el "Mercado de Fichajes" para armar tu equipo ideal.</p>
-                </div>
-                <div class="guide-step" data-step="3">
-                    <h3>3. Compite en Torneos</h3>
-                    <p>Inscríbete en torneos y lucha por el primer lugar.</p>
-                </div>
-                <div class="guide-nav">
-                    <button id="prevStep" disabled>Anterior</button>
-                    <button id="nextStep">Siguiente</button>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <button class="back-to-top" aria-label="Volver al inicio">
-        <i class="fas fa-arrow-up" aria-hidden="true"></i>
-    </button>
-
-    <footer class="main-footer" role="contentinfo">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Contacto</h3>
-                <p><a href="mailto:support@lavirtualzone.com">support@lavirtualzone.com</a></p>
-                <p><a href="tel:+34123456789">+34 123 456 789</a></p>
-            </div>
-            <div class="footer-section">
-                <h3>Redes Sociales</h3>
-                <a href="https://twitch.tv/lavirtualzone" class="social-link" target="_blank" rel="noopener noreferrer">
-                    <i class="fab fa-twitch" aria-hidden="true"></i> Twitch
-                </a>
-                <a href="https://discord.com/invite/lavirtualzone" class="social-link" target="_blank" rel="noopener noreferrer">
-                    <i class="fab fa-discord" aria-hidden="true"></i> Discord
-                </a>
-            </div>
-            <div class="footer-section">
-                <h3>Enlaces Útiles</h3>
-                <a href="/reglamento" class="social-link">Reglamento Oficial</a>
-                <a href="/privacidad" class="social-link">Política de Privacidad</a>
-            </div>
+    <!-- Guía de Uso -->
+    <section class="liga-master-guide" aria-labelledby="guide-heading">
+      <h2 class="section-title" id="guide-heading">Cómo Empezar en Liga Master</h2>
+      <div class="guide-container animate-fade-in">
+        <div class="guide-step active" data-step="1">
+          <h3>1. Registra tu Club</h3>
+          <p>Completa el formulario para crear tu club y comenzar.</p>
         </div>
-    </footer>
+        <div class="guide-step" data-step="2">
+          <h3>2. Accede al Mercado</h3>
+          <p>Visita el "Mercado de Fichajes" para armar tu equipo ideal.</p>
+        </div>
+        <div class="guide-step" data-step="3">
+          <h3>3. Compite en Torneos</h3>
+          <p>Inscríbete en torneos y lucha por el primer lugar.</p>
+        </div>
+        <div class="guide-nav">
+          <button id="prevStep" disabled>Anterior</button>
+          <button id="nextStep">Siguiente</button>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <script src="/main.js"></script>
+  <button class="back-to-top" aria-label="Volver al inicio">
+    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+  </button>
 
+  <footer class="main-footer" role="contentinfo">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Contacto</h3>
+        <p><a href="mailto:support@lavirtualzone.com">support@lavirtualzone.com</a></p>
+        <p><a href="tel:+34123456789">+34 123 456 789</a></p>
+      </div>
+      <div class="footer-section">
+        <h3>Redes Sociales</h3>
+        <a href="https://twitch.tv/lavirtualzone" class="social-link" target="_blank" rel="noopener noreferrer">
+          <i class="fab fa-twitch" aria-hidden="true"></i> Twitch
+        </a>
+        <a href="https://discord.com/invite/lavirtualzone" class="social-link" target="_blank" rel="noopener noreferrer">
+          <i class="fab fa-discord" aria-hidden="true"></i> Discord
+        </a>
+      </div>
+      <div class="footer-section">
+        <h3>Enlaces Útiles</h3>
+        <a href="/reglamento" class="social-link">Reglamento Oficial</a>
+        <a href="/privacidad" class="social-link">Política de Privacidad</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    const BASE_URL = window.location.origin;
+    let club = {
+      name: localStorage.getItem('clubName') || '[Sin registrar]',
+      budget: parseInt(localStorage.getItem('clubBudget')) || 100000000,
+      players: JSON.parse(localStorage.getItem('clubPlayers')) || [],
+      color: localStorage.getItem('clubColor') || '#00ffff',
+      wins: parseInt(localStorage.getItem('clubWins')) || 0
+    };
+    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+    let season = {
+      start: new Date().getTime() - 24 * 60 * 60 * 1000,
+      end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000,
+      wins: parseInt(localStorage.getItem('seasonWins')) || 0
+    };
+
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+      notification.style.borderColor = type === 'success' ? 'var(--accent-green)' : 'var(--secondary-purple)';
+      document.body.appendChild(notification);
+      setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.5s ease-out forwards';
+        setTimeout(() => notification.remove(), 500);
+      }, 3000);
+    }
+
+    async function syncClubData() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
+        setTimeout(() => window.location.href = 'login.html', 2000);
+        return;
+      }
+      try {
+        const response = await fetch(`${BASE_URL}/api/club/me`, {
+          method: 'GET',
+          headers: { 'x-auth-token': token }
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          showNotification(errorData.msg || 'Error al cargar el club', 'error');
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+            setTimeout(() => window.location.href = 'login.html', 2000);
+          }
+          return;
+        }
+        const data = await response.json();
+        club = {
+          ...data,
+          players: Array.isArray(data.players) ? data.players : [],
+          wins: data.wins || 0
+        };
+        localStorage.setItem('clubName', club.name);
+        localStorage.setItem('clubBudget', club.budget);
+        localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+        localStorage.setItem('clubColor', club.color || '#00ffff');
+        localStorage.setItem('clubWins', club.wins);
+        updateClubPreview();
+      } catch (err) {
+        showNotification('Error de conexión: ' + err.message, 'error');
+        console.error('Error en syncClubData:', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await syncClubData();
+
+      document.querySelectorAll('.transition-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          document.body.classList.add('fade-out');
+          setTimeout(() => window.location.href = link.getAttribute('data-href'), 500);
+        });
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
+
+      const backToTop = document.querySelector('.back-to-top');
+      window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
+      backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+      setInterval(updateSeasonTimer, 1000);
+      setInterval(updateMarketStatus, 1000);
+      updateSeasonTimer();
+      updateClubPreview();
+      updateTransactions();
+      updateAchievements();
+      updateMarketStatus();
+      updateStep();
+
+      const logoutLink = document.getElementById('logoutLink');
+      if (logoutLink) {
+        logoutLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          localStorage.removeItem('token');
+          showNotification('Sesión cerrada', 'success');
+          window.location.href = 'login.html';
+        });
+      }
+    });
+
+    function updateSeasonTimer() {
+      const now = new Date().getTime();
+      const timer = document.getElementById('season-timer');
+      if (!timer) return;
+      if (now < season.start) {
+        const timeUntil = season.start - now;
+        const days = Math.floor(timeUntil / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeUntil % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        timer.textContent = `Temporada comienza en ${days}d ${hours}h`;
+      } else if (now <= season.end) {
+        const timeLeft = season.end - now;
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        timer.textContent = `Temporada termina en ${days}d ${hours}h - Victorias: ${season.wins}/5`;
+      } else {
+        timer.textContent = "Temporada finalizada";
+      }
+    }
+
+    function updateClubPreview() {
+      const clubName = document.getElementById('clubName');
+      const clubBudget = document.getElementById('clubBudget');
+      const playerCount = document.getElementById('playerCount');
+      const teamValue = document.getElementById('teamValue');
+      const avgRating = document.getElementById('avgRating');
+      const playerList = document.getElementById('playerList');
+      const clubNameInput = document.getElementById('clubNameInput');
+      const clubColor = document.getElementById('clubColor');
+
+      if (!clubName || !clubBudget || !playerCount || !teamValue || !avgRating || !playerList || !clubNameInput || !clubColor) {
+        console.error('Elementos del DOM no encontrados en updateClubPreview');
+        return;
+      }
+
+      clubName.textContent = club.name;
+      clubBudget.textContent = club.budget.toLocaleString();
+      playerCount.textContent = club.players.length;
+      const teamValueCalc = club.players.reduce((sum, p) => sum + (p.value || 0), 0);
+      teamValue.textContent = teamValueCalc.toLocaleString();
+      const avgRatingCalc = club.players.length ? (club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length).toFixed(1) : 0;
+      avgRating.textContent = avgRatingCalc;
+      clubNameInput.value = club.name;
+      clubColor.value = club.color;
+
+      playerList.innerHTML = club.players.length ? club.players.map(p => `
+        <li>${p.name} (Rating: ${p.rating || 0}) 
+          <button class="train-button" ${isMarketOpen() ? '' : 'disabled'} onclick="trainPlayer('${p._id || p.id}', ${p.value || 0}, '${p.name}')">Entrenar ($${Math.floor((p.value || 0) * 0.1).toLocaleString()})</button>
+        </li>`).join('') : '<li>No hay jugadores.</li>';
+    }
+
+    function isMarketOpen() {
+      const now = new Date().getTime();
+      return now >= season.start && now <= season.end;
+    }
+
+    async function trainPlayer(id, value, name) {
+      if (!isMarketOpen()) {
+        showNotification('El mercado está cerrado.', 'error');
+        return;
+      }
+      const cost = Math.floor(value * 0.1);
+      if (club.budget < cost) {
+        showNotification('No tienes suficiente presupuesto para entrenar a este jugador.', 'error');
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        showNotification('Debes iniciar sesión.', 'error');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const playerIndex = club.players.findIndex(p => p._id === id || p.id === id);
+      if (playerIndex === -1) {
+        showNotification('Jugador no encontrado.', 'error');
+        return;
+      }
+
+      club.budget -= cost;
+      club.players[playerIndex].rating = Math.min((club.players[playerIndex].rating || 0) + 1, 99);
+      club.players[playerIndex].value = (value || 0) + cost;
+
+      try {
+        const response = await fetch(`${BASE_URL}/api/club/me/train`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+          body: JSON.stringify({ playerId: id, cost })
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          showNotification(errorData.msg || 'Error al entrenar jugador', 'error');
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+          }
+          throw new Error('Error en la solicitud');
+        }
+        const data = await response.json();
+        club = data.club;
+        localStorage.setItem('clubBudget', club.budget);
+        localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+        showNotification(`¡${name} ha sido entrenado! Rating aumentado a ${club.players[playerIndex].rating} (+$${cost.toLocaleString()})`, 'success');
+        updateClubPreview();
+        updateAchievements();
+      } catch (err) {
+        showNotification('Error: ' + err.message, 'error');
+        club.budget += cost;
+        club.players[playerIndex].rating = (club.players[playerIndex].rating || 0) - 1;
+        club.players[playerIndex].value = value;
+        localStorage.setItem('clubBudget', club.budget);
+        localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+      }
+    }
+
+    function updateAchievements() {
+      const firstBuy = document.getElementById('first-buy');
+      const top10 = document.getElementById('top-10');
+      const millionSpent = document.getElementById('million-spent');
+
+      if (!firstBuy || !top10 || !millionSpent) {
+        console.error('Elementos de logros no encontrados');
+        return;
+      }
+
+      firstBuy.innerHTML = `<i class="fas fa-shopping-bag" ${club.players.length > 0 ? '' : 'style="color: gray;"'}></i><h3>Primera Compra</h3><p>${club.players.length > 0 ? 'Completado' : 'Compra tu primer jugador'}</p>`;
+      if (club.players.length > 0) firstBuy.classList.add('completed');
+
+      top10.innerHTML = `<i class="fas fa-trophy" style="color: gray;"></i><h3>Top 10</h3><p>Clasifícate entre los 10 mejores clubes</p>`;
+
+      const spent = 100000000 - club.budget;
+      millionSpent.innerHTML = `<i class="fas fa-money-bill-wave" ${spent >= 1000000 ? '' : 'style="color: gray;"'}></i><h3>Millonario</h3><p>${spent >= 1000000 ? 'Completado' : 'Gasta $1M en el mercado'}</p>`;
+      if (spent >= 1000000) millionSpent.classList.add('completed');
+    }
+
+    function updateTransactions() {
+      const list = document.getElementById('transactionList');
+      if (!list) return;
+      list.innerHTML = transactions.length ? transactions.map(t => `<li>${t.date ? new Date(t.date).toLocaleDateString() : ''} - ${t.type}: ${t.playerName} por $${t.value.toLocaleString()}</li>`).join('') : '<li>No hay transacciones recientes.</li>';
+    }
+
+    function updateMarketStatus() {
+      const now = new Date().getTime();
+      const status = document.getElementById('market-status');
+      if (!status) return;
+      if (now >= season.start && now <= season.end) {
+        const timeLeft = season.end - now;
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        status.textContent = `Mercado abierto - ${days}d ${hours}h restantes`;
+      } else if (now < season.start) {
+        const timeUntil = season.start - now;
+        const days = Math.floor(timeUntil / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeUntil % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        status.textContent = `Mercado cerrado - Abre en ${days}d ${hours}h`;
+      } else {
+        status.textContent = "Mercado cerrado";
+      }
+    }
+
+    let currentStep = 1;
+    const steps = document.querySelectorAll('.guide-step');
+    const prevButton = document.getElementById('prevStep');
+    const nextButton = document.getElementById('nextStep');
+
+    function updateStep() {
+      steps.forEach(step => step.classList.remove('active'));
+      steps[currentStep - 1].classList.add('active');
+      if (prevButton) prevButton.disabled = currentStep === 1;
+      if (nextButton) nextButton.disabled = currentStep === steps.length;
+    }
+
+    if (prevButton) {
+      prevButton.addEventListener('click', () => {
+        if (currentStep > 1) {
+          currentStep--;
+          updateStep();
+        }
+      });
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener('click', () => {
+        if (currentStep < steps.length) {
+          currentStep++;
+          updateStep();
+        }
+      });
+    }
+
+    document.getElementById('clubForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem('token');
+      if (!token) {
+        showNotification('Debes iniciar sesión para crear un club.', 'error');
+        setTimeout(() => window.location.href = 'login.html', 2000);
+        return;
+      }
+
+      const clubNameInput = document.getElementById('clubNameInput');
+      const clubColor = document.getElementById('clubColor');
+      if (!clubNameInput || !clubColor) return;
+
+      club.name = clubNameInput.value || '[Sin registrar]';
+      club.color = clubColor.value;
+
+      try {
+        const response = await fetch(`${BASE_URL}/api/club/me`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+          body: JSON.stringify({ name: club.name, color: club.color, budget: club.budget, players: club.players, wins: club.wins })
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          showNotification(errorData.msg || 'Error al actualizar el club', 'error');
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+          }
+          return;
+        }
+        const data = await response.json();
+        club = data;
+        localStorage.setItem('clubName', club.name);
+        localStorage.setItem('clubBudget', club.budget);
+        localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+        localStorage.setItem('clubColor', club.color);
+        localStorage.setItem('clubWins', club.wins);
+        showNotification(`¡Club ${club.name} actualizado con éxito!`, 'success');
+        updateClubPreview();
+      } catch (err) {
+        showNotification('Error de conexión: ' + err.message, 'error');
+        console.error('Error al guardar club:', err);
+      }
+    });
+
+    document.getElementById('resetClub').addEventListener('click', async () => {
+      if (!confirm('¿Estás seguro de reiniciar tu club? Esto eliminará todos tus datos.')) return;
+      const token = localStorage.getItem('token');
+      if (!token) {
+        showNotification('Debes iniciar sesión.', 'error');
+        window.location.href = 'login.html';
+        return;
+      }
+      try {
+        const response = await fetch(`${BASE_URL}/api/club/me/reset`, {
+          method: 'POST',
+          headers: { 'x-auth-token': token }
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          showNotification(errorData.msg || 'Error al reiniciar el club', 'error');
+          if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+          }
+          return;
+        }
+        const data = await response.json();
+        club = data.club;
+        localStorage.setItem('clubName', club.name);
+        localStorage.setItem('clubBudget', club.budget);
+        localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+        localStorage.setItem('clubColor', club.color);
+        localStorage.setItem('clubWins', club.wins);
+        localStorage.setItem('transactions', JSON.stringify([]));
+        localStorage.setItem('seasonWins', 0);
+        transactions = [];
+        showNotification('¡Tu club ha sido reiniciado!', 'success');
+        updateClubPreview();
+        updateTransactions();
+        updateAchievements();
+      } catch (err) {
+        showNotification('Error de conexión: ' + err.message, 'error');
+        console.error('Error al reiniciar club:', err);
+      }
+    });
+  </script>
 </body>
 </html>

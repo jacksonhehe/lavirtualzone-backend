@@ -1,20 +1,20 @@
+// middleware/auth.js
 const jwt = require('jsonwebtoken');
 
-function auth(req, res, next) {
-  // Leer el token del header
-  const token = req.header('x-auth-token');
-  if (!token) {
-    return res.status(401).json({ message: 'No hay token, autorización denegada' });
-  }
+module.exports = (req, res, next) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '') || req.header('x-auth-token');
+  if (!token) return res.status(401).json({ message: 'No autorizado, falta token' });
   try {
-    // Verificar el token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // Adjuntar el ID de usuario decodificado a la solicitud
-    req.user = decoded.id ? decoded.id : decoded;
+    // Se asigna directamente el id del usuario para mayor consistencia
+    req.user = decoded.id || decoded;
     next();
   } catch (err) {
-    return res.status(401).json({ message: 'Token inválido' });
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expirado' });
+    } else if (err.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Token inválido' });
+    }
+    res.status(500).json({ message: 'Error del servidor en autenticación' });
   }
-}
-
-module.exports = auth;
+};

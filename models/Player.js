@@ -1,18 +1,14 @@
 const mongoose = require('mongoose');
 
-// Definir el esquema del jugador
 const playerSchema = new mongoose.Schema({
-  // Nombre del jugador: único y requerido
   name: {
     type: String,
     required: [true, 'El nombre del jugador es obligatorio'],
     unique: true,
-    trim: true,                         // Sin espacios extra
-    minlength: [3, 'El nombre debe tener al menos 3 caracteres'],
-    maxlength: [50, 'El nombre no puede exceder los 50 caracteres']
+    trim: true,
+    minlength: [3, 'El nombre del jugador debe tener al menos 3 caracteres'],
+    maxlength: [50, 'El nombre del jugador no puede exceder los 50 caracteres']
   },
-  
-  // Posición del jugador: debe ser una de las posiciones válidas
   position: {
     type: String,
     enum: {
@@ -21,51 +17,42 @@ const playerSchema = new mongoose.Schema({
     },
     required: [true, 'La posición del jugador es obligatoria']
   },
-  
-  // Rating del jugador: entre 0 y 99 (nivel de habilidad)
   rating: {
     type: Number,
     min: [0, 'El rating no puede ser menor a 0'],
     max: [99, 'El rating no puede ser mayor a 99'],
     required: [true, 'El rating es obligatorio']
   },
-  
-  // Valor de mercado del jugador
   value: {
     type: Number,
     min: [0, 'El valor del jugador no puede ser negativo'],
     required: [true, 'El valor es obligatorio']
   },
-  
-  // Fecha de creación del registro del jugador
   createdAt: {
     type: Date,
     default: Date.now,
-    immutable: true  // No modificable después de crear
+    immutable: true
   },
-  
-  // Club al que pertenece el jugador (opcional)
   clubId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Club',
-    default: null    // Si es null, significa que el jugador no tiene club asignado actualmente
+    default: null
   }
 }, {
-  // Opciones del esquema
-  timestamps: true,            // Añade campo updatedAt automáticamente
+  timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-// Índice único para el nombre del jugador (evita jugadores duplicados por nombre)
+// Índice único para el nombre del jugador
 playerSchema.index({ name: 1 }, { unique: true });
 
-// Virtual: calcular un costo de entrenamiento estimado (por ejemplo, 10% de su valor)
+// Virtual para calcular el costo de entrenamiento (10% del valor)
 playerSchema.virtual('trainingCost').get(function() {
   return Math.round(this.value * 0.1);
 });
 
-// Método de instancia: actualizar el rating del jugador con validación de rango
+// Método para actualizar el rating del jugador validando el rango
 playerSchema.methods.updateRating = function(newRating) {
   if (newRating < 0 || newRating > 99) {
     throw new Error('El rating debe estar entre 0 y 99');
@@ -74,5 +61,4 @@ playerSchema.methods.updateRating = function(newRating) {
   return this.save();
 };
 
-// Exportar el modelo Player basado en el esquema playerSchema
 module.exports = mongoose.model('Player', playerSchema);

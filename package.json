@@ -4,7 +4,31 @@
   "description": "Backend for La Virtual Zone with Node.js, Express, and MongoDB",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tuusuario/lavirtualzone-backend.git"
+  },
+  "keywords": [
+    "La Virtual Zone",
+    "backend",
+    "nodejs",
+    "express",
+    "mongodb",
+    "mongoose",
+    "api"
+  ],
+  "author": "Jack",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tuusuario/lavirtualzone-backend/issues"
+  },
+  "homepage": "https://github.com/tuusuario/lavirtualzone-backend#readme",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -23,11 +47,5 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
-  },
-  "author": "Jack",
-  "license": "ISC",
-  "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
   }
 }
