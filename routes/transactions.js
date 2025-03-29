@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { validateRequiredFields } = require('../middleware/validation');
 const auth = require('../middleware/auth');
 const Transaction = require('../models/Transaction');
 const Club = require('../models/Club');
 const Player = require('../models/Player');
+// Importar la función de validación desde el middleware
+const { validateRequiredFields } = require('../middleware/validation');
 
 // POST /api/transactions - Crear una nueva transacción (compra, venta, préstamo)
 router.post('/', auth, async (req, res) => {

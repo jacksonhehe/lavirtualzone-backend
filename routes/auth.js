@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const config = require('config');
 const { check, validationResult } = require('express-validator');
 const User = require('../models/User');
 
@@ -13,7 +14,7 @@ const authMiddleware = async (req, res, next) => {
     return res.status(401).json({ message: 'No hay token, autorización denegada' });
   }
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, config.get('jwtSecret'));
     req.user = decoded; 
     next();
   } catch (err) {
@@ -56,7 +57,7 @@ router.post(
 
       // Generar token JWT
       const payload = { id: user.id };
-      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign(payload, config.get('jwtSecret'), { expiresIn: '1h' });
       res.json({ token, user: { name: user.name } });
     } catch (err) {
       console.error(err.message);
@@ -94,7 +95,7 @@ router.post(
       }
       // Generar token JWT
       const payload = { id: user.id };
-      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign(payload, config.get('jwtSecret'), { expiresIn: '1h' });
       res.json({ token, user: { name: user.name } });
     } catch (err) {
       console.error(err.message);
