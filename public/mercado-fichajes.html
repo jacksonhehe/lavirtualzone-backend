@@ -10,6 +10,9 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <title>Mercado de Fichajes | Liga Master</title>
 
+  <!-- Directiva CSP: Permite recursos desde el mismo origen y scripts con nonce "abc123" -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'nonce-abc123' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: https://via.placeholder.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self';">
+
   <!-- Fuentes y Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
         integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
@@ -632,7 +635,11 @@
     </div>
   </footer>
 
-  <script>
+  <!-- Cargar scripts con atributo nonce para cumplir con la CSP -->
+  <script src="/js/particles.min.js" defer nonce="abc123"></script>
+  <script src="/js/config.js" defer nonce="abc123"></script>
+  <script nonce="abc123">
+    // URL base para el backend
     const BASE_URL = window.location.origin;
 
     let club = {
@@ -695,20 +702,23 @@
         });
       });
 
-      document.getElementById('logoutLink').addEventListener('click', (e) => {
-        e.preventDefault();
-        localStorage.removeItem('token');
-        localStorage.removeItem('clubName');
-        localStorage.removeItem('clubBudget');
-        localStorage.removeItem('clubPlayers');
-        localStorage.removeItem('clubColor');
-        localStorage.removeItem('clubWins');
-        localStorage.removeItem('marketPoints');
-        localStorage.removeItem('watchlist');
-        localStorage.removeItem('transactions');
-        localStorage.removeItem('loanedPlayers');
-        window.location.href = 'login.html';
-      });
+      const logoutLink = document.getElementById('logoutLink');
+      if (logoutLink) {
+        logoutLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          localStorage.removeItem('token');
+          localStorage.removeItem('clubName');
+          localStorage.removeItem('clubBudget');
+          localStorage.removeItem('clubPlayers');
+          localStorage.removeItem('clubColor');
+          localStorage.removeItem('clubWins');
+          localStorage.removeItem('marketPoints');
+          localStorage.removeItem('watchlist');
+          localStorage.removeItem('transactions');
+          localStorage.removeItem('loanedPlayers');
+          window.location.href = 'login.html';
+        });
+      }
     });
 
     async function syncClubData() {
@@ -776,7 +786,7 @@
     }
 
     function updateMarketStatus() {
-      // Actualiza variable isMarketOpen y cualquier indicador visual (si lo hay)
+      // Actualiza la variable isMarketOpen y cualquier indicador visual relacionado
     }
 
     function updatePoints() {
@@ -826,7 +836,7 @@
       if (!list) return;
       list.innerHTML = transactions.length ? transactions.map(t => `
         <div class="history-card animate-fade-in">
-          <p>${new Date(t.date).toLocaleDateString()} - ${t.type} - ${t.playerName} - $${t.value.toLocaleString()}</p>
+          <p>${new Date(t.date).toLocaleDateString()} - ${t.typeName || t.type} - ${t.playerName} - $${t.value.toLocaleString()}</p>
         </div>
       `).join('') : '<p>No hay transacciones aún.</p>';
     }
@@ -834,7 +844,6 @@
     function renderFeaturedPlayers() {
       const grid = document.getElementById('featuredPlayersGrid');
       if (!grid) return;
-      // Aquí puedes renderizar jugadores destacados; ejemplo:
       grid.innerHTML = playersMarket.slice(0, 3).map(player => `
         <div class="player-card animate-fade-in">
           <h3>${player.name}</h3>
@@ -848,7 +857,6 @@
     function renderRecommendations() {
       const grid = document.getElementById('recommendationsGrid');
       if (!grid) return;
-      // Ejemplo de recomendaciones:
       grid.innerHTML = `<div class="offer-card animate-fade-in">
         <h3>Recomendación</h3>
         <p>Considera fichar a un mediocampista para reforzar tu equipo.</p>
@@ -856,17 +864,17 @@
     }
 
     function renderChat() {
-      // Aquí implementarías la funcionalidad del chat, por ejemplo, cargando mensajes de localStorage
+      // Implementa la funcionalidad de chat si se requiere (por ejemplo, usando localStorage)
     }
 
     function renderClubDetails() {
       const clubNameElem = document.getElementById('clubName');
       const clubBudgetElem = document.getElementById('clubBudget');
-      const playerCountElem = document.getElementById('clubPlayers');
-      if (!clubNameElem || !clubBudgetElem || !playerCountElem) return;
+      const playerList = document.getElementById('clubPlayers');
+      if (!clubNameElem || !clubBudgetElem || !playerList) return;
       clubNameElem.textContent = club.name;
       clubBudgetElem.textContent = `$${club.budget.toLocaleString()}`;
-      playerCountElem.innerHTML = club.players.length ? club.players.map(p => `<li>${p.name} (Rating: ${p.rating})</li>`).join('') : '<li>No hay jugadores.</li>';
+      playerList.innerHTML = club.players.length ? club.players.map(p => `<li>${p.name} (Rating: ${p.rating})</li>`).join('') : '<li>No hay jugadores.</li>';
     }
 
     async function buyPlayer(name, value) {
@@ -1007,7 +1015,6 @@
       }
     }
 
-    // Función para mostrar notificaciones emergentes
     function showNotification(message, type = 'success') {
       const notification = document.createElement('div');
       notification.className = 'notification';
@@ -1024,33 +1031,26 @@
     }
 
     function bindMarketEvents() {
-      // Aquí puedes enlazar eventos para filtros, clics en botones, etc.
+      // Aquí se enlazarán eventos para filtros y botones (según la lógica de la aplicación)
     }
 
-    // Funciones de renderizado para otros módulos (stats, chat, etc.)
     function updateStats() {
-      // Actualiza estadísticas del mercado (por ejemplo, jugador más comprado, valor promedio, etc.)
+      // Función para actualizar estadísticas del mercado (implementa según la lógica necesaria)
     }
 
-    // Renderiza los detalles del historial de transacciones
-    function updateHistory() {
-      renderHistory();
-    }
-
-    // Renderiza detalles del club en el mercado
     function renderClubDetails() {
       const clubNameElem = document.getElementById('clubName');
       const clubBudgetElem = document.getElementById('clubBudget');
-      const playerCountElem = document.getElementById('clubPlayers');
-      if (!clubNameElem || !clubBudgetElem || !playerCountElem) return;
+      const playerListElem = document.getElementById('clubPlayers');
+      if (!clubNameElem || !clubBudgetElem || !playerListElem) return;
       clubNameElem.textContent = club.name;
       clubBudgetElem.textContent = `$${club.budget.toLocaleString()}`;
-      playerCountElem.innerHTML = club.players.length ? club.players.map(p => `<li>${p.name} (Rating: ${p.rating})</li>`).join('') : '<li>No hay jugadores.</li>';
+      playerListElem.innerHTML = club.players.length ? club.players.map(p => `<li>${p.name} (Rating: ${p.rating})</li>`).join('') : '<li>No hay jugadores.</li>';
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Se cargan datos del club, mercado y se inician funciones
-      // Las funciones syncClubData() y loadMarketData() son llamadas en el primer bloque
+      // Se inician las funciones de sincronización, renderizado y manejo de eventos
+      // Las funciones syncClubData() y loadMarketData() se invocan al inicio (ver bloque anterior)
     });
   </script>
 </body>

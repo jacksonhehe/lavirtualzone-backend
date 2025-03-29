@@ -449,7 +449,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
     }
-    /* Modal Olvidé mi Contraseña */
+    /* Modal para Olvidé mi Contraseña */
     .modal {
       display: none;
       position: fixed;
@@ -526,8 +526,7 @@
       .main-nav.show {
         display: flex;
       }
-      .mobile-menu,
-      .close-menu {
+      .mobile-menu, .close-menu {
         display: block;
       }
       .close-menu {
@@ -688,7 +687,10 @@
     </div>
   </main>
 
-  <script>
+  <!-- Scripts: se incluye el atributo nonce para permitir la ejecución inline -->
+  <script src="/js/particles.min.js" nonce="abc123"></script>
+  <script src="/js/config.js" defer nonce="abc123"></script>
+  <script nonce="abc123">
     // URL base para el backend
     const BASE_URL = window.location.origin;
 
@@ -950,6 +952,6 @@
   </script>
 
   <!-- Cargar scripts locales -->
-  <script src="/js/particles.min.js"></script>
+  <script src="/js/particles.min.js" nonce="abc123"></script>
 </body>
 </html>

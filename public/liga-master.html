@@ -16,6 +16,9 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 
+  <!-- Directiva Content Security Policy con nonce -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'nonce-abc123'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://lavirtualzone-backend.onrender.com; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; connect-src 'self';">
+
   <!-- Estilos internos (puedes extraer a styles.css) -->
   <style>
     :root {
@@ -237,7 +240,7 @@
       font-size: 1.5rem;
       color: var(--accent-green);
     }
-    /* Calendario de torneos */
+    /* Calendario de Torneos */
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -263,7 +266,7 @@
       margin-bottom: 1rem;
       font-weight: 700;
     }
-    /* Vista previa del club */
+    /* Vista Previa del Club */
     .club-preview-container {
       max-width: 1280px;
       margin: 0 auto;
@@ -373,7 +376,7 @@
       font-size: 1.4rem;
       margin-bottom: 1rem;
     }
-    /* Clasificación de clubes */
+    /* Clasificación de Clubes */
     .ranking-table {
       max-width: 1280px;
       margin: 0 auto;
@@ -408,7 +411,7 @@
     tr:hover td {
       background: rgba(0, 255, 255, 0.05);
     }
-    /* Historial de transacciones */
+    /* Historial de Transacciones */
     .transactions-list {
       max-width: 1280px;
       margin: 0 auto;
@@ -425,7 +428,7 @@
       padding: 0.5rem 0;
       border-bottom: 1px solid var(--border-light);
     }
-    /* Estado del mercado */
+    /* Estado del Mercado */
     #market-status {
       font-size: 1.5rem;
       color: var(--accent-green);
@@ -459,7 +462,7 @@
       font-size: 1.4rem;
       margin-bottom: 1rem;
     }
-    /* Guía */
+    /* Guía de Uso */
     .guide-container {
       max-width: 960px;
       margin: 0 auto;
@@ -791,76 +794,22 @@
     </div>
   </footer>
 
-  <!-- Scripts -->
-  <script>
-    const BASE_URL = window.location.origin;
-    let club = {
-      name: localStorage.getItem('clubName') || '[Sin registrar]',
-      budget: parseInt(localStorage.getItem('clubBudget')) || 100000000,
-      players: JSON.parse(localStorage.getItem('clubPlayers')) || [],
-      color: localStorage.getItem('clubColor') || '#00ffff',
-      wins: parseInt(localStorage.getItem('clubWins')) || 0
-    };
-    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-    let season = {
-      start: new Date().getTime() - 24 * 60 * 60 * 1000,
-      end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000,
-      wins: parseInt(localStorage.getItem('seasonWins')) || 0
-    };
+  <!-- Scripts: se incluye el atributo nonce para permitir la ejecución inline -->
+  <script src="/js/config.js" defer nonce="abc123"></script>
+  <script nonce="abc123">
+    document.addEventListener('DOMContentLoaded', () => {
+      const menuButton = document.querySelector('.mobile-menu');
+      const closeButton = document.querySelector('.close-menu');
+      const mainNav = document.querySelector('.main-nav');
 
-    function showNotification(message, type = 'success') {
-      const notification = document.createElement('div');
-      notification.className = 'notification';
-      notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
-      notification.style.borderColor = type === 'success' ? 'var(--accent-green)' : 'var(--secondary-purple)';
-      document.body.appendChild(notification);
-      setTimeout(() => {
-        notification.style.animation = 'fadeOut 0.5s ease-out forwards';
-        setTimeout(() => notification.remove(), 500);
-      }, 3000);
-    }
-
-    async function syncClubData() {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        showNotification('Debes iniciar sesión para acceder a esta página.', 'error');
-        setTimeout(() => window.location.href = 'login.html', 2000);
-        return;
+      function toggleMenu() {
+        mainNav.classList.toggle('show');
+        const isExpanded = mainNav.classList.contains('show');
+        menuButton.setAttribute('aria-expanded', isExpanded);
       }
-      try {
-        const response = await fetch(`${BASE_URL}/api/club/me`, {
-          method: 'GET',
-          headers: { 'x-auth-token': token }
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          showNotification(errorData.msg || 'Error al cargar el club', 'error');
-          if (response.status === 401) {
-            localStorage.removeItem('token');
-            setTimeout(() => window.location.href = 'login.html', 2000);
-          }
-          return;
-        }
-        const data = await response.json();
-        club = {
-          ...data,
-          players: Array.isArray(data.players) ? data.players : [],
-          wins: data.wins || 0
-        };
-        localStorage.setItem('clubName', club.name);
-        localStorage.setItem('clubBudget', club.budget);
-        localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-        localStorage.setItem('clubColor', club.color || '#00ffff');
-        localStorage.setItem('clubWins', club.wins);
-        updateClubPreview();
-      } catch (err) {
-        showNotification('Error de conexión: ' + err.message, 'error');
-        console.error('Error en syncClubData:', err);
-      }
-    }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      await syncClubData();
+      menuButton.addEventListener('click', toggleMenu);
+      closeButton.addEventListener('click', toggleMenu);
 
       document.querySelectorAll('.transition-link').forEach(link => {
         link.addEventListener('click', (e) => {
@@ -870,16 +819,35 @@
         });
       });
 
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = document.querySelector(anchor.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (window.innerWidth <= 768) toggleMenu();
+          }
+        });
+      });
+
+      const backToTop = document.querySelector('.back-to-top');
+      window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
+      backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+      document.querySelectorAll('.faq-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const isActive = item.classList.contains('active');
+          item.classList.toggle('active', !isActive);
+          item.setAttribute('aria-expanded', !isActive);
+        });
+      });
+
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
         });
       }, { threshold: 0.1 });
       document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
-
-      const backToTop = document.querySelector('.back-to-top');
-      window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
-      backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
       setInterval(updateSeasonTimer, 1000);
       setInterval(updateMarketStatus, 1000);
@@ -900,6 +868,12 @@
         });
       }
     });
+
+    const season = {
+      start: new Date("2025-03-01T00:00:00").getTime(),
+      end: new Date("2025-04-01T00:00:00").getTime(),
+      wins: parseInt(localStorage.getItem('seasonWins')) || 0
+    };
 
     function updateSeasonTimer() {
       const now = new Date().getTime();
