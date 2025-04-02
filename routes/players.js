@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const Player = require('../models/Player');
 const Club = require('../models/Club');
-const auth = require('../middleware/auth');
 const { validateRequiredFields } = require('../middleware/validation');
 
 // GET /api/players - Obtener jugadores que no estén en el club del usuario

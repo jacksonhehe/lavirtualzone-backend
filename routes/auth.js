@@ -97,7 +97,6 @@ router.post(
 // @desc     Obtener datos del usuario autenticado
 // @access   Private
 // Si quieres proteger esta ruta, usas el middleware global
-const auth = require('../middleware/auth');
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user).select('-password');

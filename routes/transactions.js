@@ -1,7 +1,6 @@
 // routes/transactions.js
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
 const { validateRequiredFields } = require('../middleware/validation');
 const Transaction = require('../models/Transaction');
 const Club = require('../models/Club');

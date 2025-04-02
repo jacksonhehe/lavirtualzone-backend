@@ -5,7 +5,6 @@ const Club = require('../models/Club');
 const Player = require('../models/Player');
 const Transaction = require('../models/Transaction');
 const { validateRequiredFields } = require('../middleware/validation');
-const auth = require('../middleware/auth');
 
 // GET /api/club/me - Obtener el club del usuario autenticado
 router.get('/me', auth, async (req, res) => {
