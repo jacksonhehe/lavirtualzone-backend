@@ -1,10 +1,26 @@
 // routes/transactions.js
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const { validateRequiredFields } = require('../middleware/validation');
 const Transaction = require('../models/Transaction');
 const Club = require('../models/Club');
 const Player = require('../models/Player');
+
+// Middleware de autenticación local (en vez de '../middleware/auth')
+function auth(req, res, next) {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ message: 'No hay token, autorización denegada' });
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded.id;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Token inválido' });
+  }
+}
 
 // POST /api/transactions - Crear una nueva transacción
 router.post('/', auth, async (req, res) => {
@@ -40,7 +56,7 @@ router.post('/', auth, async (req, res) => {
     });
     await transaction.save();
 
-    // Actualizar el club según el tipo
+    // Actualizar el club según el tipo de transacción
     if (type === 'compra') {
       club.budget -= value;
       club.players.push(player._id);
@@ -51,6 +67,7 @@ router.post('/', auth, async (req, res) => {
       player.clubId = null;
     } else if (type === 'prestamo') {
       // Lógica específica para préstamos
+      // (ej. No cambios en el array 'players' del club, etc.)
     }
 
     await player.save();

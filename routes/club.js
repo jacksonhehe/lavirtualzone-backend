@@ -1,10 +1,27 @@
 // routes/club.js
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const Club = require('../models/Club');
 const Player = require('../models/Player');
 const Transaction = require('../models/Transaction');
 const { validateRequiredFields } = require('../middleware/validation');
+
+// Middleware de autenticación local (en vez de '../middleware/auth')
+function auth(req, res, next) {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ message: 'No hay token, autorización denegada' });
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Usar "id" o la propiedad que definiste en el payload
+    req.user = decoded.id;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Token inválido' });
+  }
+}
 
 // GET /api/club/me - Obtener el club del usuario autenticado
 router.get('/me', auth, async (req, res) => {
@@ -122,7 +139,7 @@ router.post('/me/simulate', auth, async (req, res) => {
     if (win) {
       club.wins = (club.wins || 0) + 1;
       club.seasonWins = (club.seasonWins || 0) + 1;
-      club.budget += 500000; // Recompensa
+      club.budget += 500000; // Recompensa por la victoria
     }
 
     await club.save();

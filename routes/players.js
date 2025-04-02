@@ -1,9 +1,26 @@
 // routes/players.js
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const Player = require('../models/Player');
 const Club = require('../models/Club');
 const { validateRequiredFields } = require('../middleware/validation');
+
+// Middleware de autenticación local (en vez de '../middleware/auth')
+function auth(req, res, next) {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ message: 'No hay token, autorización denegada' });
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Usar "id" o la propiedad que definiste en el payload
+    req.user = decoded.id;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Token inválido' });
+  }
+}
 
 // GET /api/players - Obtener jugadores que no estén en el club del usuario
 router.get('/', auth, async (req, res) => {
@@ -120,7 +137,7 @@ router.post('/sell', auth, async (req, res) => {
     }
 
     const player = club.players[playerIndex];
-    const sellValue = Math.floor(player.value * 0.8); // ejemplo: 80% del valor
+    const sellValue = Math.floor(player.value * 0.8); // ejemplo: 80% del valor original
 
     // Actualizar club
     club.budget += sellValue;
@@ -215,5 +232,20 @@ router.use((err, req, res, next) => {
   console.error('Error en players.js:', err);
   res.status(500).json({ message: 'Error interno del servidor' });
 });
+
+// Middleware local de autenticación (en vez de '../middleware/auth')
+function auth(req, res, next) {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ message: 'No hay token, autorización denegada' });
+  }
+  try {
+    const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET);
+    req.user = decoded.id;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Token inválido' });
+  }
+}
 
 module.exports = router;

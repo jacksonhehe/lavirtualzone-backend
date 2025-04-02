@@ -6,6 +6,22 @@ const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const User = require('../models/User');
 
+// Middleware local para proteger rutas (reemplaza el archivo ../middleware/auth inexistente)
+function auth(req, res, next) {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ message: 'No hay token, autorización denegada' });
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Guardar en req.user el ID o payload que desees
+    req.user = decoded.id;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Token inválido' });
+  }
+}
+
 // @route    POST api/auth/register
 // @desc     Registrar un nuevo usuario
 // @access   Public
@@ -96,7 +112,7 @@ router.post(
 // @route    GET api/auth/me
 // @desc     Obtener datos del usuario autenticado
 // @access   Private
-// Si quieres proteger esta ruta, usas el middleware global
+// Utiliza el middleware local "auth" definido arriba
 router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user).select('-password');
