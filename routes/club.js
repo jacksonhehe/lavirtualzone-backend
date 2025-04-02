@@ -5,9 +5,10 @@ const jwt = require('jsonwebtoken');
 const Club = require('../models/Club');
 const Player = require('../models/Player');
 const Transaction = require('../models/Transaction');
-const { validateRequiredFields } = require('../middleware/validation');
 
-// Middleware de autenticación local (en vez de '../middleware/auth')
+/**
+ * Middleware de autenticación local.
+ */
 function auth(req, res, next) {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   if (!token) {
@@ -15,12 +16,26 @@ function auth(req, res, next) {
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // Usar "id" o la propiedad que definiste en el payload
-    req.user = decoded.id;
+    req.user = decoded.id; // según tu payload
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Token inválido' });
   }
+}
+
+/**
+ * Función local para validar campos requeridos.
+ * Si falta alguno, devuelve true e imprime el error al cliente.
+ * Si todo va bien, devuelve false.
+ */
+function validateRequiredFields(req, res, fields) {
+  for (const field of fields) {
+    if (req.body[field] == null) {
+      res.status(400).json({ message: `El campo '${field}' es requerido` });
+      return true; // indica que hubo error
+    }
+  }
+  return false; // indica que no hubo error
 }
 
 // GET /api/club/me - Obtener el club del usuario autenticado
@@ -43,6 +58,7 @@ router.put('/me', auth, async (req, res) => {
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
     if (name && name !== club.name) {
+      // verificar que no exista otro club con el mismo nombre
       const existingClub = await Club.findOne({ name });
       if (existingClub) {
         return res.status(400).json({ message: 'El nombre del club ya está en uso' });
@@ -65,8 +81,8 @@ router.put('/me', auth, async (req, res) => {
 router.post('/me/train', auth, async (req, res) => {
   try {
     const requiredFields = ['playerId', 'cost'];
-    const validationError = validateRequiredFields(req, res, requiredFields);
-    if (validationError) return validationError;
+    const hasError = validateRequiredFields(req, res, requiredFields);
+    if (hasError) return; // finaliza si faltan campos
 
     const { playerId, cost } = req.body;
     if (typeof cost !== 'number' || cost <= 0) {
@@ -120,8 +136,8 @@ router.post('/me/train', auth, async (req, res) => {
 router.post('/me/simulate', auth, async (req, res) => {
   try {
     const requiredFields = ['win'];
-    const validationError = validateRequiredFields(req, res, requiredFields);
-    if (validationError) return validationError;
+    const hasError = validateRequiredFields(req, res, requiredFields);
+    if (hasError) return;
 
     const { win } = req.body;
     if (typeof win !== 'boolean') {
@@ -139,7 +155,7 @@ router.post('/me/simulate', auth, async (req, res) => {
     if (win) {
       club.wins = (club.wins || 0) + 1;
       club.seasonWins = (club.seasonWins || 0) + 1;
-      club.budget += 500000; // Recompensa por la victoria
+      club.budget += 500000; // Recompensa por victoria
     }
 
     await club.save();
