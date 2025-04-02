@@ -1,47 +1,42 @@
-// routes/players.js
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); // Añadido explícitamente, ya que lo usas en auth
 const Player = require('../models/Player');
 const Club = require('../models/Club');
+const Transaction = require('../models/Transaction');
 
-/**
- * Middleware local de autenticación (reemplaza '../middleware/auth').
- */
-function auth(req, res, next) {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  if (!token) {
-    return res.status(401).json({ message: 'No hay token, autorización denegada' });
-  }
+// Middleware de autenticación (alineado con auth.js, club.js)
+const auth = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1] || req.header('x-auth-token');
+  if (!token) return res.status(401).json({ message: 'No autorizado, falta token' });
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.id;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_secreto_muy_largo_y_seguro');
+    req.user = decoded.id; // Asegúrate de que sea el ID del usuario (ObjectId)
     next();
   } catch (err) {
-    return res.status(401).json({ message: 'Token inválido' });
+    console.error('Error en autenticación:', err);
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expirado' });
+    }
+    res.status(401).json({ message: 'Token inválido' });
   }
-}
+};
 
-/**
- * Función local para validar campos requeridos en req.body
- */
-function validateRequiredFields(req, res, fields) {
+// Función auxiliar para validar campos requeridos
+const validateRequiredFields = (req, res, fields) => {
   for (const field of fields) {
-    if (req.body[field] == null) {
-      res.status(400).json({ message: `El campo '${field}' es requerido` });
-      return true; // indica que hubo error y ya respondimos
+    if (!req.body[field]) {
+      return res.status(400).json({ message: `El campo ${field} es requerido` });
     }
   }
-  return false; // indica que no hubo error
-}
+  return null;
+};
 
-// GET /api/players - Obtener jugadores que no estén en el club del usuario
+// GET /api/players/ - Obtener jugadores disponibles (no en el club del usuario)
 router.get('/', auth, async (req, res) => {
   try {
     const club = await Club.findOne({ userId: req.user }).populate('players');
-    const clubPlayerIds = club ? club.players.map((p) => p._id.toString()) : [];
-
-    // Jugadores que NO estén en la lista del club
+    const clubPlayerIds = club && club.players.length ? club.players.map(p => p._id.toString()) : [];
     const players = await Player.find({ _id: { $nin: clubPlayerIds } });
     res.json(players);
   } catch (err) {
@@ -50,15 +45,16 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// POST /api/players - Crear un jugador (solo para admin o pruebas)
+// POST /api/players/ - Crear un jugador (para pruebas o admin, opcional restringir a admin)
 router.post('/', auth, async (req, res) => {
   try {
     const requiredFields = ['name', 'position', 'rating', 'value'];
-    const hasError = validateRequiredFields(req, res, requiredFields);
-    if (hasError) return;
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
 
     const { name, position, rating, value } = req.body;
 
+    // Validar rangos
     if (rating < 0 || rating > 99) {
       return res.status(400).json({ message: 'El rating debe estar entre 0 y 99' });
     }
@@ -66,21 +62,21 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'El valor no puede ser negativo' });
     }
 
-    // Verificar si el jugador ya existe
+    // Verificar si el jugador ya existe (por nombre o _id)
     const existingPlayer = await Player.findOne({ name });
     if (existingPlayer) {
       return res.status(400).json({ message: 'El jugador ya existe' });
     }
 
-    // Crear jugador
     const player = new Player({
+      _id: `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Generar un _id único
       name,
       position,
-      rating,
-      value
+      rating: Math.max(0, Math.min(99, rating)), // Asegurar que rating esté entre 0 y 99
+      value: Math.max(0, value) // Asegurar que value no sea negativo
     });
-
     await player.save();
+
     res.status(201).json({ player, message: 'Jugador creado exitosamente' });
   } catch (err) {
     console.error('Error en POST /api/players:', err);
@@ -92,8 +88,8 @@ router.post('/', auth, async (req, res) => {
 router.post('/buy', auth, async (req, res) => {
   try {
     const requiredFields = ['playerId'];
-    const hasError = validateRequiredFields(req, res, requiredFields);
-    if (hasError) return;
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
 
     const { playerId } = req.body;
     const club = await Club.findOne({ userId: req.user }).populate('players');
@@ -103,7 +99,7 @@ router.post('/buy', auth, async (req, res) => {
     if (!player) return res.status(404).json({ message: 'Jugador no encontrado' });
 
     // Verificar si el jugador ya está en el club
-    if (club.players.some((p) => p._id.toString() === playerId)) {
+    if (club.players.some(p => p._id.toString() === playerId)) {
       return res.status(400).json({ message: 'El jugador ya está en tu club' });
     }
 
@@ -112,7 +108,7 @@ router.post('/buy', auth, async (req, res) => {
       return res.status(400).json({ message: 'Presupuesto insuficiente' });
     }
 
-    // Actualizar club
+    // Actualizar el club
     club.budget -= player.value;
     club.players.push(player._id);
     club.transactions.push({
@@ -123,9 +119,9 @@ router.post('/buy', auth, async (req, res) => {
     });
     await club.save();
 
-    // Actualizar el jugador
-    player.clubId = club._id;
-    await player.save();
+    // Opcional: Marcar el jugador como comprado (si usas un campo en Player)
+    // player.isBought = true;
+    // await player.save();
 
     res.json({ club, message: 'Jugador comprado exitosamente' });
   } catch (err) {
@@ -134,56 +130,12 @@ router.post('/buy', auth, async (req, res) => {
   }
 });
 
-// POST /api/players/sell - Vender un jugador del club
-router.post('/sell', auth, async (req, res) => {
-  try {
-    const requiredFields = ['playerId'];
-    const hasError = validateRequiredFields(req, res, requiredFields);
-    if (hasError) return;
-
-    const { playerId } = req.body;
-    const club = await Club.findOne({ userId: req.user }).populate('players');
-    if (!club) return res.status(404).json({ message: 'Club no encontrado' });
-
-    const playerIndex = club.players.findIndex((p) => p._id.toString() === playerId);
-    if (playerIndex === -1) {
-      return res.status(404).json({ message: 'Jugador no encontrado en tu club' });
-    }
-
-    const player = club.players[playerIndex];
-    const sellValue = Math.floor(player.value * 0.8); // ejemplo: 80% del valor
-
-    // Actualizar club
-    club.budget += sellValue;
-    club.players.splice(playerIndex, 1);
-    club.transactions.push({
-      type: 'venta',
-      playerName: player.name,
-      value: sellValue,
-      date: new Date()
-    });
-    await club.save();
-
-    // Actualizar el jugador
-    const foundPlayer = await Player.findById(player._id);
-    if (foundPlayer) {
-      foundPlayer.clubId = null;
-      await foundPlayer.save();
-    }
-
-    res.json({ club, message: `Jugador vendido por $${sellValue}` });
-  } catch (err) {
-    console.error('Error en POST /api/players/sell:', err);
-    res.status(500).json({ message: 'Error del servidor' });
-  }
-});
-
 // POST /api/players/watchlist - Agregar un jugador a la watchlist
 router.post('/watchlist', auth, async (req, res) => {
   try {
     const requiredFields = ['playerId'];
-    const hasError = validateRequiredFields(req, res, requiredFields);
-    if (hasError) return;
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
 
     const { playerId } = req.body;
     const club = await Club.findOne({ userId: req.user });
@@ -193,7 +145,7 @@ router.post('/watchlist', auth, async (req, res) => {
     if (!player) return res.status(404).json({ message: 'Jugador no encontrado' });
 
     // Verificar si el jugador ya está en la watchlist
-    if (club.watchlist.some((w) => w._id.toString() === playerId)) {
+    if (club.watchlist.some(w => w._id.toString() === playerId)) {
       return res.status(400).json({ message: 'El jugador ya está en tu watchlist' });
     }
 
@@ -210,14 +162,13 @@ router.post('/watchlist', auth, async (req, res) => {
 
 // DELETE /api/players/watchlist/:playerId - Eliminar un jugador de la watchlist
 router.delete('/watchlist/:playerId', auth, async (req, res) => {
+  const { playerId } = req.params;
   try {
-    const { playerId } = req.params;
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
     const initialLength = club.watchlist.length;
-    club.watchlist = club.watchlist.filter((w) => w._id.toString() !== playerId);
-
+    club.watchlist = club.watchlist.filter(w => w._id.toString() !== playerId);
     if (club.watchlist.length === initialLength) {
       return res.status(404).json({ message: 'Jugador no encontrado en la watchlist' });
     }
@@ -241,7 +192,7 @@ router.get('/all', auth, async (req, res) => {
   }
 });
 
-// Manejo de errores específico de este router
+// Middleware para manejar errores globales en este router
 router.use((err, req, res, next) => {
   console.error('Error en players.js:', err);
   res.status(500).json({ message: 'Error interno del servidor' });

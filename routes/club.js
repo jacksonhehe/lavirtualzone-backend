@@ -1,48 +1,57 @@
-// routes/club.js
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); // Añadido explícitamente, ya que lo usas en auth
 const Club = require('../models/Club');
 const Player = require('../models/Player');
 const Transaction = require('../models/Transaction');
 
-/**
- * Middleware de autenticación local.
- */
-function auth(req, res, next) {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  if (!token) {
-    return res.status(401).json({ message: 'No hay token, autorización denegada' });
-  }
+// Middleware de autenticación (alineado con auth.js)
+const auth = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1] || req.header('x-auth-token');
+  if (!token) return res.status(401).json({ message: 'No autorizado, falta token' });
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.id; // según tu payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tu_secreto_muy_largo_y_seguro');
+    req.user = decoded.id; // Asegúrate de que sea el ID del usuario (ObjectId)
     next();
   } catch (err) {
-    return res.status(401).json({ message: 'Token inválido' });
+    console.error('Error en autenticación:', err);
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expirado' });
+    }
+    res.status(401).json({ message: 'Token inválido' });
   }
-}
+};
 
-/**
- * Función local para validar campos requeridos.
- * Si falta alguno, devuelve true e imprime el error al cliente.
- * Si todo va bien, devuelve false.
- */
-function validateRequiredFields(req, res, fields) {
+// Función auxiliar para validar campos requeridos
+const validateRequiredFields = (req, res, fields) => {
   for (const field of fields) {
-    if (req.body[field] == null) {
-      res.status(400).json({ message: `El campo '${field}' es requerido` });
-      return true; // indica que hubo error
+    if (!req.body[field]) {
+      return res.status(400).json({ message: `El campo ${field} es requerido` });
     }
   }
-  return false; // indica que no hubo error
-}
+  return null;
+};
 
-// GET /api/club/me - Obtener el club del usuario autenticado
+// GET /api/club/me - Obtener datos del club del usuario autenticado
 router.get('/me', auth, async (req, res) => {
   try {
-    const club = await Club.findOne({ userId: req.user });
-    if (!club) return res.status(404).json({ message: 'Club no encontrado' });
+    let club = await Club.findOne({ userId: req.user }).populate('players');
+    if (!club) {
+      // Crear un club por defecto si no existe
+      club = new Club({
+        userId: req.user,
+        name: '[Sin registrar]',
+        budget: 100000000,
+        players: [],
+        color: '#00ffff',
+        wins: 0,
+        watchlist: [],
+        gamesPlayed: 0,
+        transactions: [],
+        seasonWins: 0
+      });
+      await club.save();
+    }
     res.json(club);
   } catch (err) {
     console.error('Error en GET /api/club/me:', err);
@@ -57,17 +66,8 @@ router.put('/me', auth, async (req, res) => {
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
-    if (name && name !== club.name) {
-      // verificar que no exista otro club con el mismo nombre
-      const existingClub = await Club.findOne({ name });
-      if (existingClub) {
-        return res.status(400).json({ message: 'El nombre del club ya está en uso' });
-      }
-      club.name = name;
-    }
-    if (color) {
-      club.color = color;
-    }
+    if (name) club.name = name;
+    if (color) club.color = color;
 
     await club.save();
     res.json(club);
@@ -81,42 +81,21 @@ router.put('/me', auth, async (req, res) => {
 router.post('/me/train', auth, async (req, res) => {
   try {
     const requiredFields = ['playerId', 'cost'];
-    const hasError = validateRequiredFields(req, res, requiredFields);
-    if (hasError) return; // finaliza si faltan campos
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
 
     const { playerId, cost } = req.body;
-    if (typeof cost !== 'number' || cost <= 0) {
-      return res.status(400).json({ message: 'El costo debe ser un número positivo' });
-    }
-
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
-    const player = await Player.findById(playerId);
-    if (!player || !player.clubId || player.clubId.toString() !== club._id.toString()) {
-      return res.status(404).json({ message: 'Jugador no encontrado en el club' });
-    }
+    const player = club.players.id(playerId);
+    if (!player) return res.status(404).json({ message: 'Jugador no encontrado en el club' });
 
-    if (club.budget < cost) {
-      return res.status(400).json({ message: 'Presupuesto insuficiente' });
-    }
+    if (club.budget < cost) return res.status(400).json({ message: 'Presupuesto insuficiente' });
 
-    // Actualizar presupuesto, rating y valor
     club.budget -= cost;
-    player.rating = Math.min((player.rating || 0) + 1, 99);
-    player.value = (player.value || 0) + cost;
-    await player.save();
-
-    // Registrar la transacción
-    await Transaction.recordTransaction(
-      req.user,
-      club._id,
-      'entrenamiento',
-      player.name,
-      cost,
-      player._id
-    );
-
+    player.rating = Math.min((player.rating || 0) + 1, 99); // Incrementar rating, máximo 99
+    player.value = (player.value || 0) + cost; // Incrementar valor
     club.transactions.push({
       type: 'Entrenamiento',
       playerName: player.name,
@@ -136,20 +115,14 @@ router.post('/me/train', auth, async (req, res) => {
 router.post('/me/simulate', auth, async (req, res) => {
   try {
     const requiredFields = ['win'];
-    const hasError = validateRequiredFields(req, res, requiredFields);
-    if (hasError) return;
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
 
     const { win } = req.body;
-    if (typeof win !== 'boolean') {
-      return res.status(400).json({ message: 'El campo win debe ser un booleano' });
-    }
-
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
-    if (club.players.length === 0) {
-      return res.status(400).json({ message: 'No hay jugadores en el club' });
-    }
+    if (club.players.length === 0) return res.status(400).json({ message: 'No hay jugadores en el club' });
 
     club.gamesPlayed = (club.gamesPlayed || 0) + 1;
     if (win) {
@@ -172,24 +145,76 @@ router.post('/me/reset', auth, async (req, res) => {
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
 
-    Object.assign(club, {
-      name: '[Sin registrar]',
-      budget: 100000000,
-      players: [],
-      color: '#00ffff',
-      wins: 0,
-      watchlist: [],
-      gamesPlayed: 0,
-      transactions: [],
-      seasonWins: 0
-    });
-    await club.save();
+    club.name = '[Sin registrar]';
+    club.budget = 100000000;
+    club.players = [];
+    club.color = '#00ffff';
+    club.wins = 0;
+    club.watchlist = [];
+    club.gamesPlayed = 0;
+    club.transactions = [];
+    club.seasonWins = 0;
 
-    res.json({ club: club.toObject(), message: 'Club reiniciado correctamente' });
+    await club.save();
+    res.json({ club, message: 'Club reiniciado exitosamente' });
   } catch (err) {
     console.error('Error en POST /api/club/me/reset:', err);
     res.status(500).json({ message: 'Error del servidor' });
   }
+});
+
+// GET /api/club/leaderboard - Obtener clasificación de clubes
+router.get('/leaderboard', auth, async (req, res) => {
+  try {
+    const clubs = await Club.find().sort({ wins: -1, gamesPlayed: 1 }).populate('players');
+    const leaderboard = clubs.map(club => ({
+      clubName: club.name,
+      wins: club.wins || 0,
+      avgRating: club.players.length ? club.players.reduce((sum, p) => sum + (p.rating || 0), 0) / club.players.length : 0
+    }));
+    res.json(leaderboard);
+  } catch (err) {
+    console.error('Error en GET /api/club/leaderboard:', err);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
+});
+
+// GET /api/club/best-team - Verificar si el club del usuario es el mejor
+router.get('/best-team', auth, async (req, res) => {
+  try {
+    const clubs = await Club.find().populate('players');
+    if (!clubs.length) return res.status(404).json({ message: 'No hay clubes disponibles' });
+
+    const bestTeam = clubs.reduce((best, current) => {
+      const currentAvg = current.players.length ? current.players.reduce((sum, p) => sum + (p.rating || 0), 0) / current.players.length : 0;
+      const bestAvg = best.players.length ? best.players.reduce((sum, p) => sum + (p.rating || 0), 0) / best.players.length : 0;
+      return currentAvg > bestAvg ? current : best;
+    }, clubs[0]);
+
+    const userClub = await Club.findOne({ userId: req.user });
+    const isBestTeam = userClub && userClub._id.toString() === bestTeam._id.toString();
+    res.json({ isBestTeam: !!isBestTeam });
+  } catch (err) {
+    console.error('Error en GET /api/club/best-team:', err);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
+});
+
+// GET /api/club/count - Contar clubes (para estadísticas)
+router.get('/count', auth, async (req, res) => {
+  try {
+    const count = await Club.countDocuments();
+    res.json({ success: true, count });
+  } catch (err) {
+    console.error('Error en GET /api/club/count:', err);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
+});
+
+// Middleware para manejar errores globales en este router
+router.use((err, req, res, next) => {
+  console.error('Error en club.js:', err);
+  res.status(500).json({ message: 'Error interno del servidor' });
 });
 
 module.exports = router;
