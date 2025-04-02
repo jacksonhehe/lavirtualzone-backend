@@ -4,9 +4,10 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const Player = require('../models/Player');
 const Club = require('../models/Club');
-const { validateRequiredFields } = require('../middleware/validation');
 
-// Middleware de autenticación local (en vez de '../middleware/auth')
+/**
+ * Middleware local de autenticación (reemplaza '../middleware/auth').
+ */
 function auth(req, res, next) {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   if (!token) {
@@ -14,7 +15,6 @@ function auth(req, res, next) {
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // Usar "id" o la propiedad que definiste en el payload
     req.user = decoded.id;
     next();
   } catch (err) {
@@ -22,11 +22,25 @@ function auth(req, res, next) {
   }
 }
 
+/**
+ * Función local para validar campos requeridos en req.body
+ */
+function validateRequiredFields(req, res, fields) {
+  for (const field of fields) {
+    if (req.body[field] == null) {
+      res.status(400).json({ message: `El campo '${field}' es requerido` });
+      return true; // indica que hubo error y ya respondimos
+    }
+  }
+  return false; // indica que no hubo error
+}
+
 // GET /api/players - Obtener jugadores que no estén en el club del usuario
 router.get('/', auth, async (req, res) => {
   try {
     const club = await Club.findOne({ userId: req.user }).populate('players');
     const clubPlayerIds = club ? club.players.map((p) => p._id.toString()) : [];
+
     // Jugadores que NO estén en la lista del club
     const players = await Player.find({ _id: { $nin: clubPlayerIds } });
     res.json(players);
@@ -40,8 +54,8 @@ router.get('/', auth, async (req, res) => {
 router.post('/', auth, async (req, res) => {
   try {
     const requiredFields = ['name', 'position', 'rating', 'value'];
-    const validationError = validateRequiredFields(req, res, requiredFields);
-    if (validationError) return validationError;
+    const hasError = validateRequiredFields(req, res, requiredFields);
+    if (hasError) return;
 
     const { name, position, rating, value } = req.body;
 
@@ -58,7 +72,7 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'El jugador ya existe' });
     }
 
-    // Crear jugador con ID autogenerado
+    // Crear jugador
     const player = new Player({
       name,
       position,
@@ -78,8 +92,8 @@ router.post('/', auth, async (req, res) => {
 router.post('/buy', auth, async (req, res) => {
   try {
     const requiredFields = ['playerId'];
-    const validationError = validateRequiredFields(req, res, requiredFields);
-    if (validationError) return validationError;
+    const hasError = validateRequiredFields(req, res, requiredFields);
+    if (hasError) return;
 
     const { playerId } = req.body;
     const club = await Club.findOne({ userId: req.user }).populate('players');
@@ -124,8 +138,8 @@ router.post('/buy', auth, async (req, res) => {
 router.post('/sell', auth, async (req, res) => {
   try {
     const requiredFields = ['playerId'];
-    const validationError = validateRequiredFields(req, res, requiredFields);
-    if (validationError) return validationError;
+    const hasError = validateRequiredFields(req, res, requiredFields);
+    if (hasError) return;
 
     const { playerId } = req.body;
     const club = await Club.findOne({ userId: req.user }).populate('players');
@@ -137,7 +151,7 @@ router.post('/sell', auth, async (req, res) => {
     }
 
     const player = club.players[playerIndex];
-    const sellValue = Math.floor(player.value * 0.8); // ejemplo: 80% del valor original
+    const sellValue = Math.floor(player.value * 0.8); // ejemplo: 80% del valor
 
     // Actualizar club
     club.budget += sellValue;
@@ -168,8 +182,8 @@ router.post('/sell', auth, async (req, res) => {
 router.post('/watchlist', auth, async (req, res) => {
   try {
     const requiredFields = ['playerId'];
-    const validationError = validateRequiredFields(req, res, requiredFields);
-    if (validationError) return validationError;
+    const hasError = validateRequiredFields(req, res, requiredFields);
+    if (hasError) return;
 
     const { playerId } = req.body;
     const club = await Club.findOne({ userId: req.user });
@@ -178,7 +192,7 @@ router.post('/watchlist', auth, async (req, res) => {
     const player = await Player.findById(playerId);
     if (!player) return res.status(404).json({ message: 'Jugador no encontrado' });
 
-    // Verificar si ya está en la watchlist
+    // Verificar si el jugador ya está en la watchlist
     if (club.watchlist.some((w) => w._id.toString() === playerId)) {
       return res.status(400).json({ message: 'El jugador ya está en tu watchlist' });
     }
@@ -232,20 +246,5 @@ router.use((err, req, res, next) => {
   console.error('Error en players.js:', err);
   res.status(500).json({ message: 'Error interno del servidor' });
 });
-
-// Middleware local de autenticación (en vez de '../middleware/auth')
-function auth(req, res, next) {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  if (!token) {
-    return res.status(401).json({ message: 'No hay token, autorización denegada' });
-  }
-  try {
-    const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET);
-    req.user = decoded.id;
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: 'Token inválido' });
-  }
-}
 
 module.exports = router;
