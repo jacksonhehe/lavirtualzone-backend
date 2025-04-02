@@ -2,12 +2,13 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const { validateRequiredFields } = require('../middleware/validation');
 const Transaction = require('../models/Transaction');
 const Club = require('../models/Club');
 const Player = require('../models/Player');
 
-// Middleware de autenticación local (en vez de '../middleware/auth')
+/**
+ * Middleware local de autenticación (reemplaza '../middleware/auth')
+ */
 function auth(req, res, next) {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   if (!token) {
@@ -22,12 +23,25 @@ function auth(req, res, next) {
   }
 }
 
+/**
+ * Función local para validar campos requeridos en req.body
+ */
+function validateRequiredFields(req, res, fields) {
+  for (const field of fields) {
+    if (req.body[field] == null) {
+      res.status(400).json({ message: `El campo '${field}' es requerido` });
+      return true; // Indica que hubo un error y ya respondimos al cliente
+    }
+  }
+  return false; // Indica que no hubo error
+}
+
 // POST /api/transactions - Crear una nueva transacción
 router.post('/', auth, async (req, res) => {
   try {
     const requiredFields = ['type', 'playerId', 'value'];
-    const validationError = validateRequiredFields(req, res, requiredFields);
-    if (validationError) return validationError;
+    const hasError = validateRequiredFields(req, res, requiredFields);
+    if (hasError) return;
 
     const { type, playerId, value } = req.body;
     const club = await Club.findOne({ userId: req.user });
@@ -66,8 +80,7 @@ router.post('/', auth, async (req, res) => {
       club.players = club.players.filter((p) => p._id.toString() !== playerId);
       player.clubId = null;
     } else if (type === 'prestamo') {
-      // Lógica específica para préstamos
-      // (ej. No cambios en el array 'players' del club, etc.)
+      // Lógica específica para préstamos (si aplica)
     }
 
     await player.save();
