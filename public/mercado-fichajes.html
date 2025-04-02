@@ -15,7 +15,7 @@
 
   <!-- Fuentes y Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
-        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 
@@ -724,9 +724,10 @@
     async function syncClubData() {
       const token = localStorage.getItem('token');
       try {
+        // CORRECCIÓN: unificamos a Authorization: Bearer
         const response = await fetch(`${BASE_URL}/api/club/me`, {
           method: 'GET',
-          headers: { 'x-auth-token': token }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) {
           const errorData = await response.json();
@@ -754,7 +755,8 @@
       const token = localStorage.getItem('token');
       try {
         const response = await fetch(`${BASE_URL}/api/players`, {
-          headers: { 'x-auth-token': token }
+          // CORRECCIÓN: Bearer
+          headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) {
           const errorData = await response.json();
@@ -826,9 +828,13 @@
     }
 
     function renderLoans() {
-      const list = document.getElementById('loanedPlayersList');
-      if (!list) return;
-      list.innerHTML = loanedPlayers.length ? loanedPlayers.map(name => `<li>${name}</li>`).join('') : '<li>No hay préstamos activos.</li>';
+      // Asumiendo loansGrid es un contenedor para préstamos
+      const grid = document.getElementById('loansGrid');
+      if (!grid) return;
+      // Ejemplo: mostramos 'loanedPlayers' o algunos dummy
+      grid.innerHTML = loanedPlayers.length
+        ? loanedPlayers.map(name => `<div class="loan-card animate-fade-in"><h3>${name}</h3><p>Préstamo activo</p></div>`).join('')
+        : '<p>No hay préstamos activos.</p>';
     }
 
     function renderHistory() {
@@ -857,6 +863,7 @@
     function renderRecommendations() {
       const grid = document.getElementById('recommendationsGrid');
       if (!grid) return;
+      // Ejemplo simple
       grid.innerHTML = `<div class="offer-card animate-fade-in">
         <h3>Recomendación</h3>
         <p>Considera fichar a un mediocampista para reforzar tu equipo.</p>
@@ -870,11 +877,13 @@
     function renderClubDetails() {
       const clubNameElem = document.getElementById('clubName');
       const clubBudgetElem = document.getElementById('clubBudget');
-      const playerList = document.getElementById('clubPlayers');
-      if (!clubNameElem || !clubBudgetElem || !playerList) return;
+      const playerListElem = document.getElementById('clubPlayers');
+      if (!clubNameElem || !clubBudgetElem || !playerListElem) return;
       clubNameElem.textContent = club.name;
       clubBudgetElem.textContent = `$${club.budget.toLocaleString()}`;
-      playerList.innerHTML = club.players.length ? club.players.map(p => `<li>${p.name} (Rating: ${p.rating})</li>`).join('') : '<li>No hay jugadores.</li>';
+      playerListElem.innerHTML = club.players.length
+        ? club.players.map(p => `<li>${p.name} (Rating: ${p.rating})</li>`).join('')
+        : '<li>No hay jugadores.</li>';
     }
 
     async function buyPlayer(name, value) {
@@ -886,15 +895,19 @@
       showNotification('Procesando compra...', 'info');
       try {
         const player = playersMarket.find(p => p.name === name);
+        // CORRECCIÓN: Usamos Bearer tokens
         const response = await fetch(`${BASE_URL}/api/transactions`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({ type: 'compra', playerId: player._id, playerName: name, value })
         });
         const data = await response.json();
         if (response.ok) {
           club.budget -= value;
-          club.points += 10;
+          club.points = (club.points || 0) + 10;
           club.players.push(player);
           localStorage.setItem('clubBudget', club.budget);
           localStorage.setItem('clubPlayers', JSON.stringify(club.players));
@@ -930,17 +943,20 @@
       try {
         const response = await fetch(`${BASE_URL}/api/transactions`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({ type: 'venta', playerId: player._id, playerName: name, value: sellValue })
         });
         const data = await response.json();
         if (response.ok) {
           club.budget += sellValue;
-          club.points += 5;
+          club.points = (club.points || 0) + 5;
           club.players = club.players.filter(p => p.name !== name);
           localStorage.setItem('clubBudget', club.budget);
           localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-          localStorage.setItem('clubPoints', club.points);
+          localStorage.setItem('marketPoints', club.points);
           transactions.unshift(data.transaction);
           showNotification(`¡Has vendido a ${name} por $${sellValue.toLocaleString()}! (+5 puntos)`, 'success');
           await loadMarketData();
@@ -984,13 +1000,16 @@
       try {
         const response = await fetch(`${BASE_URL}/api/transactions`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({ type: 'prestamo', playerId: player._id, playerName: name, value })
         });
         const data = await response.json();
         if (response.ok) {
           club.budget -= value;
-          club.points += 5;
+          club.points = (club.points || 0) + 5;
           loanedPlayers.push(name);
           localStorage.setItem('clubBudget', club.budget);
           localStorage.setItem('marketPoints', club.points);
@@ -1015,6 +1034,24 @@
       }
     }
 
+    function addToWatchlist(name, value) {
+      if (!club.watchlist.some(p => p.name === name)) {
+        club.watchlist.push({ name, value });
+        localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
+        renderWatchlist();
+        showNotification(`¡${name} añadido a la lista de seguimiento!`, 'success');
+      } else {
+        showNotification(`${name} ya está en tu lista de seguimiento.`, 'error');
+      }
+    }
+
+    function removeFromWatchlist(name) {
+      club.watchlist = club.watchlist.filter(p => p.name !== name);
+      localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
+      renderWatchlist();
+      showNotification(`¡${name} eliminado de la lista de seguimiento!`, 'success');
+    }
+
     function showNotification(message, type = 'success') {
       const notification = document.createElement('div');
       notification.className = 'notification';
@@ -1031,11 +1068,24 @@
     }
 
     function bindMarketEvents() {
-      // Aquí se enlazarán eventos para filtros y botones (según la lógica de la aplicación)
+      // Aquí se enlazarán eventos para filtros y botones, si se requieren
+      const searchInput = document.getElementById('searchInput');
+      const positionFilter = document.getElementById('positionFilter');
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          renderMarket(searchInput.value, positionFilter.value);
+        });
+      }
+      if (positionFilter) {
+        positionFilter.addEventListener('change', () => {
+          renderMarket(searchInput.value, positionFilter.value);
+        });
+      }
+      document.getElementById('timeFilter')?.addEventListener('change', updateStats);
     }
 
     function updateStats() {
-      // Función para actualizar estadísticas del mercado (implementa según la lógica necesaria)
+      // Función para actualizar estadísticas del mercado (implementa según tu lógica)
     }
 
     function renderClubDetails() {
@@ -1045,13 +1095,14 @@
       if (!clubNameElem || !clubBudgetElem || !playerListElem) return;
       clubNameElem.textContent = club.name;
       clubBudgetElem.textContent = `$${club.budget.toLocaleString()}`;
-      playerListElem.innerHTML = club.players.length ? club.players.map(p => `<li>${p.name} (Rating: ${p.rating})</li>`).join('') : '<li>No hay jugadores.</li>';
+      playerListElem.innerHTML = club.players.length
+        ? club.players.map(p => `<li>${p.name} (Rating: ${p.rating})</li>`).join('')
+        : '<li>No hay jugadores.</li>';
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // Se inician las funciones de sincronización, renderizado y manejo de eventos
-      // Las funciones syncClubData() y loadMarketData() se invocan al inicio (ver bloque anterior)
-    });
+    function renderChat() {
+      // Implementa la funcionalidad de chat si se requiere
+    }
   </script>
 </body>
 </html>

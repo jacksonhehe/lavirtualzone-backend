@@ -25,12 +25,18 @@ router.put('/me', auth, async (req, res) => {
     const { name, color } = req.body;
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
+
     if (name && name !== club.name) {
       const existingClub = await Club.findOne({ name });
-      if (existingClub) return res.status(400).json({ message: 'El nombre del club ya está en uso' });
+      if (existingClub) {
+        return res.status(400).json({ message: 'El nombre del club ya está en uso' });
+      }
       club.name = name;
     }
-    if (color) club.color = color;
+    if (color) {
+      club.color = color;
+    }
+
     await club.save();
     res.json(club);
   } catch (err) {
@@ -42,22 +48,50 @@ router.put('/me', auth, async (req, res) => {
 // POST /api/club/me/train - Entrenar un jugador
 router.post('/me/train', auth, async (req, res) => {
   try {
-    if (validateRequiredFields(req, res, ['playerId', 'cost'])) return;
+    const requiredFields = ['playerId', 'cost'];
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
+
     const { playerId, cost } = req.body;
-    if (typeof cost !== 'number' || cost <= 0) return res.status(400).json({ message: 'El costo debe ser un número positivo' });
+    if (typeof cost !== 'number' || cost <= 0) {
+      return res.status(400).json({ message: 'El costo debe ser un número positivo' });
+    }
+
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
+
     const player = await Player.findById(playerId);
     if (!player || !player.clubId || player.clubId.toString() !== club._id.toString()) {
       return res.status(404).json({ message: 'Jugador no encontrado en el club' });
     }
-    if (club.budget < cost) return res.status(400).json({ message: 'Presupuesto insuficiente' });
+
+    if (club.budget < cost) {
+      return res.status(400).json({ message: 'Presupuesto insuficiente' });
+    }
+
+    // Actualizar presupuesto, rating y valor
     club.budget -= cost;
     player.rating = Math.min((player.rating || 0) + 1, 99);
-    player.value += cost;
+    player.value = (player.value || 0) + cost;
     await player.save();
-    await Transaction.recordTransaction(req.user, club._id, 'entrenamiento', player.name, cost, player._id);
-    club.transactions.push({ type: 'entrenamiento', playerName: player.name, value: cost, date: new Date() });
+
+    // Registrar la transacción
+    await Transaction.recordTransaction(
+      req.user,
+      club._id,
+      'entrenamiento',
+      player.name,
+      cost,
+      player._id
+    );
+
+    club.transactions.push({
+      type: 'Entrenamiento',
+      playerName: player.name,
+      value: cost,
+      date: new Date()
+    });
+
     await club.save();
     res.json({ club, message: 'Jugador entrenado exitosamente' });
   } catch (err) {
@@ -69,18 +103,29 @@ router.post('/me/train', auth, async (req, res) => {
 // POST /api/club/me/simulate - Simular un partido
 router.post('/me/simulate', auth, async (req, res) => {
   try {
-    if (validateRequiredFields(req, res, ['win'])) return;
+    const requiredFields = ['win'];
+    const validationError = validateRequiredFields(req, res, requiredFields);
+    if (validationError) return validationError;
+
     const { win } = req.body;
-    if (typeof win !== 'boolean') return res.status(400).json({ message: 'El campo win debe ser un booleano' });
+    if (typeof win !== 'boolean') {
+      return res.status(400).json({ message: 'El campo win debe ser un booleano' });
+    }
+
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
-    if (club.players.length === 0) return res.status(400).json({ message: 'No hay jugadores en el club' });
-    club.gamesPlayed += 1;
-    if (win) {
-      club.wins += 1;
-      club.seasonWins += 1;
-      club.budget += 500000;
+
+    if (club.players.length === 0) {
+      return res.status(400).json({ message: 'No hay jugadores en el club' });
     }
+
+    club.gamesPlayed = (club.gamesPlayed || 0) + 1;
+    if (win) {
+      club.wins = (club.wins || 0) + 1;
+      club.seasonWins = (club.seasonWins || 0) + 1;
+      club.budget += 500000; // Recompensa
+    }
+
     await club.save();
     res.json({ club, message: win ? '¡Victoria simulada!' : 'Derrota simulada' });
   } catch (err) {
@@ -94,6 +139,7 @@ router.post('/me/reset', auth, async (req, res) => {
   try {
     const club = await Club.findOne({ userId: req.user });
     if (!club) return res.status(404).json({ message: 'Club no encontrado' });
+
     Object.assign(club, {
       name: '[Sin registrar]',
       budget: 100000000,
@@ -106,6 +152,7 @@ router.post('/me/reset', auth, async (req, res) => {
       seasonWins: 0
     });
     await club.save();
+
     res.json({ club: club.toObject(), message: 'Club reiniciado correctamente' });
   } catch (err) {
     console.error('Error en POST /api/club/me/reset:', err);
