@@ -9,7 +9,7 @@
     <meta name="robots" content="index, follow">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-    <!-- Meta Redes Sociales -->
+    <!-- Meta para Redes Sociales -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://lavirtualzone-backend.onrender.com">
     <meta property="og:title" content="La Virtual Zone | Comunidad Profesional de Videojuegos vía Parsec">
@@ -27,15 +27,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" as="style">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style">
-    <link rel="preload" href="logo-la-virtual-zone.svg" as="image" type="image/svg+xml">
 
-    <title>La Virtual Zone | Comunidad Profesional de Videojuegos vía Parsec</title>
-
-    <!-- Estilos externos -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
-          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
-          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Cargar particles.js desde CDN -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
     <style>
         :root {
@@ -49,7 +43,7 @@
             --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
             --shadow-cyan: 0 6px 18px rgba(0, 255, 255, 0.15);
             --transition-base: 0.3s ease-in-out;
-            --accent-green: #66ff66; /* Verde suave de mercado-fichajes */
+            --accent-green: #66ff66;
         }
 
         *, *::before, *::after {
@@ -74,6 +68,13 @@
 
         body.fade-out {
             opacity: 0;
+        }
+
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
         }
 
         body::before {
@@ -471,6 +472,7 @@
             gap: 2.5rem;
             max-width: 1280px;
             margin: 0 auto;
+            text-align: center;
         }
 
         .host-card {
@@ -751,7 +753,7 @@
         }
 
         .faq-item.active p {
-            max-height: 200px; /* Ajustar según contenido */
+            max-height: 200px;
         }
 
         /* Footer */
@@ -830,15 +832,27 @@
             animation: fadeIn 0.6s ease-out forwards;
         }
 
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
         @media (max-width: 768px) {
             .main-nav {
                 display: none;
                 position: fixed;
-                top: 60px;
+                top: 0;
                 left: 0;
                 width: 100%;
+                height: 100vh;
                 background: var(--dark-bg);
                 flex-direction: column;
+                justify-content: center;
                 padding: 2rem;
                 z-index: 999;
             }
@@ -858,43 +872,37 @@
                 right: 1rem;
             }
 
-            .hero-section {
-                padding: 100px 2rem 4rem;
+            .auth-section {
+                padding: 5rem 2rem;
             }
 
-            .hero-title {
-                font-size: 2rem;
+            .auth-container {
+                padding: 2rem;
             }
 
-            .hero-subtitle {
+            .tab-button {
+                padding: 0.8rem 1.5rem;
                 font-size: 1rem;
-            }
-
-            .tournaments-grid,
-            .liga-master-grid,
-            .calendar-grid,
-            .hosts-grid,
-            .news-grid,
-            .stats-grid {
-                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
+    <div id="particles-js"></div>
+
     <header class="main-header" role="banner">
         <nav class="nav-container" aria-label="Navegación principal">
-            <a href="/" class="logo" aria-label="Inicio de La Virtual Zone"></a>
+            <a href="index.html" class="logo" aria-label="Inicio de La Virtual Zone"></a>
             <button class="mobile-menu" aria-label="Abrir menú" aria-expanded="false" aria-controls="main-nav">
                 <i class="fas fa-bars" aria-hidden="true"></i>
             </button>
             <div class="main-nav" id="main-nav" role="navigation" aria-label="Secciones principales">
                 <button class="close-menu" aria-label="Cerrar menú"><i class="fas fa-times" aria-hidden="true"></i></button>
-                <a href="#torneos" class="nav-link">Torneos</a>
+                <a href="index.html#torneos" class="nav-link transition-link" data-href="index.html#torneos">Torneos</a>
                 <a href="liga-master.html" class="nav-link transition-link" data-href="liga-master.html">Liga Master</a>
-                <a href="#clasificacion" class="nav-link">Clasificación</a>
-                <a href="login.html" class="nav-link transition-link" data-href="login.html">Iniciar Sesión</a>
-                <a href="#contacto" class="nav-link">Contacto</a>
+                <a href="index.html#clasificacion" class="nav-link transition-link" data-href="index.html#clasificacion">Clasificación</a>
+                <a href="login.html" class="nav-link">Iniciar Sesión</a>
+                <a href="index.html#contacto" class="nav-link transition-link" data-href="index.html#contacto">Contacto</a>
             </div>
         </nav>
     </header>
@@ -980,252 +988,53 @@
             </div>
         </section>
 
-        <section class="rankings-section" id="clasificacion" aria-labelledby="clasificacion-heading">
-            <h2 class="section-title" id="clasificacion-heading">Clasificación Global</h2>
-            <div class="ranking-table">
+        <section class="liga-master-club-preview" aria-labelledby="club-preview-heading">
+            <h2 class="section-title" id="club-preview-heading">Tu Club</h2>
+            <div class="club-preview-container animate-fade-in">
+                <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
+                <p>Presupuesto: $<span id="clubBudget">100,000,000</span></p>
+                <p>Jugadores: <span id="playerCount">0</span></p>
+                <p>Valor Total: $<span id="teamValue">0</span></p>
+                <p>Rating Promedio: <span id="avgRating">0</span></p>
+                <ul id="playerList" style="list-style: none; margin-top: 1rem;"></ul>
+                <form class="club-form" id="clubForm">
+                    <input type="text" id="clubNameInput" class="form-input" placeholder="Nombre del Club">
+                    <select id="clubColor" class="form-select">
+                        <option value="#00ffff">Cian</option>
+                        <option value="#800080">Púrpura</option>
+                        <option value="#66ff66">Verde</option>
+                    </select>
+                    <button type="submit" class="cta-button">Guardar</button>
+                </form>
+                <button id="resetClub" class="reset-button" style="margin-top: 1rem;">Reiniciar Club</button>
+            </div>
+        </section>
+
+        <section class="liga-master-achievements" aria-labelledby="achievements-heading">
+            <h2 class="section-title" id="achievements-heading">Logros</h2>
+            <div class="achievements-grid">
+                <div class="achievement-card animate-fade-in" id="first-buy"></div>
+                <div class="achievement-card animate-fade-in" id="top-10"></div>
+                <div class="achievement-card animate-fade-in" id="million-spent"></div>
+            </div>
+        </section>
+
+        <section class="liga-master-rankings" aria-labelledby="rankings-heading">
+            <h2 class="section-title" id="rankings-heading">Clasificación de Clubes</h2>
+            <div class="ranking-table animate-fade-in">
                 <table role="grid">
                     <thead>
                         <tr>
-                            <th scope="col">Posición</th>
-                            <th scope="col">Jugador</th>
-                            <th scope="col">Puntos</th>
-                            <th scope="col">Victorias</th>
-                            <th scope="col">Derrotas</th>
-                            <th scope="col">Puntuación</th>
+                            <th>#</th>
+                            <th>Club</th>
+                            <th>Puntos</th>
+                            <th>Victorias</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>CyberNinja</td>
-                            <td>1850</td>
-                            <td>65</td>
-                            <td>8</td>
-                            <td>210</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>PixelMaster</td>
-                            <td>1720</td>
-                            <td>60</td>
-                            <td>10</td>
-                            <td>195</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>ByteBlaster</td>
-                            <td>1600</td>
-                            <td>55</td>
-                            <td>12</td>
-                            <td>180</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>GlitchGuru</td>
-                            <td>1450</td>
-                            <td>50</td>
-                            <td>15</td>
-                            <td>165</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>CodeCrusher</td>
-                            <td>1300</td>
-                            <td>45</td>
-                            <td>18</td>
-                            <td>150</td>
-                        </tr>
+                    <tbody id="rankingBody">
+                        <!-- Se llenará dinámicamente -->
                     </tbody>
                 </table>
-            </div>
-        </section>
-
-        <section class="event-calendar" id="calendario" aria-labelledby="calendario-heading">
-            <h2 class="section-title" id="calendario-heading">Calendario de Eventos</h2>
-            <div class="calendar-grid">
-                <article class="calendar-day animate-fade-in">
-                    <time class="event-time" datetime="2025-03-01T21:00">1 Mar 2025 - 21:00</time>
-                    <h3>Torneo "Liga Master Apertura"</h3>
-                    <p>Host: CyberNinja | Modalidad: 1v1</p>
-                </article>
-                <article class="calendar-day animate-fade-in">
-                    <time class="event-time" datetime="2025-02-20T21:00">20 Feb 2025 - 21:00</time>
-                    <h3>Torneo "Ciberduelo"</h3>
-                    <p>Host: CyberNinja | Modalidad: 1v1</p>
-                </article>
-                <article class="calendar-day animate-fade-in">
-                    <time class="event-time" datetime="2025-02-25T19:00">25 Feb 2025 - 19:00</time>
-                    <h3>Copa "Zona Digital"</h3>
-                    <p>Host: PixelMaster | Modalidad: 2v2</p>
-                </article>
-            </div>
-        </section>
-
-        <section class="hosts-section" id="hosts" aria-labelledby="hosts-heading">
-            <h2 class="section-title" id="hosts-heading">Hosts Disponibles</h2>
-            <div class="hosts-grid">
-                <article class="host-card animate-fade-in">
-                    <h3>CyberNinja</h3>
-                    <p class="host-status">Online</p>
-                    <p>Región: USA | Latencia: 20ms</p>
-                    <a href="https://parsec.app" class="cta-button" target="_blank" rel="noopener noreferrer">Conectar</a>
-                </article>
-                <article class="host-card animate-fade-in">
-                    <h3>PixelMaster</h3>
-                    <p class="host-status">Online</p>
-                    <p>Región: Europa | Latencia: 25ms</p>
-                    <a href="https://parsec.app" class="cta-button" target="_blank" rel="noopener noreferrer">Conectar</a>
-                </article>
-                <article class="host-card animate-fade-in">
-                    <h3>ByteBlaster</h3>
-                    <p class="host-status offline">Offline</p>
-                    <p>Región: Asia | Latencia: 50ms</p>
-                    <a href="#" class="cta-button" disabled>Conectar</a>
-                </article>
-            </div>
-        </section>
-
-        <section class="guide-section" id="guia" aria-labelledby="guia-heading">
-            <h2 class="section-title" id="guia-heading">Guía de Participación</h2>
-            <div class="guide-container animate-fade-in">
-                <div class="guide-step">
-                    <h3>1. Descarga Parsec</h3>
-                    <p>Visita <a href="https://parsec.app" target="_blank" rel="noopener noreferrer">parsec.app</a> y descarga el cliente oficial.</p>
-                </div>
-                <div class="guide-step">
-                    <h3>2. Crea tu Cuenta</h3>
-                    <p>Regístrate en Parsec para obtener tu ID único y unirte a las sesiones de juego.</p>
-                </div>
-                <div class="guide-step">
-                    <h3>3. Únete a "Liga Master"</h3>
-                    <p><a href="liga-master.html" class="transition-link" data-href="liga-master.html">Registra tu club</a> y comienza a competir.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="news-section" id="noticias" aria-labelledby="noticias-heading">
-            <h2 class="section-title" id="noticias-heading">Últimas Noticias</h2>
-            <div class="news-grid">
-                <article class="news-card animate-fade-in">
-                    <time class="news-date" datetime="2025-02-15">15 Feb 2025</time>
-                    <h3 class="news-title">Liga Master 2025 Arranca</h3>
-                    <p>La temporada inaugural de Liga Master comienza con nuevos clubes y torneos.</p>
-                </article>
-                <article class="news-card animate-fade-in">
-                    <time class="news-date" datetime="2025-02-18">18 Feb 2025</time>
-                    <h3 class="news-title">Nuevos Torneos Anunciados</h3>
-                    <p>Prepárate para competir en los próximos eventos de La Virtual Zone.</p>
-                </article>
-                <article class="news-card animate-fade-in">
-                    <time class="news-date" datetime="2025-02-20">20 Feb 2025</time>
-                    <h3 class="news-title">Expansión Global</h3>
-                    <p>Nuevos hosts desde USA y Europa se unen a "La Virtual Zone".</p>
-                </article>
-            </div>
-        </section>
-
-        <section class="stats-section" id="estadisticas" aria-labelledby="estadisticas-heading">
-            <h2 class="section-title" id="estadisticas-heading">Estadísticas Generales</h2>
-            <div class="stats-grid">
-                <div class="stat-item animate-fade-in">
-                    <div class="stat-number" id="playersCount">2,000</div>
-                    <p>Jugadores Registrados</p>
-                </div>
-                <div class="stat-item animate-fade-in">
-                    <div class="stat-number" id="clubsCount">0</div>
-                    <p>Clubes en Liga Master</p>
-                </div>
-                <div class="stat-item animate-fade-in">
-                    <div class="stat-number">45</div>
-                    <p>Torneos Completados</p>
-                </div>
-                <div class="stat-item animate-fade-in">
-                    <div class="stat-number">150</div>
-                    <p>Partidos Jugados</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="advanced-stats-section" id="avanzadas" aria-labelledby="avanzadas-heading">
-            <h2 class="section-title" id="avanzadas-heading">Estadísticas Avanzadas</h2>
-            <div class="advanced-stats-container animate-fade-in">
-                <table class="stats-table">
-                    <thead>
-                        <tr>
-                            <th>Jugador</th>
-                            <th>Partidos Jugados</th>
-                            <th>Puntos por Partido</th>
-                            <th>Precisión (%)</th>
-                            <th>Victorias (%)</th>
-                            <th>Rating</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>CyberNinja</td>
-                            <td>75</td>
-                            <td>2.80</td>
-                            <td>94%</td>
-                            <td>88%</td>
-                            <td>9.5</td>
-                        </tr>
-                        <tr>
-                            <td>PixelMaster</td>
-                            <td>72</td>
-                            <td>2.70</td>
-                            <td>90%</td>
-                            <td>85%</td>
-                            <td>9.2</td>
-                        </tr>
-                        <tr>
-                            <td>ByteBlaster</td>
-                            <td>69</td>
-                            <td>2.60</td>
-                            <td>87%</td>
-                            <td>81%</td>
-                            <td>8.9</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section class="chat-section" id="chat" aria-labelledby="chat-heading">
-            <h2 class="section-title" id="chat-heading">Foro de la Comunidad</h2>
-            <div class="chat-container animate-fade-in">
-                <div class="chat-messages" id="chatMessages">
-                    <div class="chat-message"><span>CyberNinja:</span> ¡Listos para el próximo torneo de Liga Master!</div>
-                    <div class="chat-message"><span>PixelMaster:</span> Gran partido ayer, GG a todos.</div>
-                    <div class="chat-message"><span>ByteBlaster:</span> Activo mi host en 15 minutos.</div>
-                </div>
-                <form id="chatForm" class="chat-input">
-                    <input type="text" placeholder="Escribe tu mensaje..." required>
-                    <button type="submit" class="cta-button"><i class="fas fa-paper-plane" aria-hidden="true"></i> Enviar</button>
-                </form>
-            </div>
-        </section>
-
-        <section class="partners-section" id="socios" aria-labelledby="socios-heading">
-            <h2 class="section-title" id="socios-heading">Socios y Patrocinadores</h2>
-            <div class="partners-grid">
-                <img src="https://via.placeholder.com/150x50?text=GameTech" alt="GameTech" class="partner-logo animate-fade-in">
-                <img src="https://via.placeholder.com/150x50?text=Parsec" alt="Parsec" class="partner-logo animate-fade-in">
-                <img src="https://via.placeholder.com/150x50?text=Twitch" alt="Twitch" class="partner-logo animate-fade-in">
-                <img src="https://via.placeholder.com/150x50?text=Discord" alt="Discord" class="partner-logo animate-fade-in">
-            </div>
-        </section>
-
-        <section class="support-section" id="contacto" aria-labelledby="soporte-heading">
-            <h2 class="section-title" id="soporte-heading">Soporte Técnico</h2>
-            <div class="faq-grid">
-                <article class="faq-item animate-fade-in" role="button" aria-expanded="false">
-                    <h3>¿Cómo participo en Liga Master?</h3>
-                    <p>Regístrate con tu ID de Parsec y visita <a href="liga-master.html" class="transition-link" data-href="liga-master.html">Liga Master</a>.</p>
-                </article>
-                <article class="faq-item animate-fade-in" role="button" aria-expanded="false">
-                    <h3>¿Qué hago si hay retraso?</h3>
-                    <p>Intenta con otro host o contacta a <a href="mailto:support@lavirtualzone.com">support@lavirtualzone.com</a>.</p>
-                </article>
             </div>
         </section>
     </main>
@@ -1261,19 +1070,57 @@
     <script>
         const BASE_URL = window.location.origin;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const menuButton = document.querySelector('.mobile-menu');
-            const closeButton = document.querySelector('.close-menu');
-            const mainNav = document.querySelector('.main-nav');
+        let club = {
+            name: localStorage.getItem('clubName') || '[Sin registrar]',
+            budget: parseInt(localStorage.getItem('clubBudget')) || 100000000,
+            players: JSON.parse(localStorage.getItem('clubPlayers') || '[]') || [],
+            points: parseInt(localStorage.getItem('marketPoints')) || 0,
+            watchlist: JSON.parse(localStorage.getItem('watchlist') || '[]') || []
+        };
+        const season = {
+            start: new Date().getTime() - 24 * 60 * 60 * 1000,
+            end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000
+        };
+        let isMarketOpen = false;
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let loanedPlayers = JSON.parse(localStorage.getItem('loanedPlayers')) || [];
+        let isBuying = false;
+        let playersMarket = [];
 
-            function toggleMenu() {
-                mainNav.classList.toggle('show');
-                const isExpanded = mainNav.classList.contains('show');
-                menuButton.setAttribute('aria-expanded', isExpanded);
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión para acceder al mercado.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+            try {
+                await syncClubData();
+                await loadMarketData();
+                requestAnimationFrame(() => {
+                    renderMarket();
+                    renderLoans();
+                    renderWatchlist();
+                    renderRecommendations();
+                    renderFeaturedPlayers();
+                    renderHistory();
+                    bindMarketEvents();
+                });
+                setInterval(updateTimer, 1000);
+                updateTimer();
+                renderChat();
+                updatePoints();
+                renderClubDetails();
+            } catch (err) {
+                showNotification('Error de conexión: ' + err.message, 'error');
             }
 
-            menuButton.addEventListener('click', toggleMenu);
-            closeButton.addEventListener('click', toggleMenu);
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
+                });
+            }, { threshold: 0.1, rootMargin: '0px' });
+            document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
 
             document.querySelectorAll('.transition-link').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -1283,86 +1130,38 @@
                 });
             });
 
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const target = document.querySelector(anchor.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        if (window.innerWidth <= 768) toggleMenu();
-                    }
-                });
-            });
-
-            const backToTop = document.querySelector('.back-to-top');
-            window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
-            backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-            document.querySelectorAll('.faq-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const isActive = item.classList.contains('active');
-                    item.classList.toggle('active', !isActive);
-                    item.setAttribute('aria-expanded', !isActive);
-                });
-            });
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
-                });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
-
-            setInterval(updateSeason, 1000);
-            updateSeason();
-            updateStats();
-
-            document.getElementById('chatForm').addEventListener('submit', (e) => {
+            document.getElementById('logoutLink').addEventListener('click', (e) => {
                 e.preventDefault();
-                const input = e.target.querySelector('input');
-                const message = input.value.trim();
-                if (message) {
-                    const messages = document.getElementById('chatMessages');
-                    const newMessage = document.createElement('div');
-                    const timestamp = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-                    newMessage.className = 'chat-message';
-                    newMessage.innerHTML = `<span>${localStorage.getItem('clubName') || 'Anónimo'} [${timestamp}]:</span> ${message}`;
-                    messages.appendChild(newMessage);
-                    messages.scrollTop = messages.scrollHeight;
-                    input.value = '';
-                }
+                localStorage.removeItem('token');
+                localStorage.removeItem('clubName');
+                localStorage.removeItem('clubBudget');
+                localStorage.removeItem('clubPlayers');
+                localStorage.removeItem('clubColor');
+                localStorage.removeItem('marketPoints');
+                localStorage.removeItem('transactions');
+                localStorage.removeItem('loanedPlayers');
+                window.location.href = 'login.html';
             });
         });
 
-        const season = {
-            start: new Date("2025-03-01T00:00:00").getTime(),
-            end: new Date("2025-04-01T00:00:00").getTime()
-        };
-
-        function updateSeason() {
-            const now = new Date().getTime();
-            const lmSeasonStatus = document.getElementById('lmSeasonStatus');
-
-            if (now < season.start) {
-                const timeUntil = season.start - now;
-                const days = Math.floor(timeUntil / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((timeUntil % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                lmSeasonStatus.textContent = `Comienza en ${days}d ${hours}h`;
-            } else if (now <= season.end) {
-                const timeLeft = season.end - now;
-                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                lmSeasonStatus.textContent = `Activa - Termina en ${days}d ${hours}h`;
-            } else {
-                lmSeasonStatus.textContent = "Finalizada";
-            }
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.setAttribute('aria-live', 'polite');
+            notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    notification.addEventListener('transitionend', () => notification.remove());
+                }, 4000);
+            }, 100);
         }
 
-        function updateStats() {
-            const clubs = JSON.parse(localStorage.getItem('clubPlayers')) || [];
-            document.getElementById('clubsCount').textContent = clubs.length;
-            document.getElementById('lmClubsCount').textContent = clubs.length;
-        }
+        // Otras funciones: syncClubData, loadMarketData, renderMarket, renderLoans, renderWatchlist, renderRecommendations,
+        // renderFeaturedPlayers, renderHistory, bindMarketEvents, updateTimer, renderChat, updatePoints, renderClubDetails, etc.
     </script>
+
 </body>
 </html>
