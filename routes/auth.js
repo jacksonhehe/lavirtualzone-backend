@@ -5,8 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 // Constantes de configuración
-const DEFAULT_JWT_SECRET = 'tu_secreto_muy_largo_y_seguro'; // Clave predeterminada (reemplazar en producción)
-const JWT_EXPIRY = '1h'; // Tiempo de expiración del token (puedes ajustar)
+const JWT_EXPIRY = '1h'; // Tiempo de expiración del token
 
 // Middleware para validar campos requeridos
 const validateRequiredFields = (req, res, fields) => {
@@ -28,7 +27,7 @@ router.post('/register', async (req, res) => {
 
     const { name, email, password, parsecId } = req.body;
 
-    // Normalizar email (minúsculas) y validar formato (opcional)
+    // Normalizar email (minúsculas) y validar formato
     const normalizedEmail = email.toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return res.status(400).json({ message: 'Email inválido' });
@@ -39,7 +38,7 @@ router.post('/register', async (req, res) => {
     if (user) return res.status(400).json({ message: 'El usuario ya existe' });
 
     // Hashear la contraseña
-    const salt = await bcrypt.genSalt(12); // Aumenté a 12 para mayor seguridad
+    const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Crear el nuevo usuario
@@ -53,7 +52,7 @@ router.post('/register', async (req, res) => {
 
     // Generar token JWT
     const payload = { id: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET || DEFAULT_JWT_SECRET, { expiresIn: JWT_EXPIRY });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRY });
 
     // Respuesta con token y datos del usuario (excluyendo la contraseña)
     res.json({
@@ -89,7 +88,7 @@ router.post('/login', async (req, res) => {
 
     // Generar token JWT
     const payload = { id: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET || DEFAULT_JWT_SECRET, { expiresIn: JWT_EXPIRY });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRY });
 
     // Respuesta con token y datos del usuario
     res.json({
@@ -109,8 +108,8 @@ router.get('/me', async (req, res) => {
 
   try {
     // Verificar token JWT
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || DEFAULT_JWT_SECRET);
-    const user = await User.findById(decoded.id).select('-password'); // Excluir la contraseña
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select('-password');
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
 
     res.json({ id: user._id, name: user.name, email: user.email, parsecId: user.parsecId });
@@ -123,7 +122,7 @@ router.get('/me', async (req, res) => {
   }
 });
 
-// Middleware para proteger rutas (opcional, si necesitas usarlo en otras rutas)
+// Middleware para manejar errores
 router.use((err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {
     return res.status(401).json({ message: 'No autorizado' });
