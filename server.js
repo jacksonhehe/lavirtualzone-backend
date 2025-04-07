@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const { expressjwt: expressJwt } = require('express-jwt');
-const fs = require('fs').promises; // Usamos fs.promises para lectura asíncrona
+const bcrypt = require('bcryptjs'); // Añadido para hashear contraseñas
+const fs = require('fs').promises;
 const path = require('path');
 
 const app = express();
@@ -11,15 +12,15 @@ const app = express();
 // Middleware para parsear JSON
 app.use(express.json());
 
-// Configuración de CORS para permitir solicitudes desde el frontend
+// Configuración de CORS
 app.use(cors({
-    origin: ['http://127.0.0.1:8080', 'http://localhost:8080'], // Ajusta según el origen de tu frontend
+    origin: process.env.FRONTEND_URL || ['http://127.0.0.1:8080', 'http://localhost:8080'], // Dominio del frontend en producción
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'x-auth-token']
 }));
 
-// Conectar a MongoDB
-mongoose.connect('mongodb://localhost/lavirtualzone', {
+// Conectar a MongoDB usando variable de entorno
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/lavirtualzone', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
@@ -32,9 +33,17 @@ mongoose.connect('mongodb://localhost/lavirtualzone', {
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true }, // En producción, hashea esta contraseña
+    password: { type: String, required: true },
     parsecId: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
+});
+
+// Hashear contraseña antes de guardar
+userSchema.pre('save', async function(next) {
+    if (this.isModified('password')) {
+        this.password = await bcrypt.hash(this.password, 10);
+    }
+    next();
 });
 
 const User = mongoose.model('User', userSchema);
@@ -63,13 +72,13 @@ const clubSchema = new mongoose.Schema({
         date: { type: Date, default: Date.now }
     }],
     seasonWins: { type: Number, default: 0 },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true } // Relación con User
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 });
 
 const Club = mongoose.model('Club', clubSchema);
 
 // Middleware de autenticación JWT
-const jwtSecret = 'tu-secreto-jwt'; // Cambia esto por una clave segura en producción
+const jwtSecret = process.env.JWT_SECRET || 'tu-secreto-jwt'; // Usa variable de entorno en producción
 const auth = expressJwt({
     secret: jwtSecret,
     algorithms: ['HS256'],
@@ -82,24 +91,17 @@ app.post('/api/register', async (req, res) => {
     try {
         const { name, email, password, parsecId } = req.body;
 
-        // Verificar si el email ya está registrado
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'El email ya está registrado' });
         }
 
-        // En producción, hashea la contraseña con bcrypt o similar
         const newUser = new User({ name, email, password, parsecId });
         await newUser.save();
 
-        // Crear un club inicial para el nuevo usuario
-        const newClub = new Club({
-            name: '[Sin registrar]',
-            userId: newUser._id
-        });
+        const newClub = new Club({ name: '[Sin registrar]', userId: newUser._id });
         await newClub.save();
 
-        // Generar un token JWT
         const token = jwt.sign({ id: newUser._id }, jwtSecret, { expiresIn: '1h' });
         res.json({ token, user: { name: newUser.name, email: newUser.email, parsecId: newUser.parsecId } });
     } catch (err) {
@@ -107,14 +109,20 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. Iniciar sesión (POST /api/login) - Ejemplo básico
+// 2. Iniciar sesión (POST /api/login)
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
-        if (!user || user.password !== password) { // En producción, compara contraseñas hasheadas
+        if (!user) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Credenciales inválidas' });
+        }
+
         const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
         res.json({ token, user: { name: user.name, email: user.email, parsecId: user.parsecId } });
     } catch (err) {
@@ -126,9 +134,7 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/club/me', auth, async (req, res) => {
     try {
         const club = await Club.findOne({ userId: req.user.id });
-        if (!club) {
-            return res.status(404).json({ message: 'Club no encontrado' });
-        }
+        if (!club) return res.status(404).json({ message: 'Club no encontrado' });
         res.json(club);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -271,7 +277,6 @@ app.get('/api/best-team', auth, async (req, res) => {
 // 10. Ruta para el mercado de fichajes (GET /api/market)
 app.get('/api/market', auth, async (req, res) => {
     try {
-        // Simulación de jugadores disponibles en el mercado (ajusta según tu lógica)
         const players = [
             { _id: 'player1', name: 'CyberStriker', rating: 75, value: 5000000 },
             { _id: 'player2', name: 'PixelBlaster', rating: 80, value: 7500000 },
@@ -283,29 +288,26 @@ app.get('/api/market', auth, async (req, res) => {
     }
 });
 
-// Procesar register.json al iniciar el servidor (opcional)
+// Procesar register.json al iniciar el servidor (solo en desarrollo)
 async function processRegisterJson() {
+    if (process.env.NODE_ENV === 'production') return; // No ejecutar en producción
+
     const registerJsonPath = path.join(__dirname, 'register.json');
     try {
         const data = await fs.readFile(registerJsonPath, 'utf8');
         const userData = JSON.parse(data);
 
-        // Verificar si el usuario ya existe
         const existingUser = await User.findOne({ email: userData.email });
         if (!existingUser) {
             const newUser = new User({
                 name: userData.name,
                 email: userData.email,
-                password: userData.password, // En producción, hashea esta contraseña
+                password: userData.password,
                 parsecId: userData.parsecId
             });
             await newUser.save();
 
-            // Crear un club inicial para el nuevo usuario
-            const newClub = new Club({
-                name: '[Sin registrar]',
-                userId: newUser._id
-            });
+            const newClub = new Club({ name: '[Sin registrar]', userId: newUser._id });
             await newClub.save();
 
             console.log('Usuario registrado desde register.json:', userData.name);
