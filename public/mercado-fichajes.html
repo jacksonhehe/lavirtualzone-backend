@@ -1,1108 +1,1413 @@
 <!DOCTYPE html>
 <html lang="es" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Mercado de Fichajes - Compra y vende jugadores para tu club en Liga Master de La Virtual Zone">
-  <meta name="keywords" content="Mercado de Fichajes, Liga Master, La Virtual Zone, Videojuegos, Parsec, Gaming">
-  <meta name="theme-color" content="#0a0a1a">
-  <meta name="robots" content="index, follow">
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <title>Mercado de Fichajes | Liga Master</title>
-
-  <!-- Directiva CSP: Permite recursos desde el mismo origen y scripts con nonce "abc123" -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'nonce-abc123' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: https://via.placeholder.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self';">
-
-  <!-- Fuentes y Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
-        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-
-  <!-- Estilos internos (se pueden extraer a un archivo CSS) -->
-  <style>
-    :root {
-      --primary-cyan: #00ffff;
-      --secondary-purple: #800080;
-      --dark-bg: #0a0a1a;
-      --light-bg: #2a2a3a;
-      --text-primary: #ffffff;
-      --text-secondary: #b0b0c0;
-      --border-light: rgba(0, 255, 255, 0.2);
-      --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
-      --shadow-cyan: 0 6px 18px rgba(0, 255, 255, 0.15);
-      --transition-base: 0.3s ease-in-out;
-      --accent-green: #66ff66;
-      --pro-blue: #0288D1;
-      --pro-grey: #455A64;
-    }
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      background: var(--dark-bg);
-      color: var(--text-primary);
-      font-family: 'Roboto', sans-serif;
-      font-weight: 400;
-      line-height: 1.7;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-      position: relative;
-      transition: opacity 0.5s ease;
-    }
-    body.fade-out {
-      opacity: 0;
-    }
-    body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(to bottom, rgba(10, 10, 26, 0.95), rgba(10, 10, 26, 1));
-      z-index: -1;
-      opacity: 0.9;
-    }
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-    /* Header */
-    .main-header {
-      background: rgba(10, 10, 26, 0.98);
-      backdrop-filter: blur(8px);
-      padding: 1rem 2rem;
-      position: fixed;
-      width: 100%;
-      top: 0;
-      z-index: 1000;
-      border-bottom: 1px solid var(--border-light);
-      box-shadow: var(--shadow-soft);
-    }
-    .nav-container {
-      max-width: 1440px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 60px;
-    }
-    .logo {
-      width: 60px;
-      height: 60px;
-      background: url('/images/logo-la-virtual-zone.svg') no-repeat center center;
-      background-size: contain;
-      text-indent: -9999px;
-      transition: var(--transition-base);
-      display: block;
-      border: 1px solid var(--border-light);
-      border-radius: 50%;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-    .logo:hover,
-    .logo:focus-visible {
-      opacity: 0.9;
-      outline: none;
-    }
-    .main-nav {
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-    }
-    .nav-link {
-      color: var(--text-primary);
-      text-decoration: none;
-      font-weight: 400;
-      font-size: 1rem;
-      padding: 0.6rem 1rem;
-      border-radius: 6px;
-      transition: var(--transition-base);
-      letter-spacing: 0.5px;
-    }
-    .nav-link:hover,
-    .nav-link:focus-visible {
-      color: var(--primary-cyan);
-      background: rgba(0, 255, 255, 0.1);
-      box-shadow: var(--shadow-cyan);
-      outline: none;
-    }
-    /* Sección Hero del Mercado */
-    .mercado-hero {
-      padding: 160px 3rem 8rem;
-      background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
-      min-height: 70vh;
-      display: flex;
-      align-items: center;
-      margin-top: 60px;
-      position: relative;
-      overflow: hidden;
-      text-align: center;
-    }
-    .mercado-hero::before {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 40%;
-      background: linear-gradient(to top, var(--dark-bg), transparent);
-      z-index: 1;
-    }
-    .mercado-hero-content {
-      max-width: 1280px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 2;
-    }
-    .hero-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      margin-bottom: 2rem;
-      color: var(--text-primary);
-      line-height: 1.2;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-    }
-    .hero-subtitle {
-      color: var(--text-secondary);
-      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
-      max-width: 800px;
-      margin: 0 auto 3rem;
-      font-weight: 300;
-    }
-    .cta-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.8rem;
-      padding: 1rem 2.5rem;
-      background: var(--primary-cyan);
-      color: var(--text-primary);
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 1.2rem;
-      transition: var(--transition-base);
-      border: 1px solid var(--primary-cyan);
-      box-shadow: var(--shadow-cyan);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      cursor: pointer;
-    }
-    .cta-button:hover,
-    .cta-button:focus {
-      background: var(--secondary-purple);
-      color: var(--text-primary);
-      border-color: var(--secondary-purple);
-      box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
-      outline: none;
-    }
-    /* Secciones del Mercado */
-    .mercado-timer,
-    .mercado-search,
-    .mercado-transfer,
-    .mercado-featured-players,
-    .mercado-recommendations,
-    .mercado-loans,
-    .mercado-watchlist,
-    .mercado-points,
-    .mercado-history,
-    .mercado-stats {
-      padding: 7rem 3rem;
-      background: var(--dark-bg);
-    }
-    .section-title {
-      font-family: 'Orbitron', sans-serif;
-      text-align: center;
-      font-size: clamp(2rem, 5vw, 3rem);
-      margin-bottom: 4rem;
-      color: var(--primary-cyan);
-      font-weight: 700;
-      letter-spacing: 1px;
-      position: relative;
-      text-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
-    }
-    .section-title::after {
-      content: '';
-      position: absolute;
-      bottom: -15px;
-      left: 50%;
-      width: 120px;
-      height: 3px;
-      background: var(--primary-cyan);
-      transform: translateX(-50%);
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-    }
-    #market-timer {
-      font-size: 1.5rem;
-      color: var(--accent-green);
-      text-align: center;
-    }
-    .mercado-search-container {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .form-input, .form-select {
-      padding: 1rem;
-      background: var(--light-bg);
-      border: 1px solid var(--border-light);
-      border-radius: 8px;
-      color: var(--text-primary);
-      font-size: 1rem;
-      transition: var(--transition-base);
-      width: 100%;
-      max-width: 300px;
-    }
-    .form-input:focus, .form-select:focus {
-      outline: none;
-      border-color: var(--primary-cyan);
-      box-shadow: var(--shadow-cyan);
-    }
-    .transfer-grid,
-    .featured-players-grid,
-    .recommendations-grid,
-    .loans-grid,
-    .watchlist-grid,
-    .stats-grid,
-    .history-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2.5rem;
-      max-width: 1280px;
-      margin: 0 auto;
-    }
-    .player-card, .offer-card, .stat-item, .history-card, .transfer-card {
-      background: var(--light-bg);
-      border-radius: 12px;
-      padding: 2rem;
-      border: 1px solid var(--border-light);
-      transition: var(--transition-base);
-      box-shadow: var(--shadow-soft);
-      text-align: center;
-    }
-    .player-card:hover, .offer-card:hover, .stat-item:hover, .history-card:hover, .transfer-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-cyan);
-      border-color: var(--primary-cyan);
-    }
-    .buy-button {
-      padding: 0.8rem 2rem;
-      background: var(--primary-cyan);
-      color: var(--text-primary);
-      border: 1px solid var(--primary-cyan);
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: var(--transition-base);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .buy-button:hover,
-    .buy-button:focus {
-      background: var(--secondary-purple);
-      border-color: var(--secondary-purple);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      transform: translateY(-2px);
-      outline: none;
-    }
-    .buy-button:disabled {
-      background: var(--text-secondary);
-      border-color: var(--text-secondary);
-      cursor: not-allowed;
-      opacity: 0.7;
-      box-shadow: none;
-      transform: none;
-    }
-    .sell-button {
-      padding: 0.5rem 1rem;
-      background: var(--secondary-purple);
-      color: var(--text-primary);
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: var(--transition-base);
-    }
-    .sell-button:hover {
-      background: var(--primary-cyan);
-      box-shadow: var(--shadow-cyan);
-    }
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--light-bg);
-      padding: 1rem 2rem;
-      border-radius: 8px;
-      border: 1px solid var(--primary-cyan);
-      box-shadow: var(--shadow-cyan);
-      z-index: 2000;
-      animation: slideIn 0.5s ease-out forwards;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(100%); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes fadeOut {
-      from { opacity: 1; transform: translateY(0); }
-      to { opacity: 0; transform: translateY(-20px); }
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
-    }
-    .pulse {
-      animation: pulse 2s infinite;
-    }
-    .back-to-top {
-      position: fixed;
-      bottom: 2.5rem;
-      right: 2.5rem;
-      background: var(--primary-cyan);
-      color: var(--text-primary);
-      padding: 1.2rem;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      opacity: 0;
-      transition: var(--transition-base);
-      box-shadow: var(--shadow-cyan);
-      transform: translateY(20px);
-    }
-    .back-to-top.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .back-to-top:hover {
-      background: var(--secondary-purple);
-      box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
-    }
-    .main-footer {
-      margin-top: auto;
-      background: var(--dark-bg);
-      padding: 6rem 3rem;
-      border-top: 1px solid var(--border-light);
-      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-    }
-    .footer-content {
-      max-width: 1280px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 3.5rem;
-    }
-    .footer-section {
-      display: flex;
-      flex-direction: column;
-      gap: 1.8rem;
-    }
-    .footer-section h3 {
-      color: var(--primary-cyan);
-      margin-bottom: 1rem;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-    .social-link {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      color: var(--text-primary);
-      text-decoration: none;
-      font-size: 1.1rem;
-      transition: var(--transition-base);
-    }
-    .social-link:hover,
-    .social-link:focus {
-      color: var(--primary-cyan);
-      transform: translateX(5px);
-      text-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-in {
-      animation: fadeIn 0.6s ease-out forwards;
-    }
-    @media (max-width: 768px) {
-      .mercado-hero {
-        padding: 100px 2rem 4rem;
-      }
-      .hero-title {
-        font-size: 2rem;
-      }
-      .hero-subtitle {
-        font-size: 1rem;
-      }
-      .transfer-grid, .offers-grid, .stats-grid, .featured-players-grid, .history-grid {
-        grid-template-columns: 1fr;
-      }
-      .mercado-search-container {
-        flex-direction: column;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mercado de Fichajes - Compra y vende jugadores para tu club en Liga Master de La Virtual Zone">
+    <meta name="keywords" content="Mercado de Fichajes, Liga Master, La Virtual Zone, Videojuegos, Parsec, Gaming">
+    <meta name="theme-color" content="#0a0a1a">
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <title>Mercado de Fichajes | Liga Master</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-cyan: #00ffff;
+            --secondary-purple: #800080;
+            --dark-bg: #0a0a1a;
+            --light-bg: #2a2a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0c0;
+            --border-light: rgba(0, 255, 255, 0.2);
+            --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --shadow-cyan: 0 6px 18px rgba(0, 255, 255, 0.15);
+            --transition-base: 0.3s ease-in-out;
+            --accent-green: #66ff66;
+            --pro-blue: #0288D1;
+            --pro-grey: #455A64;
+        }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+            line-height: 1.7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+            transition: opacity 0.5s ease;
+        }
+        body.fade-out {
+            opacity: 0;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(10, 10, 26, 0.95), rgba(10, 10, 26, 1));
+            z-index: -1;
+            opacity: 0.9;
+        }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        .main-header {
+            background: rgba(10, 10, 26, 0.98);
+            backdrop-filter: blur(8px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+        }
+        .nav-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: url('logo-la-virtual-zone.svg') no-repeat center center;
+            background-size: contain;
+            text-indent: -9999px;
+            transition: var(--transition-base);
+            display: block;
+            border: 1px solid var(--border-light);
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .logo:hover,
+        .logo:focus-visible {
+            opacity: 0.9;
+            outline: none;
+        }
+        .main-nav {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .nav-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 1rem;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            transition: var(--transition-base);
+            letter-spacing: 0.5px;
+        }
+        .nav-link:hover,
+        .nav-link:focus-visible {
+            color: var(--primary-cyan);
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: var(--shadow-cyan);
+            outline: none;
+        }
+        .mercado-hero {
+            padding: 160px 3rem 8rem;
+            background: linear-gradient(to bottom, rgba(10, 10, 26, 0.9), rgba(10, 10, 26, 1));
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            margin-top: 60px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .mercado-hero::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to top, var(--dark-bg), transparent);
+            z-index: 1;
+        }
+        .mercado-hero-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            line-height: 1.2;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        .hero-subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            font-weight: 300;
+        }
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 2.5rem;
+            background: var(--primary-cyan);
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: var(--transition-base);
+            border: 1px solid var(--primary-cyan);
+            box-shadow: var(--shadow-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+        .cta-button:hover,
+        .cta-button:focus {
+            background: var(--secondary-purple);
+            color: var(--text-primary);
+            border-color: var(--secondary-purple);
+            box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
+            outline: none;
+        }
+        .mercado-timer, .mercado-recommendations, .mercado-chat, .mercado-watchlist, .mercado-loans, .mercado-featured-players, .mercado-points, .mercado-history, .mercado-offers, .mercado-stats, .club-details, .mercado-search, .mercado-transfer {
+            padding: 7rem 3rem;
+            background: var(--dark-bg);
+        }
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 4rem;
+            color: var(--primary-cyan);
+            font-weight: 700;
+            letter-spacing: 1px;
+            position: relative;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            width: 120px;
+            height: 3px;
+            background: var(--primary-cyan);
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        #market-timer {
+            font-size: 1.5rem;
+            color: var(--accent-green);
+            text-align: center;
+        }
+        .recommendations-grid, .watchlist-grid, .loans-grid, .featured-players-grid, .offers-grid, .stats-grid, .history-grid, .transfer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .recommendation-card, .watchlist-card, .loan-card, .player-card, .offer-card, .stat-item, .history-card, .transfer-card {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border-light);
+            transition: var(--transition-base);
+            box-shadow: var(--shadow-soft);
+            text-align: center;
+        }
+        .recommendation-card:hover, .watchlist-card:hover, .loan-card:hover, .player-card:hover, .offer-card:hover, .stat-item:hover, .history-card:hover, .transfer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-cyan);
+            border-color: var(--primary-cyan);
+        }
+        .recommendation-card h3, .watchlist-card h3, .loan-card h3, .player-card h3, .offer-card h3, .transfer-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-cyan);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        .watchlist-card .follow-btn.active {
+            background: var(--accent-green);
+        }
+        .recommendation-card .buy-button,
+        .loan-card .loan-button,
+        .player-card .buy-button,
+        .offer-card .buy-button,
+        .watchlist-card .buy-button {
+            padding: 0.8rem 2rem;
+            background: var(--primary-cyan);
+            color: var(--text-primary);
+            border: 1px solid var(--primary-cyan);
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition-base);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .recommendation-card .buy-button:hover,
+        .loan-card .loan-button:hover,
+        .player-card .buy-button:hover,
+        .offer-card .buy-button:hover,
+        .watchlist-card .buy-button:hover,
+        .recommendation-card .buy-button:focus,
+        .loan-card .loan-button:focus,
+        .player-card .buy-button:focus,
+        .offer-card .buy-button:focus,
+        .watchlist-card .buy-button:focus {
+            background: var(--secondary-purple);
+            border-color: var(--secondary-purple);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+            outline: none;
+        }
+        .recommendation-card .buy-button:disabled,
+        .loan-card .loan-button:disabled,
+        .player-card .buy-button:disabled,
+        .offer-card .buy-button:disabled,
+        .watchlist-card .buy-button:disabled {
+            background: var(--text-secondary);
+            border-color: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+            transform: none;
+        }
+        .transfer-card .buy-button,
+        .transfer-card .negotiate-button,
+        .transfer-card .follow-btn {
+            padding: 0.8rem 1.5rem;
+            background: var(--accent-green);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-base);
+            margin: 0.5rem;
+        }
+        .transfer-card .buy-button:hover,
+        .transfer-card .negotiate-button:hover,
+        .transfer-card .follow-btn:hover,
+        .transfer-card .buy-button:focus,
+        .transfer-card .negotiate-button:focus,
+        .transfer-card .follow-btn:focus {
+            background: var(--secondary-purple);
+            box-shadow: 0 4px 12px rgba(128, 0, 128, 0.25);
+            outline: none;
+        }
+        .transfer-card .buy-button:disabled,
+        .transfer-card .negotiate-button:disabled,
+        .transfer-card .follow-btn:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .chat-container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: var(--dark-bg);
+            padding: 3.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+        }
+        .chat-messages {
+            max-height: 450px;
+            overflow-y: auto;
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background: var(--light-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+        }
+        .chat-message {
+            padding: 1.2rem;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 1rem;
+            transition: var(--transition-base);
+        }
+        .chat-message:hover {
+            background: rgba(0, 255, 255, 0.05);
+        }
+        .chat-message span {
+            color: var(--primary-cyan);
+            font-weight: 700;
+        }
+        .chat-input {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 1.3rem;
+            background: var(--light-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition-base);
+        }
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--primary-cyan);
+            box-shadow: var(--shadow-cyan);
+        }
+        .points-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: var(--light-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+            text-align: center;
+        }
+        .club-details-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: var(--light-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-soft);
+        }
+        .club-details-container h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-cyan);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .club-details-container p {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .club-details-container ul {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        .club-details-container li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sell-button {
+            padding: 0.5rem 1rem;
+            background: var(--secondary-purple);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-base);
+        }
+        .sell-button:hover {
+            background: var(--primary-cyan);
+            box-shadow: var(--shadow-cyan);
+        }
+        .mercado-search-container {
+            max-width: 1280px;
+            margin: 0 auto 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .form-input, .form-select {
+            padding: 1rem;
+            background: var(--light-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition-base);
+            width: 100%;
+            max-width: 300px;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-cyan);
+            box-shadow: var(--shadow-cyan);
+        }
+        .transfer-card.available {
+            border-color: var(--accent-green);
+        }
+        .player-value {
+            color: var(--secondary-purple);
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--light-bg);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--primary-cyan);
+            box-shadow: var(--shadow-cyan);
+            z-index: 2000;
+            animation: slideIn 0.5s ease-out forwards;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 2.5rem;
+            right: 2.5rem;
+            background: var(--primary-cyan);
+            color: var(--text-primary);
+            padding: 1.2rem;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition-base);
+            box-shadow: var(--shadow-cyan);
+            transform: translateY(20px);
+        }
+        .back-to-top.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .back-to-top:hover {
+            background: var(--secondary-purple);
+            box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
+        }
+        .main-footer {
+            margin-top: auto;
+            background: var(--dark-bg);
+            padding: 6rem 3rem;
+            border-top: 1px solid var(--border-light);
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3.5rem;
+        }
+        .footer-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.8rem;
+        }
+        .footer-section h3 {
+            color: var(--primary-cyan);
+            margin-bottom: 1rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: var(--transition-base);
+        }
+        .social-link:hover,
+        .social-link:focus {
+            color: var(--primary-cyan);
+            transform: translateX(5px);
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        @media (max-width: 768px) {
+            .mercado-hero {
+                padding: 100px 2rem 4rem;
+            }
+            .hero-title {
+                font-size: 2rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            .transfer-grid, .offers-grid, .stats-grid, .featured-players-grid, .history-grid {
+                grid-template-columns: 1fr;
+            }
+            .mercado-search-container {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header class="main-header" role="banner">
-    <nav class="nav-container" aria-label="Navegación principal">
-      <a href="index.html" class="logo" aria-label="Inicio de La Virtual Zone"></a>
-      <div class="main-nav" id="main-nav" role="navigation" aria-label="Secciones principales">
-        <a href="index.html" class="nav-link transition-link" data-href="index.html">Inicio</a>
-        <a href="liga-master.html" class="nav-link transition-link" data-href="liga-master.html">Liga Master</a>
-        <a href="mercado-fichajes.html" class="nav-link">Mercado de Fichajes</a>
-      </div>
-    </nav>
-  </header>
+    <header class="main-header" role="banner">
+        <nav class="nav-container" aria-label="Navegación principal">
+            <a href="index.html" class="logo" aria-label="Inicio de La Virtual Zone"></a>
+            <div class="main-nav" id="main-nav" role="navigation" aria-label="Secciones principales">
+                <a href="index.html" class="nav-link transition-link" data-href="index.html">Inicio</a>
+                <a href="liga-master.html" class="nav-link transition-link" data-href="liga-master.html">Liga Master</a>
+                <a href="mercado-fichajes.html" class="nav-link">Mercado de Fichajes</a>
+            </div>
+        </nav>
+    </header>
 
-  <main role="main">
-    <!-- Sección Hero -->
-    <section class="mercado-hero" aria-labelledby="mercado-heading">
-      <div class="mercado-hero-content animate-fade-in">
-        <h1 class="hero-title" id="mercado-heading">Mercado de Fichajes</h1>
-        <p class="hero-subtitle">Negocia, presta y construye tu equipo ideal para dominar Liga Master.</p>
-      </div>
-    </section>
+    <main role="main">
+        <section class="mercado-hero" aria-labelledby="mercado-heading">
+            <div class="mercado-hero-content animate-fade-in">
+                <h1 class="hero-title" id="mercado-heading">Mercado de Fichajes</h1>
+                <p class="hero-subtitle">Negocia, presta y construye tu equipo ideal para dominar Liga Master.</p>
+            </div>
+        </section>
 
-    <!-- Estado del Mercado -->
-    <section class="mercado-timer" aria-labelledby="timer-heading">
-      <h2 class="section-title" id="timer-heading">Estado del Mercado</h2>
-      <p id="market-timer" class="animate-fade-in">Cargando...</p>
-    </section>
+        <!-- 1. Estado del Mercado -->
+        <section class="mercado-timer" aria-labelledby="timer-heading">
+            <h2 class="section-title" id="timer-heading">Estado del Mercado</h2>
+            <p id="market-timer" class="animate-fade-in">Cargando...</p>
+        </section>
 
-    <!-- Buscador de Jugadores -->
-    <section class="mercado-search" aria-labelledby="search-heading">
-      <h2 class="section-title" id="search-heading">Jugadores Disponibles</h2>
-      <div class="mercado-search-container animate-fade-in">
-        <input type="text" id="searchInput" class="form-input" placeholder="Buscar por nombre..." aria-label="Buscar jugadores por nombre">
-        <select id="positionFilter" class="form-select" aria-label="Filtrar por posición">
-          <option value="">Todas las Posiciones</option>
-          <option value="Delantero">Delantero</option>
-          <option value="Mediocampista">Mediocampista</option>
-          <option value="Defensor">Defensor</option>
-          <option value="Portero">Portero</option>
-        </select>
-      </div>
-      <section class="mercado-transfer">
-        <div class="transfer-grid" id="playersGrid"></div>
-      </section>
-    </section>
+        <!-- 2. Jugadores Disponibles -->
+        <section class="mercado-search" aria-labelledby="search-heading">
+            <h2 class="section-title" id="search-heading">Jugadores Disponibles</h2>
+            <div class="mercado-search-container animate-fade-in">
+                <input type="text" id="searchInput" class="form-input" placeholder="Buscar por nombre..." aria-label="Buscar jugadores por nombre">
+                <select id="positionFilter" class="form-select" aria-label="Filtrar por posición">
+                    <option value="">Todas las Posiciones</option>
+                    <option value="Delantero">Delantero</option>
+                    <option value="Mediocampista">Mediocampista</option>
+                    <option value="Defensor">Defensor</option>
+                    <option value="Portero">Portero</option>
+                </select>
+            </div>
+        </section>
+        <section class="mercado-transfer">
+            <div class="transfer-grid" id="transferGrid"></div>
+        </section>
 
-    <!-- Jugadores Destacados -->
-    <section class="mercado-featured-players" aria-labelledby="featured-heading">
-      <h2 class="section-title" id="featured-heading">Jugadores Destacados en Venta</h2>
-      <div class="featured-players-grid" id="featuredPlayersGrid"></div>
-    </section>
+        <!-- 3. Jugadores Destacados en Venta -->
+        <section class="mercado-featured-players" aria-labelledby="featured-heading">
+            <h2 class="section-title" id="featured-heading">Jugadores Destacados en Venta</h2>
+            <div class="featured-players-grid" id="featuredPlayersGrid"></div>
+        </section>
 
-    <!-- Recomendaciones -->
-    <section class="mercado-recommendations" aria-labelledby="recommendations-heading">
-      <h2 class="section-title" id="recommendations-heading">Recomendaciones para tu Club</h2>
-      <div class="recommendations-grid" id="recommendationsGrid"></div>
-    </section>
+        <!-- 4. Recomendaciones para tu Club -->
+        <section class="mercado-recommendations" aria-labelledby="recommendations-heading">
+            <h2 class="section-title" id="recommendations-heading">Recomendaciones para tu Club</h2>
+            <div class="recommendations-grid" id="recommendationsGrid"></div>
+        </section>
 
-    <!-- Préstamos Disponibles -->
-    <section class="mercado-loans" aria-labelledby="loans-heading">
-      <h2 class="section-title" id="loans-heading">Préstamos Disponibles</h2>
-      <div class="loans-grid" id="loansGrid"></div>
-    </section>
+        <!-- 5. Préstamos Disponibles -->
+        <section class="mercado-loans" aria-labelledby="loans-heading">
+            <h2 class="section-title" id="loans-heading">Préstamos Disponibles</h2>
+            <div class="loans-grid" id="loansGrid"></div>
+        </section>
 
-    <!-- Lista de Seguimiento -->
-    <section class="mercado-watchlist" aria-labelledby="watchlist-heading">
-      <h2 class="section-title" id="watchlist-heading">Lista de Seguimiento</h2>
-      <div class="watchlist-grid" id="watchlistGrid"></div>
-    </section>
+        <!-- 6. Lista de Seguimiento -->
+        <section class="mercado-watchlist" aria-labelledby="watchlist-heading">
+            <h2 class="section-title" id="watchlist-heading">Lista de Seguimiento</h2>
+            <div class="watchlist-grid" id="watchlistGrid"></div>
+        </section>
 
-    <!-- Detalles de tu Club -->
-    <section class="club-details" aria-labelledby="club-heading">
-      <h2 class="section-title" id="club-heading">Detalles de tu Club</h2>
-      <div class="club-details-container animate-fade-in">
-        <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
-        <p>Presupuesto: $<span id="clubBudget">100,000,000</span></p>
-        <ul id="clubPlayers" role="list"></ul>
-      </div>
-    </section>
+        <!-- 7. Detalles de tu Club -->
+        <section class="club-details" aria-labelledby="club-heading">
+            <h2 class="section-title" id="club-heading">Detalles de tu Club</h2>
+            <div class="club-details-container animate-fade-in">
+                <h3>Club: <span id="clubName">[Sin registrar]</span></h3>
+                <p>Presupuesto: $<span id="clubBudget">100,000,000</span></p>
+                <ul id="clubPlayers" role="list"></ul>
+            </div>
+        </section>
 
-    <!-- Tus Puntos de Mercado -->
-    <section class="mercado-points" aria-labelledby="points-heading">
-      <h2 class="section-title" id="points-heading">Tus Puntos de Mercado</h2>
-      <div class="points-container animate-fade-in">
-        <p>Puntos: <span id="marketPoints">0</span></p>
-      </div>
-    </section>
+        <!-- 8. Tus Puntos de Mercado -->
+        <section class="mercado-points" aria-labelledby="points-heading">
+            <h2 class="section-title" id="points-heading">Tus Puntos de Mercado</h2>
+            <div class="points-container animate-fade-in">
+                <p>Puntos: <span id="marketPoints">0</span></p>
+            </div>
+        </section>
 
-    <!-- Chat del Mercado -->
-    <section class="mercado-chat" aria-labelledby="chat-heading">
-      <h2 class="section-title" id="chat-heading">Negociaciones en Vivo</h2>
-      <div class="chat-container animate-fade-in">
-        <div class="chat-messages" id="chatMessages" role="log" aria-live="polite"></div>
-        <form id="chatForm" class="chat-input" aria-label="Enviar mensaje al chat">
-          <input type="text" placeholder="Escribe tu mensaje..." required aria-label="Mensaje de chat">
-          <button type="submit" class="cta-button"><i class="fas fa-paper-plane" aria-hidden="true"></i> Enviar</button>
-        </form>
-      </div>
-    </section>
+        <!-- 9. Negociaciones en Vivo -->
+        <section class="mercado-chat" aria-labelledby="chat-heading">
+            <h2 class="section-title" id="chat-heading">Negociaciones en Vivo</h2>
+            <div class="chat-container animate-fade-in">
+                <div class="chat-messages" id="chatMessages" role="log" aria-live="polite"></div>
+                <form id="chatForm" class="chat-input" aria-label="Enviar mensaje al chat">
+                    <input type="text" placeholder="Escribe tu mensaje..." required aria-label="Mensaje de chat">
+                    <button type="submit" class="cta-button"><i class="fas fa-paper-plane" aria-hidden="true"></i> Enviar</button>
+                </form>
+            </div>
+        </section>
 
-    <!-- Subastas en Curso -->
-    <section class="mercado-offers" aria-labelledby="offers-heading">
-      <h2 class="section-title" id="offers-heading">Subastas en Curso</h2>
-      <div class="offers-grid" id="offersGrid"></div>
-    </section>
+        <!-- 10. Subastas en Curso -->
+        <section class="mercado-offers" aria-labelledby="offers-heading">
+            <h2 class="section-title" id="offers-heading">Subastas en Curso</h2>
+            <div class="offers-grid" id="offersGrid"></div>
+        </section>
 
-    <!-- Historial de Transacciones -->
-    <section class="mercado-history" aria-labelledby="history-heading">
-      <h2 class="section-title" id="history-heading">Historial de Transacciones</h2>
-      <div class="history-grid" id="historyGrid"></div>
-    </section>
+        <!-- 11. Historial de Transacciones -->
+        <section class="mercado-history" aria-labelledby="history-heading">
+            <h2 class="section-title" id="history-heading">Historial de Transacciones</h2>
+            <div class="history-grid" id="historyGrid"></div>
+        </section>
 
-    <!-- Estadísticas del Mercado -->
-    <section class="mercado-stats" aria-labelledby="stats-heading">
-      <h2 class="section-title" id="stats-heading">Estadísticas del Mercado</h2>
-      <div class="mercado-search-container">
-        <select id="timeFilter" class="form-select" aria-label="Filtrar estadísticas por tiempo">
-          <option value="all">Toda la Temporada</option>
-          <option value="week">Última Semana</option>
-          <option value="day">Último Día</option>
-        </select>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-item animate-fade-in">
-          <div class="stat-number" id="mostBought">Cargando...</div>
-          <p>Jugador Más Comprado</p>
+        <!-- 12. Estadísticas del Mercado -->
+        <section class="mercado-stats" aria-labelledby="stats-heading">
+            <h2 class="section-title" id="stats-heading">Estadísticas del Mercado</h2>
+            <div class="mercado-search-container">
+                <select id="timeFilter" class="form-select" aria-label="Filtrar estadísticas por tiempo">
+                    <option value="all">Toda la Temporada</option>
+                    <option value="week">Última Semana</option>
+                    <option value="day">Último Día</option>
+                </select>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item animate-fade-in">
+                    <div class="stat-number" id="mostBought">Cargando...</div>
+                    <p>Jugador Más Comprado</p>
+                </div>
+                <div class="stat-item animate-fade-in">
+                    <div class="stat-number" id="avgValue">$0</div>
+                    <p>Valor Promedio</p>
+                </div>
+                <div class="stat-item animate-fade-in">
+                    <div class="stat-number" id="totalTrans">0</div>
+                    <p>Total de Transacciones</p>
+                </div>
+                <div class="stat-item animate-fade-in">
+                    <div class="stat-number" id="mostExpensive">Cargando...</div>
+                    <p>Jugador Más Caro</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <button class="back-to-top" aria-label="Volver al inicio">
+        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+    </button>
+
+    <footer class="main-footer" role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <p><a href="mailto:support@lavirtualzone.com">support@lavirtualzone.com</a></p>
+                <p><a href="tel:+34123456789">+34 123 456 789</a></p>
+            </div>
+            <div class="footer-section">
+                <h3>Redes Sociales</h3>
+                <div class="social-links">
+                    <a href="https://twitch.tv/lavirtualzone" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Canal de Twitch">
+                        <i class="fab fa-twitch" aria-hidden="true"></i> Twitch
+                    </a>
+                    <a href="https://discord.com/invite/lavirtualzone" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Servidor de Discord">
+                        <i class="fab fa-discord" aria-hidden="true"></i> Discord
+                    </a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Enlaces Útiles</h3>
+                <a href="/reglamento" class="social-link">Reglamento Oficial</a>
+                <a href="/privacidad" class="social-link">Política de Privacidad</a>
+            </div>
         </div>
-        <div class="stat-item animate-fade-in">
-          <div class="stat-number" id="avgValue">$0</div>
-          <p>Valor Promedio</p>
-        </div>
-        <div class="stat-item animate-fade-in">
-          <div class="stat-number" id="totalTrans">0</div>
-          <p>Total de Transacciones</p>
-        </div>
-        <div class="stat-item animate-fade-in">
-          <div class="stat-number" id="mostExpensive">Cargando...</div>
-          <p>Jugador Más Caro</p>
-        </div>
-      </div>
-    </section>
-  </main>
+    </footer>
 
-  <button class="back-to-top" aria-label="Volver al inicio">
-    <i class="fas fa-arrow-up" aria-hidden="true"></i>
-  </button>
+    <script>
+        const BASE_URL = window.location.origin;
+        let club = {
+            name: localStorage.getItem('clubName') || '[Sin registrar]',
+            budget: parseInt(localStorage.getItem('clubBudget')) || 100000000,
+            players: JSON.parse(localStorage.getItem('clubPlayers') || '[]') || [],
+            points: parseInt(localStorage.getItem('marketPoints')) || 0,
+            watchlist: JSON.parse(localStorage.getItem('watchlist') || '[]') || []
+        };
+        const season = {
+            start: new Date().getTime() - 24 * 60 * 60 * 1000,
+            end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000
+        };
+        let isMarketOpen = false;
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let loanedPlayers = JSON.parse(localStorage.getItem('loanedPlayers')) || [];
+        let isBuying = false;
+        let playersMarket = [];
 
-  <footer class="main-footer" role="contentinfo">
-    <div class="footer-content">
-      <div class="footer-section">
-        <h3>Contacto</h3>
-        <p><a href="mailto:support@lavirtualzone.com">support@lavirtualzone.com</a></p>
-        <p><a href="tel:+34123456789">+34 123 456 789</a></p>
-      </div>
-      <div class="footer-section">
-        <h3>Redes Sociales</h3>
-        <div class="social-links">
-          <a href="https://twitch.tv/lavirtualzone" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Canal de Twitch">
-            <i class="fab fa-twitch" aria-hidden="true"></i> Twitch
-          </a>
-          <a href="https://discord.com/invite/lavirtualzone" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Servidor de Discord">
-            <i class="fab fa-discord" aria-hidden="true"></i> Discord
-          </a>
-        </div>
-      </div>
-      <div class="footer-section">
-        <h3>Enlaces Útiles</h3>
-        <a href="/reglamento" class="social-link">Reglamento Oficial</a>
-        <a href="/privacidad" class="social-link">Política de Privacidad</a>
-      </div>
-    </div>
-  </footer>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Debes iniciar sesión para acceder al mercado.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+            try {
+                await syncClubData();
+                await loadMarketData();
+                requestAnimationFrame(() => {
+                    renderMarket();
+                    renderLoans();
+                    renderWatchlist();
+                    renderRecommendations();
+                    renderFeaturedPlayers();
+                    renderHistory();
+                    renderOffers();
+                    bindMarketEvents();
+                });
+                setInterval(updateTimer, 1000);
+                updateTimer();
+                renderChat();
+                updatePoints();
+                renderClubDetails();
+            } catch (err) {
+                showNotification('Error de conexión: ' + err.message, 'error');
+            }
 
-  <!-- Cargar scripts con atributo nonce para cumplir con la CSP -->
-  <script src="/js/particles.min.js" defer nonce="abc123"></script>
-  <script src="/js/config.js" defer nonce="abc123"></script>
-  <script nonce="abc123">
-    // URL base para el backend
-    const BASE_URL = window.location.origin;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
+                });
+            }, { threshold: 0.1, rootMargin: '0px' });
 
-    let club = {
-      name: localStorage.getItem('clubName') || '[Sin registrar]',
-      budget: parseInt(localStorage.getItem('clubBudget')) || 100000000,
-      players: JSON.parse(localStorage.getItem('clubPlayers') || '[]') || [],
-      points: parseInt(localStorage.getItem('marketPoints')) || 0,
-      watchlist: JSON.parse(localStorage.getItem('watchlist') || '[]') || []
-    };
-    const season = {
-      start: new Date().getTime() - 24 * 60 * 60 * 1000,
-      end: new Date().getTime() + 30 * 24 * 60 * 60 * 1000
-    };
-    let isMarketOpen = false;
-    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-    let loanedPlayers = JSON.parse(localStorage.getItem('loanedPlayers')) || [];
-    let isBuying = false;
-    let playersMarket = [];
+            document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        showNotification('Debes iniciar sesión para acceder al mercado.', 'error');
-        setTimeout(() => window.location.href = 'login.html', 2000);
-        return;
-      }
-      try {
-        await syncClubData();
-        await loadMarketData();
-        requestAnimationFrame(() => {
-          renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
-          renderWatchlist();
-          renderLoans();
-          renderFeaturedPlayers();
-          renderRecommendations();
-          renderHistory();
-          bindMarketEvents();
+            document.querySelectorAll('.transition-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.body.classList.add('fade-out');
+                    setTimeout(() => window.location.href = link.getAttribute('data-href'), 500);
+                });
+            });
+
+            const backToTop = document.querySelector('.back-to-top');
+            window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 500));
+            backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                renderMarket(e.target.value, document.getElementById('positionFilter').value);
+                bindMarketEvents();
+            });
+            document.getElementById('positionFilter').addEventListener('change', (e) => {
+                renderMarket(document.getElementById('searchInput').value, e.target.value);
+                bindMarketEvents();
+            });
+            document.getElementById('timeFilter').addEventListener('change', updateStats);
         });
-        setInterval(updateTimer, 1000);
-        updateTimer();
-        renderChat();
-        updatePoints();
-        renderClubDetails();
-      } catch (err) {
-        showNotification('Error de conexión: ' + err.message, 'error');
-      }
 
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) entry.target.classList.add('animate-fade-in');
-        });
-      }, { threshold: 0.1, rootMargin: '0px' });
-      document.querySelectorAll('.animate-fade-in').forEach(element => observer.observe(element));
-
-      document.querySelectorAll('.transition-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          document.body.classList.add('fade-out');
-          setTimeout(() => window.location.href = link.getAttribute('data-href'), 500);
-        });
-      });
-
-      const logoutLink = document.getElementById('logoutLink');
-      if (logoutLink) {
-        logoutLink.addEventListener('click', (e) => {
-          e.preventDefault();
-          localStorage.removeItem('token');
-          localStorage.removeItem('clubName');
-          localStorage.removeItem('clubBudget');
-          localStorage.removeItem('clubPlayers');
-          localStorage.removeItem('clubColor');
-          localStorage.removeItem('clubWins');
-          localStorage.removeItem('marketPoints');
-          localStorage.removeItem('watchlist');
-          localStorage.removeItem('transactions');
-          localStorage.removeItem('loanedPlayers');
-          window.location.href = 'login.html';
-        });
-      }
-    });
-
-    async function syncClubData() {
-      const token = localStorage.getItem('token');
-      try {
-        // CORRECCIÓN: unificamos a Authorization: Bearer
-        const response = await fetch(`${BASE_URL}/api/club/me`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          if (response.status === 401) {
-            localStorage.removeItem('token');
-            showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'error');
-            setTimeout(() => window.location.href = 'login.html', 2000);
-            return;
-          }
-          throw new Error(errorData.message || 'Error al cargar el club');
+        async function syncClubData() {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
+                    headers: { 'x-auth-token': token }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    club = {
+                        ...data,
+                        players: Array.isArray(data.players) ? data.players : [],
+                        watchlist: Array.isArray(data.watchlist) ? data.watchlist : []
+                    };
+                    localStorage.setItem('clubName', club.name);
+                    localStorage.setItem('clubBudget', club.budget);
+                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                    localStorage.setItem('marketPoints', club.points || 0);
+                    localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
+                } else {
+                    throw new Error(data.msg || 'Error al cargar el club');
+                }
+            } catch (err) {
+                showNotification('Error al sincronizar datos del club: ' + err.message, 'error');
+                club.players = club.players || [];
+                club.watchlist = club.watchlist || [];
+            }
         }
-        const data = await response.json();
-        club = data;
-        localStorage.setItem('clubName', club.name);
-        localStorage.setItem('clubBudget', club.budget);
-        localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-        localStorage.setItem('clubColor', club.color);
-        localStorage.setItem('clubWins', club.wins);
-      } catch (err) {
-        throw err;
-      }
-    }
 
-    async function loadMarketData() {
-      const token = localStorage.getItem('token');
-      try {
-        const response = await fetch(`${BASE_URL}/api/players`, {
-          // CORRECCIÓN: Bearer
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Error al cargar jugadores');
+        async function loadMarketData() {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${BASE_URL}/api/players`, {
+                    headers: { 'x-auth-token': token }
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.msg || 'Error al cargar jugadores');
+                }
+                const data = await response.json();
+                playersMarket = Array.isArray(data) ? data : [];
+                renderMarket();
+                renderRecommendations();
+                renderWatchlist();
+                renderLoans();
+                renderFeaturedPlayers();
+                renderHistory();
+                renderOffers();
+                updateStats();
+            } catch (err) {
+                showNotification('Error al cargar datos del mercado: ' + err.message, 'error');
+                playersMarket = [];
+                renderMarket();
+            }
         }
-        playersMarket = await response.json();
-        updateMarketStatus();
-      } catch (err) {
-        throw err;
-      }
-    }
 
-    function updateTimer() {
-      const now = new Date().getTime();
-      const timerElem = document.getElementById('market-timer');
-      if (!timerElem) return;
-      const distance = season.end - now;
-      if (distance < 0) {
-        isMarketOpen = false;
-        timerElem.textContent = "CERRADO";
-        return;
-      }
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((distance / 1000 / 60) % 60);
-      const seconds = Math.floor((distance / 1000) % 60);
-      timerElem.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-      isMarketOpen = now >= season.start && now <= season.end;
-    }
-
-    function updateMarketStatus() {
-      // Actualiza la variable isMarketOpen y cualquier indicador visual relacionado
-    }
-
-    function updatePoints() {
-      const pointsElem = document.getElementById('marketPoints');
-      if (pointsElem) pointsElem.textContent = club.points || 0;
-    }
-
-    function renderMarket(filterName = '', filterPosition = '') {
-      const grid = document.getElementById('playersGrid');
-      if (!grid) return;
-      const filtered = playersMarket.filter(player => {
-        return (!filterName || player.name.toLowerCase().includes(filterName.toLowerCase())) &&
-               (!filterPosition || player.position === filterPosition);
-      });
-      grid.innerHTML = filtered.length ? filtered.map(player => `
-        <div class="player-card animate-fade-in">
-          <h3>${player.name}</h3>
-          <p>Posición: ${player.position}</p>
-          <p>Rating: ${player.rating}</p>
-          <p>Valor: $${player.value.toLocaleString()}</p>
-          <button class="buy-button" onclick="buyPlayer('${player.name}', ${player.value})" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
-          <button class="watch-button" onclick="addToWatchlist('${player.name}', ${player.value})">Vigilar</button>
-        </div>
-      `).join('') : '<p role="listitem">No hay jugadores disponibles.</p>';
-    }
-
-    function renderWatchlist() {
-      const list = document.getElementById('watchlistGrid');
-      if (!list) return;
-      list.innerHTML = club.watchlist.length ? club.watchlist.map(p => `
-        <div class="watchlist-card animate-fade-in">
-          <h3>${p.name}</h3>
-          <p>Valor: $${p.value.toLocaleString()}</p>
-          <button class="sell-button" onclick="removeFromWatchlist('${p.name}')">Quitar</button>
-        </div>
-      `).join('') : '<p>No hay jugadores en la lista de seguimiento.</p>';
-    }
-
-    function renderLoans() {
-      // Asumiendo loansGrid es un contenedor para préstamos
-      const grid = document.getElementById('loansGrid');
-      if (!grid) return;
-      // Ejemplo: mostramos 'loanedPlayers' o algunos dummy
-      grid.innerHTML = loanedPlayers.length
-        ? loanedPlayers.map(name => `<div class="loan-card animate-fade-in"><h3>${name}</h3><p>Préstamo activo</p></div>`).join('')
-        : '<p>No hay préstamos activos.</p>';
-    }
-
-    function renderHistory() {
-      const list = document.getElementById('historyGrid');
-      if (!list) return;
-      list.innerHTML = transactions.length ? transactions.map(t => `
-        <div class="history-card animate-fade-in">
-          <p>${new Date(t.date).toLocaleDateString()} - ${t.typeName || t.type} - ${t.playerName} - $${t.value.toLocaleString()}</p>
-        </div>
-      `).join('') : '<p>No hay transacciones aún.</p>';
-    }
-
-    function renderFeaturedPlayers() {
-      const grid = document.getElementById('featuredPlayersGrid');
-      if (!grid) return;
-      grid.innerHTML = playersMarket.slice(0, 3).map(player => `
-        <div class="player-card animate-fade-in">
-          <h3>${player.name}</h3>
-          <p>Rating: ${player.rating}</p>
-          <p>Valor: $${player.value.toLocaleString()}</p>
-          <button class="buy-button" onclick="buyPlayer('${player.name}', ${player.value})" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
-        </div>
-      `).join('');
-    }
-
-    function renderRecommendations() {
-      const grid = document.getElementById('recommendationsGrid');
-      if (!grid) return;
-      // Ejemplo simple
-      grid.innerHTML = `<div class="offer-card animate-fade-in">
-        <h3>Recomendación</h3>
-        <p>Considera fichar a un mediocampista para reforzar tu equipo.</p>
-      </div>`;
-    }
-
-    function renderChat() {
-      // Implementa la funcionalidad de chat si se requiere (por ejemplo, usando localStorage)
-    }
-
-    function renderClubDetails() {
-      const clubNameElem = document.getElementById('clubName');
-      const clubBudgetElem = document.getElementById('clubBudget');
-      const playerListElem = document.getElementById('clubPlayers');
-      if (!clubNameElem || !clubBudgetElem || !playerListElem) return;
-      clubNameElem.textContent = club.name;
-      clubBudgetElem.textContent = `$${club.budget.toLocaleString()}`;
-      playerListElem.innerHTML = club.players.length
-        ? club.players.map(p => `<li>${p.name} (Rating: ${p.rating})</li>`).join('')
-        : '<li>No hay jugadores.</li>';
-    }
-
-    async function buyPlayer(name, value) {
-      if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
-      if (isBuying) return;
-      isBuying = true;
-      const token = localStorage.getItem('token');
-      document.querySelectorAll('.buy-button').forEach(btn => btn.disabled = true);
-      showNotification('Procesando compra...', 'info');
-      try {
-        const player = playersMarket.find(p => p.name === name);
-        // CORRECCIÓN: Usamos Bearer tokens
-        const response = await fetch(`${BASE_URL}/api/transactions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ type: 'compra', playerId: player._id, playerName: name, value })
-        });
-        const data = await response.json();
-        if (response.ok) {
-          club.budget -= value;
-          club.points = (club.points || 0) + 10;
-          club.players.push(player);
-          localStorage.setItem('clubBudget', club.budget);
-          localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-          localStorage.setItem('marketPoints', club.points);
-          transactions.unshift(data.transaction);
-          showNotification(`¡Has comprado a ${name} por $${value.toLocaleString()}! (+10 puntos)`, 'success');
-          await loadMarketData();
-          renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
-          renderWatchlist();
-          renderLoans();
-          renderFeaturedPlayers();
-          bindMarketEvents();
-          updatePoints();
-          renderRecommendations();
-          renderHistory();
-        } else {
-          showNotification(data.message || 'Error al comprar', 'error');
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            notification.style.borderColor = type === 'success' ? 'var(--accent-green)' : 'var(--secondary-purple)';
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.5s ease-out forwards';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
         }
-      } catch (err) {
-        showNotification('Error de conexión: ' + err.message, 'error');
-      } finally {
-        document.querySelectorAll('.buy-button').forEach(btn => btn.disabled = !isMarketOpen);
-        isBuying = false;
-      }
-    }
 
-    async function sellPlayer(name, value) {
-      if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
-      const token = localStorage.getItem('token');
-      const sellValue = Math.floor(value * 0.8);
-      const player = club.players.find(p => p.name === name) || {};
-      showNotification('Procesando venta...', 'info');
-      try {
-        const response = await fetch(`${BASE_URL}/api/transactions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ type: 'venta', playerId: player._id, playerName: name, value: sellValue })
-        });
-        const data = await response.json();
-        if (response.ok) {
-          club.budget += sellValue;
-          club.points = (club.points || 0) + 5;
-          club.players = club.players.filter(p => p.name !== name);
-          localStorage.setItem('clubBudget', club.budget);
-          localStorage.setItem('clubPlayers', JSON.stringify(club.players));
-          localStorage.setItem('marketPoints', club.points);
-          transactions.unshift(data.transaction);
-          showNotification(`¡Has vendido a ${name} por $${sellValue.toLocaleString()}! (+5 puntos)`, 'success');
-          await loadMarketData();
-          renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
-          renderWatchlist();
-          renderFeaturedPlayers();
-          bindMarketEvents();
-          updatePoints();
-          renderRecommendations();
-          renderHistory();
-        } else {
-          showNotification(data.message || 'Error al vender', 'error');
+        function updateTimer() {
+            const now = new Date().getTime();
+            isMarketOpen = now >= season.start && now <= season.end;
+            const timer = document.getElementById('market-timer');
+            if (isMarketOpen) {
+                const timeLeft = season.end - now;
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                timer.textContent = `Mercado abierto - Temporada termina en ${days}d ${hours}h`;
+                timer.classList.add('pulse');
+            } else if (now < season.start) {
+                const timeUntil = season.start - now;
+                const days = Math.floor(timeUntil / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeUntil % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                timer.textContent = `Mercado cerrado - Temporada comienza en ${days}d ${hours}h`;
+                timer.classList.remove('pulse');
+            } else {
+                timer.textContent = "Mercado cerrado - Temporada finalizada";
+                timer.classList.remove('pulse');
+            }
         }
-      } catch (err) {
-        showNotification('Error de conexión: ' + err.message, 'error');
-      }
-    }
 
-    async function negotiatePlayer(name, value) {
-      const offer = prompt(`Ingresa tu oferta para ${name} (Valor actual: $${value.toLocaleString()})`, value * 0.9);
-      if (offer && !isNaN(offer) && parseInt(offer) > 0) {
-        const negotiatedValue = parseInt(offer);
-        if (negotiatedValue >= value * 0.8) {
-          await buyPlayer(name, negotiatedValue);
-        } else {
-          showNotification(`Oferta rechazada para ${name}. Intenta con un valor mayor.`, 'error');
+        function renderRecommendations() {
+            const grid = document.getElementById('recommendationsGrid');
+            grid.innerHTML = '';
+            const positions = ["Delantero", "Mediocampista", "Defensor", "Portero"];
+            const clubPositions = club.players.map(p => p.position || '');
+            const missingPositions = positions.filter(pos => !clubPositions.includes(pos));
+            const recommendations = playersMarket.filter(player => 
+                missingPositions.includes(player.position) && !club.players.some(p => p.name === player.name)
+            ).slice(0, 3);
+            recommendations.forEach(player => {
+                const card = document.createElement('div');
+                card.className = 'recommendation-card animate-fade-in pulse';
+                card.innerHTML = `
+                    <h3>${player.name}</h3>
+                    <p>Posición: ${player.position}</p>
+                    <p>Rating: ${player.rating || 0}</p>
+                    <p class="player-value">$${player.value.toLocaleString()}</p>
+                    <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
+                `;
+                grid.appendChild(card);
+            });
+            if (recommendations.length === 0) grid.innerHTML = '<p>No se necesitan refuerzos específicos.</p>';
+            bindMarketEvents();
         }
-      }
-    }
 
-    async function loanPlayer(name, value) {
-      if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
-      const token = localStorage.getItem('token');
-      if (club.budget < value) return showNotification('No tienes suficiente presupuesto para el préstamo.', 'error');
-      const player = playersMarket.find(p => p.name === name);
-      if (loanedPlayers.includes(name)) return showNotification(`${name} ya está prestado.`, 'error');
-      if (club.players.some(p => p.name === name)) return showNotification('No puedes prestar a un jugador de tu club.', 'error');
-      const loanButtons = document.querySelectorAll('.loan-button');
-      loanButtons.forEach(button => button.disabled = true);
-      showNotification('Procesando préstamo...', 'info');
-      try {
-        const response = await fetch(`${BASE_URL}/api/transactions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ type: 'prestamo', playerId: player._id, playerName: name, value })
-        });
-        const data = await response.json();
-        if (response.ok) {
-          club.budget -= value;
-          club.points = (club.points || 0) + 5;
-          loanedPlayers.push(name);
-          localStorage.setItem('clubBudget', club.budget);
-          localStorage.setItem('marketPoints', club.points);
-          localStorage.setItem('loanedPlayers', JSON.stringify(loanedPlayers));
-          transactions.unshift(data.transaction);
-          showNotification(`¡Has prestado a ${name} por $${value.toLocaleString()}! (+5 puntos)`, 'success');
-          await loadMarketData();
-          renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
-          renderLoans();
-          renderWatchlist();
-          bindMarketEvents();
-          updatePoints();
-          renderRecommendations();
-          renderHistory();
-        } else {
-          showNotification(data.message || 'Error al prestar', 'error');
+        function renderChat() {
+            const messages = document.getElementById('chatMessages');
+            messages.innerHTML = '';
+            document.getElementById('chatForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const input = e.target.querySelector('input');
+                const message = input.value.trim();
+                if (message) {
+                    const newMessage = document.createElement('div');
+                    const timestamp = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    newMessage.className = 'chat-message';
+                    newMessage.innerHTML = `<span>${club.name} [${timestamp}]:</span> ${message}`;
+                    messages.appendChild(newMessage);
+                    messages.scrollTop = messages.scrollHeight;
+                    input.value = '';
+                }
+            });
         }
-      } catch (err) {
-        showNotification('Error de conexión: ' + err.message, 'error');
-      } finally {
-        loanButtons.forEach(button => button.disabled = !isMarketOpen);
-      }
-    }
 
-    function addToWatchlist(name, value) {
-      if (!club.watchlist.some(p => p.name === name)) {
-        club.watchlist.push({ name, value });
-        localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
-        renderWatchlist();
-        showNotification(`¡${name} añadido a la lista de seguimiento!`, 'success');
-      } else {
-        showNotification(`${name} ya está en tu lista de seguimiento.`, 'error');
-      }
-    }
+        function renderWatchlist() {
+            const grid = document.getElementById('watchlistGrid');
+            grid.innerHTML = '';
+            const clubPlayers = Array.isArray(club.players) ? club.players : [];
+            const availableWatchlist = club.watchlist.filter(player => !clubPlayers.some(p => p.name === player.name));
+            availableWatchlist.forEach(player => {
+                const card = document.createElement('div');
+                card.className = 'watchlist-card animate-fade-in';
+                card.innerHTML = `
+                    <h3>${player.name}</h3>
+                    <p>Posición: ${player.position || 'N/A'}</p>
+                    <p>Rating: ${player.rating || 0}</p>
+                    <p class="player-value">$${player.value.toLocaleString()}</p>
+                    <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
+                    <button class="sell-button" onclick="removeFromWatchlist('${player.name}')">Quitar</button>
+                `;
+                grid.appendChild(card);
+            });
+            if (availableWatchlist.length === 0) grid.innerHTML = '<p>No hay jugadores en tu lista de seguimiento.</p>';
+            bindMarketEvents();
+        }
 
-    function removeFromWatchlist(name) {
-      club.watchlist = club.watchlist.filter(p => p.name !== name);
-      localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
-      renderWatchlist();
-      showNotification(`¡${name} eliminado de la lista de seguimiento!`, 'success');
-    }
+        async function addToWatchlist(name) {
+            const token = localStorage.getItem('token');
+            const player = playersMarket.find(p => p.name === name);
+            if (!club.watchlist.some(p => p.name === name)) {
+                club.watchlist.push(player);
+                try {
+                    const response = await fetch(`${BASE_URL}/api/club/me`, {
+                        method: 'PUT',
+                        headers: { 'x-auth-token': token, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ watchlist: club.watchlist })
+                    });
+                    if (response.ok) {
+                        localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
+                        showNotification(`¡${player.name} añadido a tu lista de seguimiento!`, 'success');
+                        renderWatchlist();
+                    } else {
+                        club.watchlist.pop();
+                        showNotification('Error al añadir a la lista de seguimiento', 'error');
+                    }
+                } catch (err) {
+                    club.watchlist.pop();
+                    showNotification('Error de conexión: ' + err.message, 'error');
+                }
+            }
+        }
 
-    function showNotification(message, type = 'success') {
-      const notification = document.createElement('div');
-      notification.className = 'notification';
-      notification.setAttribute('aria-live', 'polite');
-      notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
-      document.body.appendChild(notification);
-      setTimeout(() => {
-        notification.classList.add('show');
-        setTimeout(() => {
-          notification.classList.remove('show');
-          notification.addEventListener('transitionend', () => notification.remove());
-        }, 4000);
-      }, 100);
-    }
+        async function removeFromWatchlist(name) {
+            const token = localStorage.getItem('token');
+            club.watchlist = club.watchlist.filter(p => p.name !== name);
+            try {
+                const response = await fetch(`${BASE_URL}/api/club/me`, {
+                    method: 'PUT',
+                    headers: { 'x-auth-token': token, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ watchlist: club.watchlist })
+                });
+                if (response.ok) {
+                    localStorage.setItem('watchlist', JSON.stringify(club.watchlist));
+                    renderWatchlist();
+                    showNotification(`¡${name} eliminado de la lista de seguimiento!`, 'success');
+                } else {
+                    showNotification('Error al quitar de la lista de seguimiento', 'error');
+                }
+            } catch (err) {
+                showNotification('Error de conexión: ' + err.message, 'error');
+            }
+        }
 
-    function bindMarketEvents() {
-      // Aquí se enlazarán eventos para filtros y botones, si se requieren
-      const searchInput = document.getElementById('searchInput');
-      const positionFilter = document.getElementById('positionFilter');
-      if (searchInput) {
-        searchInput.addEventListener('input', () => {
-          renderMarket(searchInput.value, positionFilter.value);
-        });
-      }
-      if (positionFilter) {
-        positionFilter.addEventListener('change', () => {
-          renderMarket(searchInput.value, positionFilter.value);
-        });
-      }
-      document.getElementById('timeFilter')?.addEventListener('change', updateStats);
-    }
+        function renderLoans() {
+            const grid = document.getElementById('loansGrid');
+            grid.innerHTML = '';
+            const loanPlayers = playersMarket.slice(0, 2).map(p => ({ ...p, duration: "1 mes" }));
+            loanPlayers.forEach(player => {
+                const card = document.createElement('div');
+                card.className = 'loan-card animate-fade-in';
+                card.innerHTML = `
+                    <h3>${player.name}</h3>
+                    <p>Posición: ${player.position || 'N/A'}</p>
+                    <p>Rating: ${player.rating || 0}</p>
+                    <p class="player-value">$${Math.floor(player.value * 0.1).toLocaleString()} (${player.duration})</p>
+                    <button class="loan-button" data-name="${player.name}" data-value="${Math.floor(player.value * 0.1)}" ${isMarketOpen ? '' : 'disabled'}>Prestar</button>
+                `;
+                grid.appendChild(card);
+            });
+            bindMarketEvents();
+        }
 
-    function updateStats() {
-      // Función para actualizar estadísticas del mercado (implementa según tu lógica)
-    }
+        function renderFeaturedPlayers() {
+            const grid = document.getElementById('featuredPlayersGrid');
+            grid.innerHTML = '';
+            const clubPlayers = Array.isArray(club.players) ? club.players : [];
+            const featuredPlayers = playersMarket
+                .filter(player => !clubPlayers.some(p => p.name === player.name))
+                .sort((a, b) => b.rating - a.rating)
+                .slice(0, 3);
+            featuredPlayers.forEach(player => {
+                const card = document.createElement('article');
+                card.className = 'player-card animate-fade-in';
+                card.innerHTML = `
+                    <img src="https://via.placeholder.com/120?text=${player.name.slice(0, 5)}" alt="${player.name}" class="player-avatar">
+                    <h3>${player.name}</h3>
+                    <ul class="player-stats">
+                        <li><strong>Rating:</strong> ${player.rating || 0}</li>
+                        <li><strong>Posición:</strong> ${player.position || 'N/A'}</li>
+                    </ul>
+                    <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar por $${player.value.toLocaleString()}</button>
+                `;
+                grid.appendChild(card);
+            });
+            if (featuredPlayers.length === 0) grid.innerHTML = '<p>No hay jugadores destacados disponibles.</p>';
+            bindMarketEvents();
+        }
 
-    function renderClubDetails() {
-      const clubNameElem = document.getElementById('clubName');
-      const clubBudgetElem = document.getElementById('clubBudget');
-      const playerListElem = document.getElementById('clubPlayers');
-      if (!clubNameElem || !clubBudgetElem || !playerListElem) return;
-      clubNameElem.textContent = club.name;
-      clubBudgetElem.textContent = `$${club.budget.toLocaleString()}`;
-      playerListElem.innerHTML = club.players.length
-        ? club.players.map(p => `<li>${p.name} (Rating: ${p.rating})</li>`).join('')
-        : '<li>No hay jugadores.</li>';
-    }
+        function updatePoints() {
+            document.getElementById('marketPoints').textContent = club.points || 0;
+        }
 
-    function renderChat() {
-      // Implementa la funcionalidad de chat si se requiere
-    }
-  </script>
+        function renderHistory() {
+            const grid = document.getElementById('historyGrid');
+            grid.innerHTML = '';
+            transactions.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'history-card animate-fade-in';
+                card.innerHTML = `
+                    <time class="history-date" datetime="${new Date(t.date).toISOString()}">${new Date(t.date).toLocaleDateString()}</time>
+                    <p>${t.type.charAt(0).toUpperCase() + t.type.slice(1)}: ${t.playerName} por $${t.value.toLocaleString()}</p>
+                `;
+                grid.appendChild(card);
+            });
+            if (transactions.length === 0) grid.innerHTML = '<p>No hay transacciones recientes.</p>';
+        }
+
+        function renderOffers() {
+            const grid = document.getElementById('offersGrid');
+            grid.innerHTML = '';
+            const offer = playersMarket[Math.floor(Math.random() * playersMarket.length)] || { name: "N/A", value: 0, position: "N/A", rating: 0 };
+            const card = document.createElement('div');
+            card.className = 'offer-card animate-fade-in pulse';
+            const endTime = new Date().getTime() + 60000;
+            card.innerHTML = `
+                <h3>${offer.name} (Subasta)</h3>
+                <p>Posición: ${offer.position || 'N/A'}</p>
+                <p>Rating: ${offer.rating || 0}</p>
+                <p class="player-value">$${offer.value.toLocaleString()}</p>
+                <p>Tiempo restante: <span id="timer-${offer.name}"></span></p>
+                <button class="buy-button" data-name="${offer.name}" data-value="${offer.value}" ${isMarketOpen ? '' : 'disabled'}>Pujar</button>
+            `;
+            grid.appendChild(card);
+            const timer = setInterval(() => {
+                const now = new Date().getTime();
+                const timeLeft = endTime - now;
+                if (timeLeft > 0) {
+                    const seconds = Math.floor(timeLeft / 1000);
+                    document.getElementById(`timer-${offer.name}`).textContent = `${seconds}s`;
+                } else {
+                    clearInterval(timer);
+                    card.querySelector('button').disabled = true;
+                    card.querySelector('button').textContent = 'Subasta Finalizada';
+                    showNotification(`¡Subasta de ${offer.name} finalizada!`, 'error');
+                }
+            }, 1000);
+            bindMarketEvents();
+        }
+
+        function renderClubDetails() {
+            document.getElementById('clubName').textContent = club.name;
+            document.getElementById('clubBudget').textContent = club.budget.toLocaleString();
+            const playersList = document.getElementById('clubPlayers');
+            playersList.innerHTML = club.players.length ? club.players.map(p => `
+                <li>
+                    ${p.name} (Rating: ${p.rating || 0}) - $${p.value.toLocaleString()}
+                    <button class="sell-button" ${isMarketOpen ? '' : 'disabled'} onclick="sellPlayer('${p.name}', ${p.value || 0})">Vender</button>
+                </li>
+            `).join('') : '<li>No hay jugadores en tu club.</li>';
+        }
+
+        function renderMarket(searchTerm = '', positionFilter = '') {
+            const grid = document.getElementById('transferGrid');
+            grid.innerHTML = '';
+            if (!Array.isArray(playersMarket)) {
+                grid.innerHTML = '<p>No hay jugadores disponibles.</p>';
+                return;
+            }
+            const clubPlayers = Array.isArray(club.players) ? club.players : [];
+            const filteredPlayers = playersMarket.filter(player => 
+                !clubPlayers.some(p => p.name === player.name) &&
+                player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+                (positionFilter === '' || player.position === positionFilter)
+            );
+            if (filteredPlayers.length === 0) {
+                grid.innerHTML = '<p>No hay jugadores que coincidan con los filtros.</p>';
+            } else {
+                filteredPlayers.forEach(player => {
+                    const card = document.createElement('div');
+                    card.className = 'transfer-card animate-fade-in available';
+                    card.innerHTML = `
+                        <h3>${player.name}</h3>
+                        <p>Posición: ${player.position || 'N/A'}</p>
+                        <p>Rating: ${player.rating || 0}</p>
+                        <p class="player-value">$${player.value.toLocaleString()}</p>
+                        <button class="buy-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Comprar</button>
+                        <button class="negotiate-button" data-name="${player.name}" data-value="${player.value}" ${isMarketOpen ? '' : 'disabled'}>Negociar</button>
+                        <button class="sell-button follow-btn ${club.watchlist.some(p => p.name === player.name) ? 'active' : ''}" onclick="addToWatchlist('${player.name}')">Seguir</button>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+            renderClubDetails();
+            bindMarketEvents();
+        }
+
+        async function buyPlayer(name, value) {
+            if (isBuying) return;
+            isBuying = true;
+
+            if (!isMarketOpen) {
+                isBuying = false;
+                return showNotification('El mercado está cerrado.', 'error');
+            }
+            const token = localStorage.getItem('token');
+            if (!token) {
+                isBuying = false;
+                return showNotification('Debes iniciar sesión.', 'error') && (window.location.href = 'login.html');
+            }
+            if (club.name === '[Sin registrar]') {
+                isBuying = false;
+                return showNotification('Registra tu club primero en "Liga Master".', 'error') && (window.location.href = 'liga-master.html');
+            }
+            if (club.budget < value) {
+                isBuying = false;
+                return showNotification('No tienes suficiente presupuesto.', 'error');
+            }
+            if (club.players.some(p => p.name === name)) {
+                isBuying = false;
+                return showNotification(`${name} ya está en tu club.`, 'error');
+            }
+
+            const buyButtons = document.querySelectorAll('.buy-button');
+            buyButtons.forEach(button => button.disabled = true);
+
+            showNotification('Procesando compra...', 'info');
+            try {
+                const response = await fetch(`${BASE_URL}/api/transaction`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({ type: 'compra', playerName: name, value })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    club.budget -= value;
+                    club.points += 10;
+                    const player = playersMarket.find(p => p.name === name);
+                    club.players.push(player);
+                    localStorage.setItem('clubBudget', club.budget);
+                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                    localStorage.setItem('marketPoints', club.points);
+                    transactions.unshift(data.transaction);
+                    showNotification(`¡Has comprado a ${name} por $${value.toLocaleString()}! (+10 puntos)`, 'success');
+                    await loadMarketData();
+                    renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
+                    renderWatchlist();
+                    renderLoans();
+                    renderFeaturedPlayers();
+                    bindMarketEvents();
+                    updatePoints();
+                    renderRecommendations();
+                    updateStats();
+                    renderHistory();
+                } else {
+                    showNotification(data.msg || 'Error al comprar', 'error');
+                }
+            } catch (err) {
+                showNotification('Error de conexión: ' + err.message, 'error');
+            } finally {
+                buyButtons.forEach(button => button.disabled = !isMarketOpen);
+                isBuying = false;
+            }
+        }
+
+        async function sellPlayer(name, value) {
+            if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
+            const token = localStorage.getItem('token');
+            const sellValue = Math.floor(value * 0.8);
+            showNotification('Procesando venta...', 'info');
+            try {
+                const response = await fetch(`${BASE_URL}/api/transaction`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({ type: 'venta', playerName: name, value: sellValue })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    club.budget += sellValue;
+                    club.points += 5;
+                    club.players = club.players.filter(p => p.name !== name);
+                    localStorage.setItem('clubBudget', club.budget);
+                    localStorage.setItem('clubPlayers', JSON.stringify(club.players));
+                    localStorage.setItem('marketPoints', club.points);
+                    transactions.unshift(data.transaction);
+                    showNotification(`¡Has vendido a ${name} por $${sellValue.toLocaleString()}! (+5 puntos)`, 'success');
+                    await loadMarketData();
+                    renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
+                    renderWatchlist();
+                    renderFeaturedPlayers();
+                    bindMarketEvents();
+                    updatePoints();
+                    renderRecommendations();
+                    updateStats();
+                    renderHistory();
+                } else {
+                    showNotification(data.msg || 'Error al vender', 'error');
+                }
+            } catch (err) {
+                showNotification('Error de conexión: ' + err.message, 'error');
+            }
+        }
+
+        async function negotiatePlayer(name, value) {
+            const offer = prompt(`Ingresa tu oferta para ${name} (Valor actual: $${value.toLocaleString()})`, value * 0.9);
+            if (offer && !isNaN(offer) && parseInt(offer) > 0) {
+                const negotiatedValue = parseInt(offer);
+                if (negotiatedValue >= value * 0.8) {
+                    await buyPlayer(name, negotiatedValue);
+                } else {
+                    showNotification(`Oferta rechazada para ${name}. Intenta con un valor mayor.`, 'error');
+                }
+            }
+        }
+
+        async function loanPlayer(name, value) {
+            if (!isMarketOpen) return showNotification('El mercado está cerrado.', 'error');
+            const token = localStorage.getItem('token');
+            if (club.budget < value) return showNotification('No tienes suficiente presupuesto para el préstamo.', 'error');
+            if (loanedPlayers.includes(name)) return showNotification(`${name} ya está prestado.`, 'error');
+            if (club.players.some(p => p.name === name)) return showNotification('No puedes prestar a un jugador de tu club.', 'error');
+
+            const loanButtons = document.querySelectorAll('.loan-button');
+            loanButtons.forEach(button => button.disabled = true);
+
+            showNotification('Procesando préstamo...', 'info');
+            try {
+                const response = await fetch(`${BASE_URL}/api/transaction`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                    body: JSON.stringify({ type: 'prestamo', playerName: name, value })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    club.budget -= value;
+                    club.points += 5;
+                    loanedPlayers.push(name);
+                    localStorage.setItem('clubBudget', club.budget);
+                    localStorage.setItem('marketPoints', club.points);
+                    localStorage.setItem('loanedPlayers', JSON.stringify(loanedPlayers));
+                    transactions.unshift(data.transaction);
+                    showNotification(`¡Has prestado a ${name} por $${value.toLocaleString()}! (+5 puntos)`, 'success');
+                    await loadMarketData();
+                    renderMarket(document.getElementById('searchInput').value, document.getElementById('positionFilter').value);
+                    renderLoans();
+                    renderWatchlist();
+                    bindMarketEvents();
+                    updatePoints();
+                    renderRecommendations();
+                    updateStats();
+                    renderHistory();
+                } else {
+                    showNotification(data.msg || 'Error al prestar', 'error');
+                }
+            } catch (err) {
+                showNotification('Error de conexión: ' + err.message, 'error');
+            } finally {
+                loanButtons.forEach(button => button.disabled = !isMarketOpen);
+            }
+        }
+
+        function updateStats() {
+            const filter = document.getElementById('timeFilter').value;
+            let filteredTransactions = transactions;
+            if (filter === 'week') {
+                filteredTransactions = transactions.filter(t => new Date().getTime() - new Date(t.date).getTime() <= 7 * 24 * 60 * 60 * 1000);
+            } else if (filter === 'day') {
+                filteredTransactions = transactions.filter(t => new Date().getTime() - new Date(t.date).getTime() <= 24 * 60 * 60 * 1000);
+            }
+
+            const buyCounts = {};
+            filteredTransactions.forEach(t => {
+                if (t.type === 'compra') buyCounts[t.playerName] = (buyCounts[t.playerName] || 0) + 1;
+            });
+            const mostBought = Object.entries(buyCounts).sort((a, b) => b[1] - a[1])[0];
+            document.getElementById('mostBought').textContent = mostBought ? mostBought[0] : 'N/A';
+
+            const values = playersMarket.map(p => p.value || 0);
+            const avgValue = values.length ? Math.floor(values.reduce((a, b) => a + b, 0) / values.length) : 0;
+            document.getElementById('avgValue').textContent = `$${avgValue.toLocaleString()}`;
+
+            document.getElementById('totalTrans').textContent = filteredTransactions.length;
+
+            const mostExpensive = playersMarket.reduce((max, p) => (p.value || 0) > (max.value || 0) ? p : max, playersMarket[0] || {});
+            document.getElementById('mostExpensive').textContent = mostExpensive.name ? `${mostExpensive.name} ($${mostExpensive.value.toLocaleString()})` : 'N/A';
+        }
+
+        function bindMarketEvents() {
+            const buyButtons = document.querySelectorAll('.buy-button');
+            const negotiateButtons = document.querySelectorAll('.negotiate-button');
+            const loanButtons = document.querySelectorAll('.loan-button');
+            
+            buyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const name = button.getAttribute('data-name');
+                    const value = parseInt(button.getAttribute('data-value') || 0);
+                    buyPlayer(name, value);
+                });
+            });
+
+            negotiateButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const name = button.getAttribute('data-name');
+                    const value = parseInt(button.getAttribute('data-value') || 0);
+                    negotiatePlayer(name, value);
+                });
+            });
+
+            loanButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const name = button.getAttribute('data-name');
+                    const value = parseInt(button.getAttribute('data-value') || 0);
+                    loanPlayer(name, value);
+                });
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+login.html
+
 <!DOCTYPE html>
 <html lang="es" dir="ltr">
 <head>
@@ -13,10 +15,10 @@
     <!-- Estilos externos -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
-          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
           crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Particles.js desde una CDN confiable -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
     <style>
         :root {
@@ -783,25 +785,22 @@
             retina_detect: true
         });
 
-        // URL base dinámica para el backend
-        const BASE_URL = 'https://lavirtualzone-backend.onrender.com/api/auth'; // Corrección: unificamos /api/auth
+        // URL base dinámica
+        const BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://lavirtualzone-backend.onrender.com/api';
 
         // Verificar sesión al cargar
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    // CORRECCIÓN: usamos Bearer en vez de x-auth-token
-                    const response = await fetch(`${BASE_URL}/me`, {
+                    const response = await fetch(`${BASE_URL}/auth/me`, {
                         method: 'GET',
-                        headers: { 'Authorization': `Bearer ${token}` }
+                        headers: { 'x-auth-token': token }
                     });
                     if (response.ok) {
                         console.log('Sesión activa, redirigiendo...');
                         document.body.classList.add('fade-out');
                         setTimeout(() => window.location.href = 'mi-liga-master.html', 500);
-                    } else {
-                        localStorage.removeItem('token');
                     }
                 } catch (err) {
                     console.error('Error al verificar token:', err);
@@ -826,11 +825,9 @@
             // Mensaje dinámico
             const welcomeMessage = document.getElementById('welcomeMessage');
             const hour = new Date().getHours();
-            welcomeMessage.textContent = hour < 12
-                ? '¡Buenos días! Únete a la acción.'
-                : hour < 18
-                    ? '¡Buenas tardes! La batalla te espera.'
-                    : '¡Buenas noches! Domina la zona virtual.';
+            welcomeMessage.textContent = hour < 12 ? '¡Buenos días! Únete a la acción.' : 
+                                         hour < 18 ? '¡Buenas tardes! La batalla te espera.' : 
+                                         '¡Buenas noches! Domina la zona virtual.';
 
             // Selector de idioma
             const languageSelect = document.getElementById('language');
@@ -931,48 +928,27 @@
                 });
             }
 
-            validateInput(
-                document.getElementById('loginEmail'), 
-                'loginEmailError', 
+            validateInput(document.getElementById('loginEmail'), 'loginEmailError', 
                 value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
-                'Por favor, ingrese un correo válido.'
-            );
-            validateInput(
-                document.getElementById('loginPassword'), 
-                'loginPasswordError', 
+                'Por favor, ingrese un correo válido.');
+            validateInput(document.getElementById('loginPassword'), 'loginPasswordError', 
                 value => value.length >= 6, 
-                'La contraseña debe tener al menos 6 caracteres.'
-            );
-            validateInput(
-                document.getElementById('playerName'), 
-                'playerNameError', 
+                'La contraseña debe tener al menos 6 caracteres.');
+            validateInput(document.getElementById('playerName'), 'playerNameError', 
                 value => value.length >= 3, 
-                'El nombre debe tener al menos 3 caracteres.'
-            );
-            validateInput(
-                document.getElementById('playerEmail'), 
-                'playerEmailError', 
+                'El nombre debe tener al menos 3 caracteres.');
+            validateInput(document.getElementById('playerEmail'), 'playerEmailError', 
                 value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
-                'Por favor, ingrese un correo válido.'
-            );
-            validateInput(
-                document.getElementById('playerPassword'), 
-                'playerPasswordError', 
+                'Por favor, ingrese un correo válido.');
+            validateInput(document.getElementById('playerPassword'), 'playerPasswordError', 
                 value => value.length >= 6, 
-                'La contraseña debe tener al menos 6 caracteres.'
-            );
-            validateInput(
-                document.getElementById('playerParsec'), 
-                'playerParsecError', 
+                'La contraseña debe tener al menos 6 caracteres.');
+            validateInput(document.getElementById('playerParsec'), 'playerParsecError', 
                 value => value.length >= 5, 
-                'El ID de Parsec debe tener al menos 5 caracteres.'
-            );
-            validateInput(
-                document.getElementById('resetEmail'), 
-                'resetEmailError', 
+                'El ID de Parsec debe tener al menos 5 caracteres.');
+            validateInput(document.getElementById('resetEmail'), 'resetEmailError', 
                 value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
-                'Por favor, ingrese un correo válido.'
-            );
+                'Por favor, ingrese un correo válido.');
 
             // Vista previa del perfil
             const playerNameInput = document.getElementById('playerName');
@@ -984,7 +960,6 @@
                 const name = playerNameInput.value.trim();
                 if (name.length >= 3) {
                     previewName.textContent = name;
-                    // Generar un avatar con dicebear
                     previewAvatar.src = `https://api.dicebear.com/6.x/pixel-art/svg?seed=${encodeURIComponent(name)}`;
                     profilePreview.classList.add('active');
                 } else {
@@ -994,49 +969,45 @@
 
             // Formulario de Inicio de Sesión
             document.getElementById('loginForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const submitBtn = e.target.querySelector('button[type="submit"]');
-                const loginEmail = document.getElementById('loginEmail').value.trim();
-                const loginPassword = document.getElementById('loginPassword').value.trim();
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const loginEmail = document.getElementById('loginEmail').value.trim();
+    const loginPassword = document.getElementById('loginPassword').value.trim();
 
-                // Validaciones mínimas
-                if (!loginEmail || !loginPassword 
-                    || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail) 
-                    || loginPassword.length < 6) {
-                    showNotification('Por favor, corrija los campos inválidos.', 'error');
-                    return;
-                }
+    if (!loginEmail || !loginPassword || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail) || loginPassword.length < 6) {
+        showNotification('Por favor, corrija los campos inválidos.', 'error');
+        return;
+    }
 
-                submitBtn.classList.add('loading');
-                submitBtn.disabled = true;
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
 
-                try {
-                    // CORRECCIÓN: usamos /api/auth/login en vez de /login
-                    const response = await fetch(`${BASE_URL}/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
-                    });
-                    const data = await response.json();
+    try {
+        const response = await fetch(`${BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+        });
+        const data = await response.json();
 
-                    if (response.ok) {
-                        console.log('Token recibido:', data.token); // Para depuración
-                        localStorage.setItem('token', data.token);
-                        showNotification(`¡Bienvenido de nuevo, ${data.user.name}! Redirigiendo...`, 'success');
-                        setTimeout(() => {
-                            document.body.classList.add('fade-out');
-                            setTimeout(() => window.location.href = 'mi-liga-master.html', 500);
-                        }, 2000);
-                    } else {
-                        showNotification(data.message || 'Error al iniciar sesión', 'error');
-                    }
-                } catch (err) {
-                    showNotification('Error de conexión: ' + err.message, 'error');
-                } finally {
-                    submitBtn.classList.remove('loading');
-                    submitBtn.disabled = false;
-                }
-            });
+        if (response.ok) {
+            console.log('Token recibido:', data.token); // Para depuración
+            localStorage.setItem('token', data.token);
+            showNotification(`¡Bienvenido de nuevo, ${data.user.name}! Redirigiendo...`, 'success');
+            setTimeout(() => {
+                document.body.classList.add('fade-out');
+                setTimeout(() => window.location.href = 'mi-liga-master.html', 500);
+            }, 2000);
+        } else {
+            showNotification(data.message || 'Error al iniciar sesión', 'error');
+        }
+    } catch (err) {
+        showNotification('Error de conexión: ' + err.message, 'error');
+    } finally {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+    }
+});
 
             // Formulario de Registro
             document.getElementById('registerForm').addEventListener('submit', async (e) => {
@@ -1047,12 +1018,9 @@
                 const playerPassword = document.getElementById('playerPassword').value.trim();
                 const playerParsec = document.getElementById('playerParsec').value.trim();
 
-                // Validaciones mínimas
-                if (!playerName || !playerEmail || !playerPassword || !playerParsec 
-                    || playerName.length < 3 
-                    || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(playerEmail) 
-                    || playerPassword.length < 6 
-                    || playerParsec.length < 5) {
+                if (!playerName || !playerEmail || !playerPassword || !playerParsec || 
+                    playerName.length < 3 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(playerEmail) || 
+                    playerPassword.length < 6 || playerParsec.length < 5) {
                     showNotification('Por favor, corrija los campos inválidos.', 'error');
                     return;
                 }
@@ -1061,8 +1029,7 @@
                 submitBtn.disabled = true;
 
                 try {
-                    // CORRECCIÓN: usamos /api/auth/register en vez de /register
-                    const response = await fetch(`${BASE_URL}/register`, {
+                    const response = await fetch(`${BASE_URL}/auth/register`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -1120,11 +1087,12 @@
                 submitBtn.classList.add('loading');
                 submitBtn.disabled = true;
 
+                // Nota: Este endpoint no existe en tu backend actual, es un placeholder
                 try {
-                    // Ejemplo de endpoint, no implementado:
                     showNotification('Funcionalidad de restablecimiento no implementada en el backend.', 'error');
+                    // Simulación de respuesta (descomentar y ajustar cuando implementes el endpoint)
                     /*
-                    const response = await fetch(`${BASE_URL}/reset-password`, {
+                    const response = await fetch(`${BASE_URL}/auth/reset-password`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: resetEmail }),
@@ -1154,16 +1122,15 @@
                 });
             });
 
-            // (Opcional) Estadísticas en vivo
-            /*
+            // Estadísticas en vivo reales desde el backend
             async function updateLiveStats() {
                 try {
-                    // Implementar endpoint real en tu backend
                     const response = await fetch(`${BASE_URL}/club/count`);
                     const data = await response.json();
                     if (response.ok) {
                         document.getElementById('liveClubs').textContent = data.count.toLocaleString();
                     }
+                    // Simulación para jugadores conectados (no hay endpoint real)
                     document.getElementById('livePlayers').textContent = Math.floor(Math.random() * 1000 + 1000).toLocaleString();
                 } catch (err) {
                     console.error('Error al actualizar estadísticas:', err);
@@ -1172,21 +1139,16 @@
                 }
             }
             updateLiveStats();
-            setInterval(updateLiveStats, 10000);
-            */
+            setInterval(updateLiveStats, 10000); // Actualiza cada 10 segundos
         });
 
         // Función de notificación reutilizable
         function showNotification(message, type = 'success') {
-            const container = document.querySelector('.auth-container');
-            if (!container) return;
-
             const notification = document.createElement('div');
             notification.className = 'form-success';
             notification.style.background = type === 'success' ? 'var(--accent-green)' : 'var(--error-red)';
             notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" aria-hidden="true"></i> ${message}`;
-            container.appendChild(notification);
-
+            document.querySelector('.auth-container').appendChild(notification);
             setTimeout(() => {
                 notification.style.opacity = '0';
                 setTimeout(() => notification.remove(), 500);
