@@ -1,111 +1,44 @@
-// routes/auth.js
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const config = require('config');
-const { check, validationResult } = require('express-validator');
 const User = require('../models/User');
 
-// Middleware para proteger rutas (autenticación con JWT)
-const authMiddleware = async (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  if (!token) {
-    return res.status(401).json({ message: 'No hay token, autorización denegada' });
-  }
+router.post('/register', async (req, res) => {
+  const { name, email, password, parsecId } = req.body;
   try {
-    const decoded = jwt.verify(token, config.get('jwtSecret'));
-    req.user = decoded; 
-    next();
+    let user = await User.findOne({ email });
+    if (user) return res.status(400).json({ msg: 'El usuario ya existe' });
+
+    user = new User({ name, email, password, parsecId });
+    await user.save();
+
+    const payload = { id: user._id };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.json({ token });
   } catch (err) {
-    res.status(401).json({ message: 'Token inválido' });
+    console.error('Error en /auth/register:', err);
+    res.status(500).json({ msg: 'Error del servidor' });
   }
-};
+});
 
-// @route    POST api/auth/register
-// @desc     Registrar un nuevo usuario
-// @access   Public
-router.post(
-  '/register',
-  [
-    check('name', 'El nombre es requerido').not().isEmpty(),
-    check('email', 'Por favor, ingresa un email válido').isEmail(),
-    check('password', 'La contraseña debe tener al menos 8 caracteres').isLength({ min: 8 })
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    const { name, email, password, parsecId } = req.body;
-    try {
-      let user = await User.findOne({ email });
-      if (user) {
-        return res.status(400).json({ message: 'El usuario ya existe' });
-      }
-      user = await User.findOne({ parsecId });
-      if (user) {
-        return res.status(400).json({ message: 'El ID de Parsec ya está registrado' });
-      }
-      user = new User({ name, email, password, parsecId });
-      await user.save();
-      const payload = { id: user.id };
-      const token = jwt.sign(payload, config.get('jwtSecret'), { expiresIn: '1h' });
-      res.json({ token, user: { name: user.name } });
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Error del servidor');
-    }
-  }
-);
-
-// @route    POST api/auth/login
-// @desc     Iniciar sesión y obtener token
-// @access   Public
-router.post(
-  '/login',
-  [
-    check('email', 'Por favor, ingresa un email válido').isEmail(),
-    check('password', 'La contraseña es requerida').exists()
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    const { email, password } = req.body;
-    try {
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ message: 'Credenciales inválidas' });
-      }
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: 'Credenciales inválidas' });
-      }
-      const payload = { id: user.id };
-      const token = jwt.sign(payload, config.get('jwtSecret'), { expiresIn: '1h' });
-      res.json({ token, user: { name: user.name } });
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Error del servidor');
-    }
-  }
-);
-
-// @route    GET api/auth/me
-// @desc     Obtener datos del usuario autenticado
-// @access   Private
-router.get('/me', authMiddleware, async (req, res) => {
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const user = await User.findById(req.user.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
-    res.json(user);
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ msg: 'Credenciales inválidas' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ msg: 'Credenciales inválidas' });
+
+    const payload = { id: user._id };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.json({ token });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Error del servidor');
+    console.error('Error en /auth/login:', err);
+    res.status(500).json({ msg: 'Error del servidor' });
   }
 });
 

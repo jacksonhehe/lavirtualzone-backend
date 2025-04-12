@@ -1,5 +1,3 @@
-login.html
-
 <!DOCTYPE html>
 <html lang="es" dir="ltr">
 <head>
@@ -116,7 +114,7 @@ login.html
         .logo {
             width: 60px;
             height: 60px;
-            background: url('logo-la-virtual-zone.svg') no-repeat center center, #00ffff;
+            background: url('logo-la-virtual-zone.svg') no-repeat center center;
             background-size: contain;
             text-indent: -9999px;
             transition: var(--transition-base);
@@ -692,7 +690,7 @@ login.html
                 <!-- Formulario de Registro -->
                 <div class="form-container" id="register">
                     <div class="profile-preview" id="profilePreview">
-                        <img src="https://via.placeholder.com/50?text=User" alt="Avatar del jugador" id="previewAvatar">
+                        <img src="https://via.placeholder.com/50?text=User" alt="Avatar del jugador">
                         <span id="previewName"></span>
                     </div>
                     <form id="registerForm" aria-label="Formulario de registro de jugadores">
@@ -785,375 +783,372 @@ login.html
             retina_detect: true
         });
 
-        // URL base dinámica
-        const BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://lavirtualzone-backend.onrender.com/api';
+        // Menú móvil
+        const menuButton = document.querySelector('.mobile-menu');
+        const closeButton = document.querySelector('.close-menu');
+        const mainNav = document.querySelector('.main-nav');
 
-        // Verificar sesión al cargar
-        document.addEventListener('DOMContentLoaded', async () => {
-            const token = localStorage.getItem('token');
-            if (token) {
-                try {
-                    const response = await fetch(`${BASE_URL}/auth/me`, {
-                        method: 'GET',
-                        headers: { 'x-auth-token': token }
-                    });
-                    if (response.ok) {
-                        console.log('Sesión activa, redirigiendo...');
-                        document.body.classList.add('fade-out');
-                        setTimeout(() => window.location.href = 'mi-liga-master.html', 500);
-                    }
-                } catch (err) {
-                    console.error('Error al verificar token:', err);
-                    localStorage.removeItem('token');
-                }
+        function toggleMenu() {
+            const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
+            menuButton.setAttribute('aria-expanded', !isExpanded);
+            mainNav.classList.toggle('show');
+        }
+
+        menuButton.addEventListener('click', toggleMenu);
+        closeButton.addEventListener('click', toggleMenu);
+
+        // Mensaje dinámico
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const hour = new Date().getHours();
+        welcomeMessage.textContent = hour < 12 ? '¡Buenos días! Únete a la acción.' : 
+                                     hour < 18 ? '¡Buenas tardes! La batalla te espera.' : 
+                                     '¡Buenas noches! Domina la zona virtual.';
+
+        // Selector de idioma
+        const languageSelect = document.getElementById('language');
+        const texts = {
+            es: {
+                welcome: hour < 12 ? '¡Buenos días! Únete a la acción.' : hour < 18 ? '¡Buenas tardes! La batalla te espera.' : '¡Buenas noches! Domina la zona virtual.',
+                login: 'Iniciar Sesión',
+                register: 'Registro',
+                emailPlaceholder: 'Correo Electrónico',
+                passwordPlaceholder: 'Contraseña',
+                parsecPlaceholder: 'ID de Parsec',
+                namePlaceholder: 'Nombre de Jugador',
+                loginBtn: 'Iniciar Sesión',
+                registerBtn: 'Registrarse',
+                forgotPassword: '¿Olvidaste tu contraseña?',
+                resetPasswordTitle: 'Restablecer Contraseña',
+                resetEmailPlaceholder: 'Correo Electrónico',
+                resetBtn: 'Enviar Enlace',
+                discord: 'Únete a nuestra comunidad en Discord'
+            },
+            en: {
+                welcome: hour < 12 ? 'Good morning! Join the action.' : hour < 18 ? 'Good afternoon! The battle awaits.' : 'Good evening! Dominate the virtual zone.',
+                login: 'Login',
+                register: 'Register',
+                emailPlaceholder: 'Email',
+                passwordPlaceholder: 'Password',
+                parsecPlaceholder: 'Parsec ID',
+                namePlaceholder: 'Player Name',
+                loginBtn: 'Login',
+                registerBtn: 'Register',
+                forgotPassword: 'Forgot your password?',
+                resetPasswordTitle: 'Reset Password',
+                resetEmailPlaceholder: 'Email',
+                resetBtn: 'Send Link',
+                discord: 'Join our Discord community'
             }
+        };
 
-            // Menú móvil
-            const menuButton = document.querySelector('.mobile-menu');
-            const closeButton = document.querySelector('.close-menu');
-            const mainNav = document.querySelector('.main-nav');
+        function updateLanguage(lang) {
+            const text = texts[lang];
+            welcomeMessage.textContent = text.welcome;
+            document.querySelector('.tab-button[data-tab="login"]').textContent = text.login;
+            document.querySelector('.tab-button[data-tab="register"]').textContent = text.register;
+            document.getElementById('loginEmail').placeholder = text.emailPlaceholder;
+            document.getElementById('loginPassword').placeholder = text.passwordPlaceholder;
+            document.getElementById('playerName').placeholder = text.namePlaceholder;
+            document.getElementById('playerEmail').placeholder = text.emailPlaceholder;
+            document.getElementById('playerPassword').placeholder = text.passwordPlaceholder;
+            document.getElementById('playerParsec').placeholder = text.parsecPlaceholder;
+            document.querySelector('#loginForm .cta-button').innerHTML = `<i class="fas fa-sign-in-alt" aria-hidden="true"></i> ${text.loginBtn}`;
+            document.querySelector('#registerForm .cta-button').innerHTML = `<i class="fas fa-user-plus" aria-hidden="true"></i> ${text.registerBtn}`;
+            document.getElementById('forgotPasswordLink').textContent = text.forgotPassword;
+            document.querySelector('#forgotPasswordModal .section-title').textContent = text.resetPasswordTitle;
+            document.getElementById('resetEmail').placeholder = text.resetEmailPlaceholder;
+            document.querySelector('#resetPasswordForm .cta-button').innerHTML = `<i class="fas fa-paper-plane" aria-hidden="true"></i> ${text.resetBtn}`;
+            document.querySelector('.discord-cta').innerHTML = `<i class="fab fa-discord" aria-hidden="true"></i> ${text.discord}`;
+        }
 
-            function toggleMenu() {
-                const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
-                menuButton.setAttribute('aria-expanded', !isExpanded);
-                mainNav.classList.toggle('show');
-            }
+        languageSelect.addEventListener('change', (e) => {
+            updateLanguage(e.target.value);
+        });
 
-            menuButton.addEventListener('click', toggleMenu);
-            closeButton.addEventListener('click', toggleMenu);
+        // Inicializar idioma
+        updateLanguage('es');
 
-            // Mensaje dinámico
-            const welcomeMessage = document.getElementById('welcomeMessage');
-            const hour = new Date().getHours();
-            welcomeMessage.textContent = hour < 12 ? '¡Buenos días! Únete a la acción.' : 
-                                         hour < 18 ? '¡Buenas tardes! La batalla te espera.' : 
-                                         '¡Buenas noches! Domina la zona virtual.';
+        // Pestañas
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const formContainers = document.querySelectorAll('.form-container');
 
-            // Selector de idioma
-            const languageSelect = document.getElementById('language');
-            const texts = {
-                es: {
-                    welcome: hour < 12 ? '¡Buenos días! Únete a la acción.' : hour < 18 ? '¡Buenas tardes! La batalla te espera.' : '¡Buenas noches! Domina la zona virtual.',
-                    login: 'Iniciar Sesión',
-                    register: 'Registro',
-                    emailPlaceholder: 'Correo Electrónico',
-                    passwordPlaceholder: 'Contraseña',
-                    parsecPlaceholder: 'ID de Parsec',
-                    namePlaceholder: 'Nombre de Jugador',
-                    loginBtn: 'Iniciar Sesión',
-                    registerBtn: 'Registrarse',
-                    forgotPassword: '¿Olvidaste tu contraseña?',
-                    resetPasswordTitle: 'Restablecer Contraseña',
-                    resetEmailPlaceholder: 'Correo Electrónico',
-                    resetBtn: 'Enviar Enlace',
-                    discord: 'Únete a nuestra comunidad en Discord'
-                },
-                en: {
-                    welcome: hour < 12 ? 'Good morning! Join the action.' : hour < 18 ? 'Good afternoon! The battle awaits.' : 'Good evening! Dominate the virtual zone.',
-                    login: 'Login',
-                    register: 'Register',
-                    emailPlaceholder: 'Email',
-                    passwordPlaceholder: 'Password',
-                    parsecPlaceholder: 'Parsec ID',
-                    namePlaceholder: 'Player Name',
-                    loginBtn: 'Login',
-                    registerBtn: 'Register',
-                    forgotPassword: 'Forgot your password?',
-                    resetPasswordTitle: 'Reset Password',
-                    resetEmailPlaceholder: 'Email',
-                    resetBtn: 'Send Link',
-                    discord: 'Join our Discord community'
-                }
-            };
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                formContainers.forEach(container => container.classList.remove('active'));
 
-            function updateLanguage(lang) {
-                const text = texts[lang];
-                welcomeMessage.textContent = text.welcome;
-                document.querySelector('.tab-button[data-tab="login"]').textContent = text.login;
-                document.querySelector('.tab-button[data-tab="register"]').textContent = text.register;
-                document.getElementById('loginEmail').placeholder = text.emailPlaceholder;
-                document.getElementById('loginPassword').placeholder = text.passwordPlaceholder;
-                document.getElementById('playerName').placeholder = text.namePlaceholder;
-                document.getElementById('playerEmail').placeholder = text.emailPlaceholder;
-                document.getElementById('playerPassword').placeholder = text.passwordPlaceholder;
-                document.getElementById('playerParsec').placeholder = text.parsecPlaceholder;
-                document.querySelector('#loginForm .cta-button').innerHTML = `<i class="fas fa-sign-in-alt" aria-hidden="true"></i> ${text.loginBtn}`;
-                document.querySelector('#registerForm .cta-button').innerHTML = `<i class="fas fa-user-plus" aria-hidden="true"></i> ${text.registerBtn}`;
-                document.getElementById('forgotPasswordLink').textContent = text.forgotPassword;
-                document.querySelector('#forgotPasswordModal .section-title').textContent = text.resetPasswordTitle;
-                document.getElementById('resetEmail').placeholder = text.resetEmailPlaceholder;
-                document.querySelector('#resetPasswordForm .cta-button').innerHTML = `<i class="fas fa-paper-plane" aria-hidden="true"></i> ${text.resetBtn}`;
-                document.querySelector('.discord-cta').innerHTML = `<i class="fab fa-discord" aria-hidden="true"></i> ${text.discord}`;
-            }
-
-            languageSelect.addEventListener('change', (e) => updateLanguage(e.target.value));
-            updateLanguage('es');
-
-            // Pestañas
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const formContainers = document.querySelectorAll('.form-container');
-
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    formContainers.forEach(container => container.classList.remove('active'));
-                    button.classList.add('active');
-                    document.getElementById(button.dataset.tab).classList.add('active');
-                });
+                button.classList.add('active');
+                document.getElementById(button.dataset.tab).classList.add('active');
             });
+        });
 
-            // Toggle de contraseña
-            document.querySelectorAll('.toggle-password').forEach(toggle => {
-                toggle.addEventListener('click', () => {
-                    const input = document.getElementById(toggle.dataset.target);
-                    const isPassword = input.type === 'password';
-                    input.type = isPassword ? 'text' : 'password';
-                    toggle.classList.toggle('fa-eye', !isPassword);
-                    toggle.classList.toggle('fa-eye-slash', isPassword);
-                });
+        // Toggle de contraseña
+        document.querySelectorAll('.toggle-password').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const input = document.getElementById(toggle.dataset.target);
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                toggle.classList.toggle('fa-eye', !isPassword);
+                toggle.classList.toggle('fa-eye-slash', isPassword);
             });
+        });
 
-            // Validación en tiempo real
-            function validateInput(input, errorId, condition, message) {
-                const error = document.getElementById(errorId);
-                input.addEventListener('input', () => {
-                    if (condition(input.value)) {
-                        input.classList.remove('invalid');
-                        error.classList.remove('active');
-                    } else {
-                        input.classList.add('invalid');
-                        error.textContent = message;
-                        error.classList.add('active');
-                    }
-                });
-            }
-
-            validateInput(document.getElementById('loginEmail'), 'loginEmailError', 
-                value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
-                'Por favor, ingrese un correo válido.');
-            validateInput(document.getElementById('loginPassword'), 'loginPasswordError', 
-                value => value.length >= 6, 
-                'La contraseña debe tener al menos 6 caracteres.');
-            validateInput(document.getElementById('playerName'), 'playerNameError', 
-                value => value.length >= 3, 
-                'El nombre debe tener al menos 3 caracteres.');
-            validateInput(document.getElementById('playerEmail'), 'playerEmailError', 
-                value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
-                'Por favor, ingrese un correo válido.');
-            validateInput(document.getElementById('playerPassword'), 'playerPasswordError', 
-                value => value.length >= 6, 
-                'La contraseña debe tener al menos 6 caracteres.');
-            validateInput(document.getElementById('playerParsec'), 'playerParsecError', 
-                value => value.length >= 5, 
-                'El ID de Parsec debe tener al menos 5 caracteres.');
-            validateInput(document.getElementById('resetEmail'), 'resetEmailError', 
-                value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
-                'Por favor, ingrese un correo válido.');
-
-            // Vista previa del perfil
-            const playerNameInput = document.getElementById('playerName');
-            const profilePreview = document.getElementById('profilePreview');
-            const previewName = document.getElementById('previewName');
-            const previewAvatar = document.getElementById('previewAvatar');
-
-            playerNameInput.addEventListener('input', () => {
-                const name = playerNameInput.value.trim();
-                if (name.length >= 3) {
-                    previewName.textContent = name;
-                    previewAvatar.src = `https://api.dicebear.com/6.x/pixel-art/svg?seed=${encodeURIComponent(name)}`;
-                    profilePreview.classList.add('active');
+        // Validación en tiempo real
+        function validateInput(input, errorId, condition, message) {
+            const error = document.getElementById(errorId);
+            input.addEventListener('input', () => {
+                if (condition(input.value)) {
+                    input.classList.remove('invalid');
+                    error.classList.remove('active');
                 } else {
-                    profilePreview.classList.remove('active');
+                    input.classList.add('invalid');
+                    error.textContent = message;
+                    error.classList.add('active');
                 }
             });
-
-            // Formulario de Inicio de Sesión
-            document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    const loginEmail = document.getElementById('loginEmail').value.trim();
-    const loginPassword = document.getElementById('loginPassword').value.trim();
-
-    if (!loginEmail || !loginPassword || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail) || loginPassword.length < 6) {
-        showNotification('Por favor, corrija los campos inválidos.', 'error');
-        return;
-    }
-
-    submitBtn.classList.add('loading');
-    submitBtn.disabled = true;
-
-    try {
-        const response = await fetch(`${BASE_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: loginEmail, password: loginPassword }),
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log('Token recibido:', data.token); // Para depuración
-            localStorage.setItem('token', data.token);
-            showNotification(`¡Bienvenido de nuevo, ${data.user.name}! Redirigiendo...`, 'success');
-            setTimeout(() => {
-                document.body.classList.add('fade-out');
-                setTimeout(() => window.location.href = 'mi-liga-master.html', 500);
-            }, 2000);
-        } else {
-            showNotification(data.message || 'Error al iniciar sesión', 'error');
         }
-    } catch (err) {
-        showNotification('Error de conexión: ' + err.message, 'error');
-    } finally {
-        submitBtn.classList.remove('loading');
-        submitBtn.disabled = false;
-    }
-});
 
-            // Formulario de Registro
-            document.getElementById('registerForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const submitBtn = e.target.querySelector('button[type="submit"]');
-                const playerName = document.getElementById('playerName').value.trim();
-                const playerEmail = document.getElementById('playerEmail').value.trim();
-                const playerPassword = document.getElementById('playerPassword').value.trim();
-                const playerParsec = document.getElementById('playerParsec').value.trim();
+        // Validación para Login
+        validateInput(document.getElementById('loginEmail'), 'loginEmailError', 
+            value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
+            'Por favor, ingrese un correo válido.');
+        validateInput(document.getElementById('loginPassword'), 'loginPasswordError', 
+            value => value.length >= 6, 
+            'La contraseña debe tener al menos 6 caracteres.');
 
-                if (!playerName || !playerEmail || !playerPassword || !playerParsec || 
-                    playerName.length < 3 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(playerEmail) || 
-                    playerPassword.length < 6 || playerParsec.length < 5) {
-                    showNotification('Por favor, corrija los campos inválidos.', 'error');
-                    return;
-                }
+        // Validación para Registro
+        validateInput(document.getElementById('playerName'), 'playerNameError', 
+            value => value.length >= 3, 
+            'El nombre debe tener al menos 3 caracteres.');
+        validateInput(document.getElementById('playerEmail'), 'playerEmailError', 
+            value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
+            'Por favor, ingrese un correo válido.');
+        validateInput(document.getElementById('playerPassword'), 'playerPasswordError', 
+            value => value.length >= 6, 
+            'La contraseña debe tener al menos 6 caracteres.');
+        validateInput(document.getElementById('playerParsec'), 'playerParsecError', 
+            value => value.length >= 5, 
+            'El ID de Parsec debe tener al menos 5 caracteres.');
 
-                submitBtn.classList.add('loading');
-                submitBtn.disabled = true;
+        // Vista previa del perfil
+        const playerNameInput = document.getElementById('playerName');
+        const profilePreview = document.getElementById('profilePreview');
+        const previewName = document.getElementById('previewName');
 
-                try {
-                    const response = await fetch(`${BASE_URL}/auth/register`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            name: playerName,
-                            email: playerEmail,
-                            password: playerPassword,
-                            parsecId: playerParsec,
-                        }),
-                    });
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        localStorage.setItem('token', data.token);
-                        showNotification(`¡Registrado, ${data.user.name}! Redirigiendo...`, 'success');
-                        setTimeout(() => {
-                            document.body.classList.add('fade-out');
-                            setTimeout(() => window.location.href = 'mi-liga-master.html', 500);
-                        }, 2000);
-                    } else {
-                        showNotification(data.message || 'Error al registrarse', 'error');
-                    }
-                } catch (err) {
-                    showNotification('Error de conexión: ' + err.message, 'error');
-                } finally {
-                    submitBtn.classList.remove('loading');
-                    submitBtn.disabled = false;
-                }
-            });
-
-            // Modal para Olvidé mi Contraseña
-            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-            const forgotPasswordModal = document.getElementById('forgotPasswordModal');
-            const modalClose = document.getElementById('modalClose');
-
-            forgotPasswordLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                forgotPasswordModal.classList.add('active');
-            });
-
-            modalClose.addEventListener('click', () => forgotPasswordModal.classList.remove('active'));
-            forgotPasswordModal.addEventListener('click', (e) => {
-                if (e.target === forgotPasswordModal) forgotPasswordModal.classList.remove('active');
-            });
-
-            document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const submitBtn = e.target.querySelector('button[type="submit"]');
-                const resetEmail = document.getElementById('resetEmail').value.trim();
-
-                if (!resetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetEmail)) {
-                    showNotification('Por favor, ingrese un correo válido.', 'error');
-                    return;
-                }
-
-                submitBtn.classList.add('loading');
-                submitBtn.disabled = true;
-
-                // Nota: Este endpoint no existe en tu backend actual, es un placeholder
-                try {
-                    showNotification('Funcionalidad de restablecimiento no implementada en el backend.', 'error');
-                    // Simulación de respuesta (descomentar y ajustar cuando implementes el endpoint)
-                    /*
-                    const response = await fetch(`${BASE_URL}/auth/reset-password`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: resetEmail }),
-                    });
-                    const data = await response.json();
-                    if (response.ok) {
-                        showNotification(`Enlace enviado a ${resetEmail}. Revisa tu correo.`, 'success');
-                        setTimeout(() => forgotPasswordModal.classList.remove('active'), 2000);
-                    } else {
-                        showNotification(data.message || 'Error al enviar el enlace', 'error');
-                    }
-                    */
-                } catch (err) {
-                    showNotification('Error de conexión: ' + err.message, 'error');
-                } finally {
-                    submitBtn.classList.remove('loading');
-                    submitBtn.disabled = false;
-                }
-            });
-
-            // Transiciones
-            document.querySelectorAll('.transition-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.body.classList.add('fade-out');
-                    setTimeout(() => window.location.href = link.getAttribute('data-href'), 500);
-                });
-            });
-
-            // Estadísticas en vivo reales desde el backend
-            async function updateLiveStats() {
-                try {
-                    const response = await fetch(`${BASE_URL}/club/count`);
-                    const data = await response.json();
-                    if (response.ok) {
-                        document.getElementById('liveClubs').textContent = data.count.toLocaleString();
-                    }
-                    // Simulación para jugadores conectados (no hay endpoint real)
-                    document.getElementById('livePlayers').textContent = Math.floor(Math.random() * 1000 + 1000).toLocaleString();
-                } catch (err) {
-                    console.error('Error al actualizar estadísticas:', err);
-                    document.getElementById('liveClubs').textContent = '567';
-                    document.getElementById('livePlayers').textContent = '1,234';
-                }
+        playerNameInput.addEventListener('input', () => {
+            const name = playerNameInput.value.trim();
+            if (name.length >= 3) {
+                previewName.textContent = name;
+                profilePreview.classList.add('active');
+            } else {
+                profilePreview.classList.remove('active');
             }
-            updateLiveStats();
-            setInterval(updateLiveStats, 10000); // Actualiza cada 10 segundos
         });
 
-        // Función de notificación reutilizable
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = 'form-success';
-            notification.style.background = type === 'success' ? 'var(--accent-green)' : 'var(--error-red)';
-            notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" aria-hidden="true"></i> ${message}`;
-            document.querySelector('.auth-container').appendChild(notification);
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 500);
-            }, 3000);
-        }
+        // Validación para Restablecer Contraseña
+        validateInput(document.getElementById('resetEmail'), 'resetEmailError', 
+            value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), 
+            'Por favor, ingrese un correo válido.');
+
+        // URL base del backend
+        const BASE_URL = 'https://lavirtualzone-backend.onrender.com/api/auth';
+
+        // Formulario de Inicio de Sesión
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const loginEmail = document.getElementById('loginEmail').value.trim();
+            const loginPassword = document.getElementById('loginPassword').value.trim();
+
+            if (!loginEmail || !loginPassword || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail) || loginPassword.length < 6) {
+                alert('Por favor, corrija los campos inválidos.');
+                return;
+            }
+
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '';
+
+            try {
+                const response = await fetch(`${BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'form-success';
+                    successMsg.innerHTML = `
+                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        ¡Bienvenido de nuevo, ${loginEmail.split('@')[0]}! Redirigiendo...
+                    `;
+                    e.target.parentElement.appendChild(successMsg);
+
+                    setTimeout(() => {
+                        successMsg.remove();
+                        document.body.classList.add('fade-out');
+                        setTimeout(() => window.location.href = 'index.html', 500);
+                    }, 3000);
+                } else {
+                    alert(data.message || 'Error al iniciar sesión');
+                }
+            } catch (err) {
+                alert('Error de conexión con el servidor: ' + err.message);
+            } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" aria-hidden="true"></i> Iniciar Sesión';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Formulario de Registro
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const playerName = document.getElementById('playerName').value.trim();
+            const playerEmail = document.getElementById('playerEmail').value.trim();
+            const playerPassword = document.getElementById('playerPassword').value.trim();
+            const playerParsec = document.getElementById('playerParsec').value.trim();
+
+            if (!playerName || !playerEmail || !playerPassword || !playerParsec || 
+                playerName.length < 3 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(playerEmail) || 
+                playerPassword.length < 6 || playerParsec.length < 5) {
+                alert('Por favor, corrija los campos inválidos.');
+                return;
+            }
+
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '';
+
+            try {
+                const response = await fetch(`${BASE_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: playerName,
+                        email: playerEmail,
+                        password: playerPassword,
+                        parsecId: playerParsec,
+                    }),
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'form-success';
+                    successMsg.innerHTML = `
+                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        ¡Registrado, ${playerName}! Redirigiendo...
+                    `;
+                    e.target.parentElement.appendChild(successMsg);
+
+                    setTimeout(() => {
+                        successMsg.remove();
+                        document.body.classList.add('fade-out');
+                        setTimeout(() => window.location.href = 'liga-master.html', 500);
+                    }, 3000);
+                } else {
+                    alert(data.message || 'Error al registrarse');
+                }
+            } catch (err) {
+                alert('Error de conexión con el servidor: ' + err.message);
+            } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = '<i class="fas fa-user-plus" aria-hidden="true"></i> Registrarse';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Modal para Olvidé mi Contraseña
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+        const modalClose = document.getElementById('modalClose');
+
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            forgotPasswordModal.classList.add('active');
+        });
+
+        modalClose.addEventListener('click', () => {
+            forgotPasswordModal.classList.remove('active');
+        });
+
+        forgotPasswordModal.addEventListener('click', (e) => {
+            if (e.target === forgotPasswordModal) {
+                forgotPasswordModal.classList.remove('active');
+            }
+        });
+
+        document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const resetEmail = document.getElementById('resetEmail').value.trim();
+
+            if (!resetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetEmail)) {
+                alert('Por favor, ingrese un correo válido.');
+                return;
+            }
+
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '';
+
+            try {
+                const response = await fetch(`${BASE_URL}/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: resetEmail }),
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'form-success';
+                    successMsg.innerHTML = `
+                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        Enlace enviado a ${resetEmail}. Revisa tu correo (simulado).
+                    `;
+                    e.target.parentElement.appendChild(successMsg);
+
+                    setTimeout(() => {
+                        successMsg.remove();
+                        forgotPasswordModal.classList.remove('active');
+                    }, 3000);
+                } else {
+                    alert(data.message || 'Error al enviar el enlace');
+                }
+            } catch (err) {
+                alert('Error de conexión con el servidor: ' + err.message);
+            } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane" aria-hidden="true"></i> Enviar Enlace';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Transiciones
+        document.querySelectorAll('.transition-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.body.classList.add('fade-out');
+                setTimeout(() => {
+                    window.location.href = link.getAttribute('data-href');
+                }, 500);
+            });
+        });
+
+        // Estadísticas en vivo simuladas
+        const livePlayers = document.getElementById('livePlayers');
+        const liveClubs = document.getElementById('liveClubs');
+        setInterval(() => {
+            livePlayers.textContent = Math.floor(Math.random() * 1000 + 1000);
+            liveClubs.textContent = Math.floor(Math.random() * 500 + 500);
+        }, 5000);
     </script>
 </body>
 </html>
